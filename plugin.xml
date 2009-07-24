@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+     <extension point="org.eclipse.ui.editors">
+      <editor name="%editor.name.0"
+              extensions="rb"
+              icon="icons/rubby.gif"
+              default="true"
+              class="pl.ivmx.mappum.gui.MappumEditor"
+              contributorClass="pl.ivmx.mappum.gui.MappumEditorActionBarContributor"
+              id="pl.ivmx.mappum.gui.editor">
+      </editor>
+   </extension>
+      <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="pl.ivmx.mappum.gui.wizzards.mappumImportCategory"
+            name="%category.name.1">
+      </category>
+      <wizard
+            category="pl.ivmx.mappum.gui.wizzards.mappumImportCategory"
+            class="pl.ivmx.mappum.gui.wizzards.FileImportWizard"
+            icon="icons/rubby.gif"
+            id="pl.ivmx.mappum.gui.wizzards.FileImportWizard"
+            name="%wizard.name.1">
+         <description>
+            
+         </description>
+      </wizard>
+      <wizard
+            category="pl.ivmx.mappum.gui.wizzards.mappumImportCategory"
+            class="pl.ivmx.mappum.gui.wizzards.XMLSchemaImportWizard"
+            icon="icons/rubby.gif"
+            id="pl.ivmx.mappum.gui.wizzards.XMLSchemaImportWizard"
+            name="Mappum XML Schema Import Wizzard">
+         <description>
+            Import a file from the local file system into the workspace.
+         </description>
+      </wizard>
+   </extension>
+      <extension
+            point="org.eclipse.ui.newWizards">
+         <category
+               id="pl.ivmx.mappum.gui.wizzards.mappumNewCategory"
+               name="Mappum">
+         </category>
+         <wizard
+               category="pl.ivmx.mappum.gui.wizzards.mappumNewCategory"
+               class="pl.ivmx.mappum.gui.wizzards.NewProjectWizard"
+               icon="icons/rubby.gif"
+               id="pl.ivmx.mappum.gui.wizzards.NewProjectWizard"
+               name="Mappum New Project"
+               project="true">
+         </wizard>
+      </extension>
+      <extension
+            point="org.eclipse.ui.menus">
+         <menuContribution
+               locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
+            <command
+                  commandId="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD"
+                  label="Generate model from XSD schema"
+                  style="push">
+               <visibleWhen>
+                  <with
+                        variable="activeMenuSelection">
+                     <iterate>
+                        <adapt
+                              type="org.eclipse.core.resources.IProject">
+                        </adapt>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+         </menuContribution>
+      </extension>
+      <extension
+            point="org.eclipse.ui.handlers">
+         <handler
+               class="pl.ivmx.mappum.gui.handlers.GenerateModelFromXsdHandler"
+               commandId="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD">
+         </handler>
+      </extension>
+      <extension
+            point="org.eclipse.ui.commands">
+         <command
+               id="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD"
+               name="Generate model from XSD schema">
+         </command>
+      </extension>
+</plugin>
