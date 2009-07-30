@@ -760,9 +760,15 @@ public class RubyInstanceConfig {
 				try {
 					// try loading from classloader resources
 					URL url = getClass().getResource("/META-INF/jruby.home");
-					URL nativeURL = org.eclipse.core.runtime.Platform
-							.resolve(url);
-					jrubyHome = nativeURL.getPath();
+					System.out.println(url);
+					if (url.toString().startsWith("bundleresource")) {
+						URL nativeURL = org.eclipse.core.runtime.Platform
+								.resolve(url);
+						jrubyHome = nativeURL.getPath();
+					} else {
+						jrubyHome = url.getPath();
+					}
+
 				} catch (Exception e) {
 				}
 
@@ -799,7 +805,7 @@ public class RubyInstanceConfig {
 				return System.getProperty("java.io.tmpdir");
 			}
 		} else if (!home.startsWith("file:\\") || !home.startsWith("file:/")) {
-			home = "file:/" + home.substring(5);
+			home = "file:///" + home.substring(5);
 		}
 		if (home.contains("\\")) {
 			String tmp = "";
@@ -810,8 +816,8 @@ public class RubyInstanceConfig {
 				else
 					tmp = tmp + home.charAt(i);
 			}
-			if(tmp.endsWith("/"))
-				tmp = tmp.substring(0, tmp.length()-1);
+			if (tmp.endsWith("/"))
+				tmp = tmp.substring(0, tmp.length() - 1);
 			home = tmp;
 		}
 		return home;

@@ -19,6 +19,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.jruby.RubyArray;
+import org.jruby.exceptions.RaiseException;
 
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.wizzards.GenerateModelFromXsdWizard;
@@ -54,7 +55,8 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 			if (checkIfProjectSchemasExists((IProject) firstElement)) {
 				RubyArray model = generateModel((IProject) firstElement);
 				if (model != null) {
-					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(model);
+					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(
+							model);
 					wizard.init(window.getWorkbench(), selection);
 					WizardDialog dialog = new WizardDialog(window
 							.getWorkbench().getActiveWorkbenchWindow()
@@ -89,6 +91,8 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 				&& project
 						.getFolder(ModelGeneratorFromXML.DEFAULT_SCHEMA_FOLDER) != null
 				&& project
+						.getFolder(ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER) != null
+				&& project
 						.getFile(ModelGeneratorFromXML.DEFAULT_PROJECT_PROPERTIES_FILE) != null) {
 			return true;
 		}
@@ -107,15 +111,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 	}
 
 	private RubyArray generateModel(IProject project) {
-		final String classesFolder = project.getFolder(
-				ModelGeneratorFromXML.DEFAULT_GENERATED_CLASSES_FOLDER)
-				.getLocation().toPortableString();
-		final String mapFolder = project.getFolder(
-				ModelGeneratorFromXML.DEFAULT_MAP_FOLDER).getLocation()
-				.toPortableString();
-		final String schemaFolder = project.getFolder(
-				ModelGeneratorFromXML.DEFAULT_SCHEMA_FOLDER).getLocation()
-				.toPortableString();
+		final IProject finalProject = project;
 
 		try {
 			new ProgressMonitorDialog(window.getShell()).run(false, // don't
@@ -128,20 +124,18 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 							try {
 								ModelGeneratorFromXML generator = ModelGeneratorFromXML
 										.getInstance();
-								generator
-										.setGeneratedClassesFolder(classesFolder);
-								generator.setMapFolder(mapFolder);
-								generator.setSchemaFolder(schemaFolder);
-								generator.generateAndRequire();
+								generator.generateModel(finalProject);
+								monitor.done();
 							} catch (ScriptException e) {
-								logger.error("Error while generating classes "
+								e.printStackTrace();
+								logger.error("Error while generating classes: "
 										+ e.getCause().getMessage());
 							}
 
-							monitor.done();
 						}
 					});
 		} catch (InvocationTargetException e) {
+			e.printStackTrace();
 			logger.error("Error while generating classes: "
 					+ e.getCause().getMessage());
 			MessageDialog
@@ -150,6 +144,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 									.getMessage());
 
 		} catch (InterruptedException e) {
+			e.printStackTrace();
 			logger.error("Error performing finish operations: "
 					+ e.getCause().getMessage());
 			MessageDialog
@@ -158,15 +153,27 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 									.getMessage());
 
 		}
+
 		try {
 			return ModelGeneratorFromXML.getInstance().getModelArray();
 		} catch (ScriptException e) {
-			logger.error("Error performing finish operations: "
-					+ e.getCause().getMessage());
-			MessageDialog
-					.openError(window.getShell(),
+			e.printStackTrace();
+			if (e != null && e.getCause() != null) {
+				if(e.getCause() instanceof RaiseException){
+					logger.error("Error performing finish operations: "
+							+ e.getCause());
+					MessageDialog.openError(window.getShell(),
 							"Error while generating classes", e.getCause()
 									.getMessage());
+				}
+				
+
+			} else {
+				MessageDialog.openError(window.getShell(),
+						"Error while generating classes",
+						"e.getCouse() is null");
+			}
+
 		}
 		return null;
 	}

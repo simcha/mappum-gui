@@ -139,4 +139,7 @@ public class ListNode extends Node {
     public Node get(int idx) {
         return list.get(idx);
     }
+	public List<Node> getList() {
+		return list;
+	}
 }

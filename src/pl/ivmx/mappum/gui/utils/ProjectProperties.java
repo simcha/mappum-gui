@@ -20,6 +20,7 @@ public class ProjectProperties {
 	public static String MAP_DIRECTORY_PROPS = "mapDirectory";
 	public static String CLASSES_DIRECTORY_PROPS = "classesDirectory";
 	public static String SCHEMA_DIRECTORY_PROPS = "schemaDirectory";
+	public static String WORKING_MAP_DIRECTORY_PROPS = "workingMapDirectory";
 
 	public ProjectProperties(IProject project) {
 		IPath propertiesPath = project.getFullPath().append(PROPERTIES_FILE);

@@ -12,6 +12,7 @@ import org.jrubyparser.StaticScope;
 import org.jrubyparser.ast.ArrayNode;
 import org.jrubyparser.ast.BlockNode;
 import org.jrubyparser.ast.CallNode;
+import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.DAsgnNode;
 import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.FCallNode;
@@ -19,23 +20,28 @@ import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.ListNode;
 import org.jrubyparser.ast.MultipleAsgnNode;
 import org.jrubyparser.ast.NewlineNode;
+import org.jrubyparser.ast.NilImplicitNode;
 import org.jrubyparser.ast.NilNode;
 import org.jrubyparser.ast.Node;
+import org.jrubyparser.ast.RootNode;
+import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.ast.XStrNode;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 
 public class RootNodeHolder {
-	private static final int IDENT_LENGTH = 1;
+	public static final int IDENT_LENGTH = 1;
 	private static final RootNodeHolder INSTANCE = new RootNodeHolder();
+	private static final String MAPPUM_STR = "mappum";
+	private static final String REQUIRE_STR = "require";
+	private static final String CATALOGUE_STR = "catalogue_add";
 	private Node rootNode;
 
 	private List<String> usedIdent = new ArrayList<String>();
 
-	
 	private Logger logger = Logger.getLogger(RootNodeHolder.class);
-	
+
 	private RootNodeHolder() {
 	}
 
@@ -368,12 +374,12 @@ public class RootNodeHolder {
 			node = tmpNode;
 
 		}
-//		try {
-//			new TestNodeTreeWindow(rootNode);
-//		} catch (CoreException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// try {
+		// new TestNodeTreeWindow(rootNode);
+		// } catch (CoreException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 	}
 
@@ -577,7 +583,7 @@ public class RootNodeHolder {
 				.childNodes().get(0);
 	}
 
-	private String generateRandomIdent(int length) {
+	public String generateRandomIdent(int length) {
 		char[] charArray = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
 				'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
 				'w', 'x', 'y', 'z' };
@@ -597,36 +603,110 @@ public class RootNodeHolder {
 		return myRandom;
 	}
 
-	private class ShapesToAddPath {
+	/**
+	 * Generate root tree if mapping is generated from XSD schemas
+	 * 
+	 * @param leftElement
+	 * @param rightElement
+	 * @param requirements
+	 */
+	public void generateRootNode(String leftElement, String rightElement,
+			List<String> requirements) {
+		BlockStaticScope rootStaticScope = new BlockStaticScope(null);
+		// creating Node
+		BlockNode blockNode = new BlockNode(new SourcePosition());
+		this.rootNode = new RootNode(new SourcePosition(), rootStaticScope,
+				blockNode);
+		new BlockNode(new SourcePosition());
 
-		private List<Integer> path = new ArrayList<Integer>();
-		private List<Shape> leftShapesToAdd = new ArrayList<Shape>();
-		private List<Shape> rightShapesToAdd = new ArrayList<Shape>();
-
-		public void addPathPoint(int point) {
-			path.add(point);
+		if (requirements == null) {
+			requirements = new ArrayList<String>();
 		}
+		requirements.add(0, MAPPUM_STR);
 
-		public void addLeftShape(Shape shape) {
-			leftShapesToAdd.add(shape);
+		// adding requirements
+		for (String req : requirements) {
+			StrNode stringNode = new StrNode(new SourcePosition(), req);
+			ArrayNode arrayNode = new ArrayNode(new SourcePosition(),
+					stringNode);
+			FCallNode requireNode = new FCallNode(new SourcePosition(),
+					REQUIRE_STR, arrayNode);
+			NewlineNode newlineNode = new NewlineNode(new SourcePosition(),
+					requireNode);
+			blockNode.add(newlineNode);
 		}
+		BlockNode rootBlockNode = new BlockNode(new SourcePosition());
 
-		public void addRightShape(Shape shape) {
-			rightShapesToAdd.add(shape);
-		}
+		ConstNode constNode = new ConstNode(new SourcePosition(), "Mappum");
+		ListNode listNode = new ListNode(new SourcePosition());
+		BlockStaticScope blockStaticScope = new BlockStaticScope(
+				rootStaticScope);
+		IterNode rootIterNode = new IterNode(new SourcePosition(), null,
+				blockStaticScope, rootBlockNode);
+		CallNode rootCallNode = new CallNode(new SourcePosition(), constNode,
+				CATALOGUE_STR, listNode, rootIterNode);
+		NewlineNode newlineCallNode = new NewlineNode(new SourcePosition(),
+				rootCallNode);
+		blockNode.add(newlineCallNode);
+		// ArrayNode z mappingiem
+		String leftPrefix = generateRandomIdent(IDENT_LENGTH);
+		String rightPrefix = generateRandomIdent(IDENT_LENGTH);
+		NilImplicitNode leftNiNode = new NilImplicitNode();
+		NilImplicitNode rightNiNode = new NilImplicitNode();
+		DAsgnNode leftAsgnNode = new DAsgnNode(new SourcePosition(),
+				leftPrefix, 0, leftNiNode);
+		DAsgnNode rightAsgnNode = new DAsgnNode(new SourcePosition(),
+				rightPrefix, 1, rightNiNode);
+		ArrayNode dasgnArrayNode = new ArrayNode(new SourcePosition());
+		dasgnArrayNode.add(leftAsgnNode);
+		dasgnArrayNode.add(rightAsgnNode);
+		MultipleAsgnNode multipleAsgnNode = new MultipleAsgnNode(
+				new SourcePosition(), dasgnArrayNode, null);
+		StaticScope scope = new BlockStaticScope(blockStaticScope,
+				new String[] { leftPrefix, rightPrefix });
+		// BlockNode mappingBlockNode = new BlockNode(new SourcePosition());
+		// IterNode iterNode = new IterNode(new SourcePosition(),
+		// multipleAsgnNode, scope, mappingBlockNode);
+		IterNode iterNode = new IterNode(new SourcePosition(),
+				multipleAsgnNode, scope, null);
 
-		public List<Integer> getPath() {
-			return path;
-		}
+		ConstNode leftConstNode = new ConstNode(new SourcePosition(),
+				leftElement);
+		ConstNode rightConstNode = new ConstNode(new SourcePosition(),
+				rightElement);
 
-		public List<Shape> getLeftShapesToAdd() {
-			return leftShapesToAdd;
-		}
-
-		public List<Shape> getRightShapesToAdd() {
-			return rightShapesToAdd;
-		}
-
+		ArrayNode arrayNode = new ArrayNode(new SourcePosition());
+		arrayNode.add(leftConstNode);
+		arrayNode.add(rightConstNode);
+		FCallNode fcallMapNode = new FCallNode(new SourcePosition(), "map",
+				arrayNode);
+		fcallMapNode.setIterNode(iterNode);
+		NewlineNode newlineNode = new NewlineNode(new SourcePosition(),
+				fcallMapNode);
+		rootBlockNode.add(newlineNode);
 	}
 
+	public static void generateRootBlockNode(Node node) {
+		boolean iterate = true;
+		for (Node child : node.childNodes()) {
+			if (child instanceof FCallNode) {
+				if (((FCallNode) child).getName() == "map") {
+					iterate = false;
+					if (((FCallNode) child).getIterNode() != null) {
+						if (((FCallNode) child).getIterNode() instanceof IterNode)
+							if (((FCallNode) child).getIterNode().childNodes()
+									.size() < 2) {
+								IterNode iterNode = (IterNode) ((FCallNode) child)
+										.getIterNode();
+								iterNode.setBodyNode(new BlockNode(
+										new SourcePosition()));
+							}
+					}
+
+				}
+			}
+			if (iterate == true)
+				generateRootBlockNode(child);
+		}
+	}
 }

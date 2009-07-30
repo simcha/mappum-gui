@@ -35,7 +35,9 @@ public class TestNodeTreeWindow extends JFrame {
 	}
 
 	private void init(Node node) throws CoreException {
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Parseds File:");
+		System.out.println(node);
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(
+				"Parseds File:");
 		addTreeNodes(root, node);
 		JScrollPane js = new JScrollPane(new JTree(root));
 		getContentPane().add(js);
@@ -55,6 +57,7 @@ public class TestNodeTreeWindow extends JFrame {
 							+ ((IterNode) child).getVarNode() + ", bodyNode: "
 							+ ((IterNode) child).getBodyNode());
 				}
+
 				newNode = new DefaultMutableTreeNode(child.getNodeType());
 			}
 			// System.out.println(child.getNodeType()+":"+child.getPosition());

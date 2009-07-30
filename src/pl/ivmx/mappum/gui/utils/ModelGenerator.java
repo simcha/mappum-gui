@@ -13,6 +13,7 @@ import org.jrubyparser.Parser;
 import org.jrubyparser.ast.BlockNode;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.Colon2Node;
+import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.FCallNode;
 import org.jrubyparser.ast.FixnumNode;
 import org.jrubyparser.ast.INameNode;
@@ -45,7 +46,7 @@ public class ModelGenerator {
 	private ParserConfiguration configuration;
 
 	private static final ModelGenerator INSTANCE = new ModelGenerator();
-	
+
 	private Logger logger = Logger.getLogger(ModelGenerator.class);
 
 	private ModelGenerator() {
@@ -99,20 +100,24 @@ public class ModelGenerator {
 		for (Node child : node.childNodes()) {
 			if (child instanceof FCallNode) {
 				if (((FCallNode) child).getName() == "map") {
-					//TODO generating comments for root Map
+					// TODO generating comments for root Map
 					iterate = false;
 					Pair parents = new Pair();
 					createComplexElements(child, parents);
-					if(((IterNode)((FCallNode) child).getIterNode()).getBodyNode() instanceof BlockNode){
+					if (((IterNode) ((FCallNode) child).getIterNode())
+							.getBodyNode() instanceof BlockNode) {
 						XStrNode comment = null;
-						for (Node newline : ((IterNode)((FCallNode) child).getIterNode()).getBodyNode().childNodes()) {
-							if(((NewlineNode)newline).getNextNode() instanceof XStrNode){
-								comment = (XStrNode)((NewlineNode)newline).getNextNode();
-							}else if(((NewlineNode)newline).getNextNode() instanceof FCallNode){
+						for (Node newline : ((IterNode) ((FCallNode) child)
+								.getIterNode()).getBodyNode().childNodes()) {
+							if (((NewlineNode) newline).getNextNode() instanceof XStrNode) {
+								comment = (XStrNode) ((NewlineNode) newline)
+										.getNextNode();
+							} else if (((NewlineNode) newline).getNextNode() instanceof FCallNode) {
 								System.out.println(Shape.getRootShapes());
-								operateOnInternalMap((NewlineNode) newline, new Pair(
-										Shape.getRootShapes().get(0), Shape
-												.getRootShapes().get(1)), comment);
+								operateOnInternalMap((NewlineNode) newline,
+										new Pair(Shape.getRootShapes().get(0),
+												Shape.getRootShapes().get(1)),
+										comment);
 								comment = null;
 							}
 
@@ -132,7 +137,8 @@ public class ModelGenerator {
 	 * @param node
 	 * @param parents
 	 */
-	private Connection operateOnInternalMap(NewlineNode node, Pair parents, XStrNode comment) {
+	private Connection operateOnInternalMap(NewlineNode node, Pair parents,
+			XStrNode comment) {
 		int mappingType = 0;
 		for (Node child : node.childNodes()) {
 			if (child instanceof FCallNode)
@@ -142,7 +148,8 @@ public class ModelGenerator {
 		case SIMPLE_MAP_OR_WITH_FUNCTION_CALL:
 			CallNode callnode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
-			return operateOnSimpleMapOrWithFunctionCall(callnode, parents, comment);
+			return operateOnSimpleMapOrWithFunctionCall(callnode, parents,
+					comment);
 		case SIMPLE_ARRAY_MAP:
 			CallNode arrayCallNode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
@@ -155,11 +162,13 @@ public class ModelGenerator {
 					parents, comment);
 		case MAP_WITH_SUBOBJECT:
 			FCallNode subobjectFcallnode = (FCallNode) node.childNodes().get(0);
-			return operateOnMapWithSubobject(subobjectFcallnode, parents, comment);
+			return operateOnMapWithSubobject(subobjectFcallnode, parents,
+					comment);
 		case ARRAY_MAP_WITH_SELF:
 			FCallNode mapWithSelfFcallnode = (FCallNode) node.childNodes().get(
 					0);
-			return operateOnArrayMapWithSelf(mapWithSelfFcallnode, parents, comment);
+			return operateOnArrayMapWithSelf(mapWithSelfFcallnode, parents,
+					comment);
 		case MAP_WITH_SUBMAP:
 			FCallNode submapFcallnode = (FCallNode) node.childNodes().get(0);
 			return operateOnMapWithSubmap(submapFcallnode, parents, comment);
@@ -191,12 +200,13 @@ public class ModelGenerator {
 						.childNodes().get(1).childNodes().get(0));
 		parents.getLeftShape().addShapeChild(leftShape);
 		parents.getRightShape().addShapeChild(rightShape);
-		if(comment != null){
-			return new Connection(leftShape, rightShape, side, comment.getValue());
-		}else{
+		if (comment != null) {
+			return new Connection(leftShape, rightShape, side, comment
+					.getValue());
+		} else {
 			return new Connection(leftShape, rightShape, side);
 		}
-		
+
 	}
 
 	private Connection operateOnArrayMapWithSelf(FCallNode fcallnode,
@@ -212,7 +222,7 @@ public class ModelGenerator {
 		XStrNode childComment = null;
 		for (Node node : iterNode.getBodyNode().childNodes()) {
 			if (node instanceof NewlineNode) {
-				
+
 				for (Node child : node.childNodes()) {
 					if (child instanceof FCallNode) {
 						for (Node preChild : child.childNodes().get(0)
@@ -221,7 +231,7 @@ public class ModelGenerator {
 								callnode = (CallNode) preChild;
 							}
 						}
-					}else if(child instanceof XStrNode){
+					} else if (child instanceof XStrNode) {
 						childComment = (XStrNode) child;
 					}
 
@@ -243,10 +253,10 @@ public class ModelGenerator {
 					connection = new Connection(tmpConnection.getSource(),
 							parentConnection.getTarget(), tmpConnection
 									.getMappingSide());
-					
+
 					Shape.removeShape(tmpConnection.getTarget());
 				}
-				if(childComment != null){
+				if (childComment != null) {
 					connection.setComment(childComment.getValue());
 				}
 				childComment = null;
@@ -271,17 +281,19 @@ public class ModelGenerator {
 		XStrNode childComment = null;
 		for (Node node : blockNode.childNodes()) {
 			if (node instanceof NewlineNode) {
-				if(((NewlineNode)node).getNextNode() instanceof XStrNode){
-					childComment = (XStrNode)((NewlineNode)node).getNextNode();
-				}else if(((NewlineNode)node).getNextNode() instanceof FCallNode){
+				if (((NewlineNode) node).getNextNode() instanceof XStrNode) {
+					childComment = (XStrNode) ((NewlineNode) node)
+							.getNextNode();
+				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					if (parentConnection.getSource().getName().equals("self")) {
 						side = Shape.LEFT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
-								new Pair(parents.getLeftShape(), parentConnection
-										.getTarget()), childComment);
+								new Pair(parents.getLeftShape(),
+										parentConnection.getTarget()),
+								childComment);
 
-					} else if (parentConnection.getTarget().getName()
-							.equals("self")) {
+					} else if (parentConnection.getTarget().getName().equals(
+							"self")) {
 						side = Shape.RIGHT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(parentConnection.getSource(), parents
@@ -289,7 +301,6 @@ public class ModelGenerator {
 					}
 					childComment = null;
 				}
-
 
 			}
 		}
@@ -303,7 +314,8 @@ public class ModelGenerator {
 		return connection;
 	}
 
-	private Connection operateOnMapWithSubmap(FCallNode fcallnode, Pair parents, XStrNode comment) {
+	private Connection operateOnMapWithSubmap(FCallNode fcallnode,
+			Pair parents, XStrNode comment) {
 		Connection connection = null;
 		CallNode parentCallNode = (CallNode) fcallnode.childNodes().get(0)
 				.childNodes().get(0);
@@ -313,12 +325,13 @@ public class ModelGenerator {
 		XStrNode childComment = null;
 		for (Node node : iterNode.getBodyNode().childNodes()) {
 			if (node instanceof NewlineNode) {
-				if(((NewlineNode)node).getNextNode() instanceof XStrNode){
-					childComment = (XStrNode)((NewlineNode)node).getNextNode();
-				}else if(((NewlineNode)node).getNextNode() instanceof FCallNode){
-					connection = operateOnInternalMap((NewlineNode) node, new Pair(
-							parentConnection.getSource(), parentConnection
-									.getTarget()), childComment);
+				if (((NewlineNode) node).getNextNode() instanceof XStrNode) {
+					childComment = (XStrNode) ((NewlineNode) node)
+							.getNextNode();
+				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
+					connection = operateOnInternalMap((NewlineNode) node,
+							new Pair(parentConnection.getSource(),
+									parentConnection.getTarget()), childComment);
 				}
 
 			}
@@ -327,7 +340,8 @@ public class ModelGenerator {
 		return connection;
 	}
 
-	private Connection operateOnArrayMap(CallNode arrayCallNode, Pair parents, XStrNode comment) {
+	private Connection operateOnArrayMap(CallNode arrayCallNode, Pair parents,
+			XStrNode comment) {
 		System.out.println("Parents:" + parents);
 		int side = Connection.translateSideFromStringToInt((arrayCallNode)
 				.getName());
@@ -368,7 +382,7 @@ public class ModelGenerator {
 			connection.getSource().addToParent();
 			connection.getTarget().addToParent();
 		}
-		if(comment != null){
+		if (comment != null) {
 			connection.setComment(comment.getValue());
 		}
 
@@ -485,7 +499,7 @@ public class ModelGenerator {
 			connection.getSource().addToParent();
 			connection.getTarget().addToParent();
 		}
-		if(comment != null){
+		if (comment != null) {
 			connection.setComment(comment.getValue());
 		}
 		return connection;
@@ -594,7 +608,7 @@ public class ModelGenerator {
 							Shape.RIGHT_SIDE, null);
 					left = true;
 				}
-			}else if (preChild instanceof SymbolNode) {
+			} else if (preChild instanceof SymbolNode) {
 				if (left) {
 					leftElement = Shape.createShape(((SymbolNode) preChild)
 							.getName(), null, parents.getLeftShape(),
@@ -606,6 +620,18 @@ public class ModelGenerator {
 							Shape.RIGHT_SIDE, null);
 					left = true;
 				}
+			} else if (preChild instanceof ConstNode) {
+				if (left) {
+					leftElement = Shape.createShape(((ConstNode) preChild)
+							.getName(), null, parents.getLeftShape(),
+							Shape.LEFT_SIDE, null);
+					left = false;
+				} else {
+					rightElement = Shape.createShape(((ConstNode) preChild)
+							.getName(), null, parents.getRightShape(),
+							Shape.RIGHT_SIDE, null);
+					left = true;
+				}
 			}
 		}
 
@@ -613,15 +639,20 @@ public class ModelGenerator {
 	}
 
 	public String generateRubyCode() throws IOException, CoreException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(file
-				.getContents()));
+
 		String source = "";
-		String s = "";
-		while ((s = reader.readLine()) != null) {
-			source += s;
+		if (file != null) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					file.getContents()));
+			String s = "";
+			while ((s = reader.readLine()) != null) {
+				source += s;
+			}
 		}
+
 		return ReWriteVisitor.createCodeFromNode(RootNodeHolder.getInstance()
 				.getRootNode(), source);
 	}
+
 
 }
