@@ -44,7 +44,6 @@ final class MappumEditorPaletteFactory {
 	/** Create the "Tools" group. */
 	private static PaletteContainer createToolsGroup(PaletteRoot palette) {
 		PaletteToolbar toolbar = new PaletteToolbar("Tools");
-
 		// Add a selection tool
 		ToolEntry tool = new PanningSelectionToolEntry();
 		toolbar.add(tool);

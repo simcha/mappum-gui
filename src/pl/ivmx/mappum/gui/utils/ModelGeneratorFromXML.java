@@ -17,9 +17,9 @@ import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.ListNode;
 
-import com.sun.script.jruby.JRubyScriptEngineFactory;
-
 import pl.ivmx.mappum.gui.model.Shape;
+
+import com.sun.script.jruby.JRubyScriptEngineFactory;
 
 public class ModelGeneratorFromXML {
 	public static final String LANGUAGE_RUBY = "jruby";
@@ -79,16 +79,17 @@ public class ModelGeneratorFromXML {
 	}
 
 	public void generateAndRequire() throws ScriptException {
-//		 ScriptEngineFactory factory = (ScriptEngineFactory) new
-//		 com.sun.script.jruby.JRubyScriptEngineFactory();
-//		 ScriptEngine engine = factory.getScriptEngine();
-//		if (manager == null)
-//			manager = new ScriptEngineManager();
-//		if (engine == null)
-//			engine = manager.getEngineByName(language);
+		// ScriptEngineFactory factory = (ScriptEngineFactory) new
+		// com.sun.script.jruby.JRubyScriptEngineFactory();
+		// ScriptEngine engine = factory.getScriptEngine();
+		// if (manager == null)
+		// manager = new ScriptEngineManager();
+		// if (engine == null)
+		// engine = manager.getEngineByName(language);
 		ScriptEngineFactory factory = (ScriptEngineFactory) new JRubyScriptEngineFactory();
 		System.out.println("Getting engine");
-		final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+		final ClassLoader oldClassLoader = Thread.currentThread()
+				.getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(null);
 		ScriptEngine engine = factory.getScriptEngine();
 		Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -125,7 +126,7 @@ public class ModelGeneratorFromXML {
 		xsd2rubyScript = new InputStreamReader(new ByteArrayInputStream(
 				xsd2rubyScriptCode.getBytes()));
 
-		// execute the script (non-compiled!)	
+		// execute the script (non-compiled!)
 
 		logger.debug("Starting generating classes...");
 		modelArray = (RubyArray) engine.eval(xsd2rubyScript);
@@ -139,6 +140,10 @@ public class ModelGeneratorFromXML {
 			throw new ScriptException(
 					"Error while returning model. Model is null. Check logs for more details.");
 		}
+	}
+
+	public void setModelArray(RubyArray modelArray) {
+		this.modelArray = modelArray;
 	}
 
 	public RubyArray generateModel(IProject project) throws ScriptException {
@@ -220,8 +225,8 @@ public class ModelGeneratorFromXML {
 					}
 				}
 
-			} else if (((RubyClass) (rubyArray.get(0))).getName().equals(
-					rightElement)) {
+			}
+			if (((RubyClass) (rubyArray.get(0))).getName().equals(rightElement)) {
 				System.out.println("Field: " + rightElement);
 				Shape parent = checkAndAddShape(rightElement, null,
 						Shape.RIGHT_SIDE);
@@ -280,15 +285,17 @@ public class ModelGeneratorFromXML {
 	}
 
 	public CallNode generateRubyModelForField(String name, int side) {
-//		String prefix = RootNodeHolder.getInstance().generateRandomIdent(
-//				RootNodeHolder.IDENT_LENGTH);
+		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
+		// RootNodeHolder.IDENT_LENGTH);
 		if (side == Shape.LEFT_SIDE) {
 			ListNode listNode = new ListNode(new SourcePosition());
-			DVarNode dVarNode = new DVarNode(new SourcePosition(), 0, "changeMe");
+			DVarNode dVarNode = new DVarNode(new SourcePosition(), 0,
+					"changeMe");
 			return new CallNode(new SourcePosition(), dVarNode, name, listNode);
 		} else {
 			ListNode listNode = new ListNode(new SourcePosition());
-			DVarNode dVarNode = new DVarNode(new SourcePosition(), 1, "changeMe");
+			DVarNode dVarNode = new DVarNode(new SourcePosition(), 1,
+					"changeMe");
 			return new CallNode(new SourcePosition(), dVarNode, name, listNode);
 		}
 

@@ -207,20 +207,7 @@ public class Connection extends ModelElement {
 			}
 		} else
 			super.setPropertyValue(id, value);
-		
-		//TEST
-		String code = "ERROR WHILE GENERATING CODE";
-		try {
-			code = new String("GENERATED CODE: "
-					+ ModelGenerator.getInstance().generateRubyCode());
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(code);
-		//
+
 	}
 
 	public static int translateSideFromStringToInt(String side) {

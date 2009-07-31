@@ -148,10 +148,8 @@ public class GenerateModelFromXsdWizard extends Wizard {
 	}
 
 	private String generateRubyCode() {
-		String leftPrefix = RootNodeHolder.getInstance().generateRandomIdent(
-				RootNodeHolder.IDENT_LENGTH);
-		String rightPrefix = RootNodeHolder.getInstance().generateRandomIdent(
-				RootNodeHolder.IDENT_LENGTH);
+		String leftPrefix = RootNodeHolder.getInstance().generateRandomIdent();
+		String rightPrefix = RootNodeHolder.getInstance().generateRandomIdent();
 		StringBuffer params = new StringBuffer();
 		params.append("\n");
 		params.append("require 'mappum'");

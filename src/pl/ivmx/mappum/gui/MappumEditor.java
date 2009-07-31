@@ -20,6 +20,7 @@ import java.util.EventObject;
 
 import javax.script.ScriptException;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -50,13 +51,13 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.FileEditorInput;
 
+import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
 import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
-import pl.ivmx.mappum.gui.utils.TestNodeTreeWindow;
 
 public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -73,6 +74,11 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void setInput(IEditorInput input) {
 		System.out.println("SET INPUT");
 		super.setInput(input);
+		RootNodeHolder.getInstance().setRootNode(null);
+		Connection.getConnections().clear();
+		Shape.getRootShapes().clear();
+		Shape.getShapes().clear();
+		ModelGeneratorFromXML.getInstance().setModelArray(null);
 		final IFile file = ((IFileEditorInput) input).getFile();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getSite()
 				.getShell());
@@ -92,8 +98,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 								.addFieldsFromRubyArray(
 										Shape.getRootShapes().get(0).getName(),
 										Shape.getRootShapes().get(1).getName());
-//						new TestNodeTreeWindow(RootNodeHolder.getInstance()
-//								.getRootNode());
+						// new TestNodeTreeWindow(RootNodeHolder.getInstance()
+						// .getRootNode());
 
 					} catch (CoreException e) {
 						e.printStackTrace();
@@ -307,6 +313,16 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	 */
 	public boolean isSaveAsAllowed() {
 		return true;
+	}
+
+	public void dispose() {
+		RootNodeHolder.getInstance().setRootNode(null);
+		Connection.getConnections().clear();
+		Shape.getRootShapes().clear();
+		Shape.getShapes().clear();
+		ModelGeneratorFromXML.getInstance().setModelArray(null);
+		// dispose
+		super.dispose();
 	}
 
 }

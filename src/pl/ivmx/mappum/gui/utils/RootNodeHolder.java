@@ -37,11 +37,13 @@ public class RootNodeHolder {
 	private static final String REQUIRE_STR = "require";
 	private static final String CATALOGUE_STR = "catalogue_add";
 	private Node rootNode;
-
 	private List<String> usedIdent = new ArrayList<String>();
-
+	private int usedCharIndex = 0;
+	private char[] charArray = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+			'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+			'w', 'x', 'y', 'z' };
 	private Logger logger = Logger.getLogger(RootNodeHolder.class);
-
+	
 	private RootNodeHolder() {
 	}
 
@@ -54,6 +56,7 @@ public class RootNodeHolder {
 	}
 
 	public void setRootNode(Node rootNode) {
+		usedCharIndex = 0;
 		this.rootNode = rootNode;
 	}
 
@@ -519,8 +522,8 @@ public class RootNodeHolder {
 
 	private NewlineNode generateComplexMapping(CallNode leftSide,
 			CallNode rightSide, String side, NewlineNode parentMapping) {
-		String leftPrefix = generateRandomIdent(IDENT_LENGTH);
-		String rightPrefix = generateRandomIdent(IDENT_LENGTH);
+		String leftPrefix = generateRandomIdent();
+		String rightPrefix = generateRandomIdent();
 		NilNode leftNilNode = new NilNode(new SourcePosition());
 		NilNode rightNilNode = new NilNode(new SourcePosition());
 		DAsgnNode leftAsgnNode = new DAsgnNode(new SourcePosition(),
@@ -583,21 +586,28 @@ public class RootNodeHolder {
 				.childNodes().get(0);
 	}
 
-	public String generateRandomIdent(int length) {
-		char[] charArray = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-				'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-				'w', 'x', 'y', 'z' };
+	public String generateRandomIdent() {
+		usedCharIndex++;
+
 		String myRandom = "";
-		for (int i = 0; i < length; i++) {
-			myRandom = myRandom + charArray[new Random().nextInt(25)];
+		int firstDigitIndex = usedCharIndex / 625;
+		int secondDigitIndex = (usedCharIndex % 625) / 25;
+		int identIndex = usedCharIndex % 25;
+		if (firstDigitIndex > 0) {
+			myRandom = "" + charArray[firstDigitIndex - 1] + ""
+					+ charArray[secondDigitIndex - 1] + ""
+					+ charArray[identIndex - 1];
+		} else if (secondDigitIndex > 0) {
+			myRandom = "" + charArray[secondDigitIndex - 1] + ""
+					+ charArray[identIndex - 1];
+		} else {
+			myRandom = "" + charArray[identIndex - 1];
 		}
+
 		int steps = 0;
 		while (usedIdent.contains(myRandom)) {
-			steps++;
-			myRandom = generateRandomIdent(length);
-			if (steps == usedIdent.size()) {
-				return generateRandomIdent(length + 1);
-			}
+			myRandom = generateRandomIdent();
+
 		}
 		usedIdent.add(myRandom);
 		return myRandom;
@@ -649,8 +659,8 @@ public class RootNodeHolder {
 				rootCallNode);
 		blockNode.add(newlineCallNode);
 		// ArrayNode z mappingiem
-		String leftPrefix = generateRandomIdent(IDENT_LENGTH);
-		String rightPrefix = generateRandomIdent(IDENT_LENGTH);
+		String leftPrefix = generateRandomIdent();
+		String rightPrefix = generateRandomIdent();
 		NilImplicitNode leftNiNode = new NilImplicitNode();
 		NilImplicitNode rightNiNode = new NilImplicitNode();
 		DAsgnNode leftAsgnNode = new DAsgnNode(new SourcePosition(),
