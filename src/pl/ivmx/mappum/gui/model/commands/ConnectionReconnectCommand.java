@@ -13,9 +13,12 @@ package pl.ivmx.mappum.gui.model.commands;
 import java.util.Iterator;
 
 import org.eclipse.gef.commands.Command;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
+import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 /**
  * A command to reconnect a connection to a different start point or end point.
@@ -57,6 +60,8 @@ public class ConnectionReconnectCommand extends Command {
 	private final Shape oldSource;
 	/** The original target endpoint. */
 	private final Shape oldTarget;
+	private final String oldComment;
+	private final int oldSide;
 
 	/**
 	 * Instantiate a command that can reconnect a Connection instance to a
@@ -74,6 +79,8 @@ public class ConnectionReconnectCommand extends Command {
 		this.connection = conn;
 		this.oldSource = conn.getSource();
 		this.oldTarget = conn.getTarget();
+		this.oldComment = conn.getComment();
+		this.oldSide = conn.getMappingSide();
 	}
 
 	/*
@@ -165,9 +172,13 @@ public class ConnectionReconnectCommand extends Command {
 	 */
 	public void execute() {
 		if (newSource != null) {
-			connection.reconnect(newSource, oldTarget, Connection.DUAL_SIDE);
+			connection.reconnect(newSource, oldTarget, oldSide);
+			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment);
+			createRubyMapping(newSource, oldTarget, oldSide, oldComment);
 		} else if (newTarget != null) {
-			connection.reconnect(oldSource, newTarget, Connection.DUAL_SIDE);
+			connection.reconnect(oldSource, newTarget, oldSide);
+			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment);
+			createRubyMapping(oldSource, newTarget, oldSide, oldComment);
 		} else {
 			throw new IllegalStateException("Should not happen");
 		}
@@ -225,7 +236,32 @@ public class ConnectionReconnectCommand extends Command {
 	 * Reconnect the connection to its original source and target endpoints.
 	 */
 	public void undo() {
-		connection.reconnect(oldSource, oldTarget, Connection.DUAL_SIDE);
+		removeRubbyMapping(connection.getSource(), connection.getTarget(), connection.getMappingSide(), connection.getComment());
+		connection.reconnect(oldSource, oldTarget, oldSide);
+		connection.setComment(oldComment);
+		createRubyMapping(oldSource, oldTarget, oldSide, oldComment);
+	}
+
+	private void createRubyMapping(Shape source, Shape target, int side,
+			String comment) {
+		RootNodeHolder.getInstance().addMapping(source, target,
+				Connection.translateSideFromIntToString(side), comment);
+
+		String viewId = "org.eclipse.ui.views.PropertySheet";
+
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+					.getActivePage().showView(viewId);
+		} catch (PartInitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	private void removeRubbyMapping(Shape source, Shape target, int side,
+			String comment) {
+		RootNodeHolder.getInstance().removeMapping(source, target,
+				Connection.translateSideFromIntToString(side), comment);
 	}
 
 }

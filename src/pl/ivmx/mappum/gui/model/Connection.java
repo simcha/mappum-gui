@@ -1,17 +1,14 @@
 package pl.ivmx.mappum.gui.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.jrubyparser.ast.CallNode;
 
-import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class Connection extends ModelElement {
@@ -23,9 +20,9 @@ public class Connection extends ModelElement {
 	private static final String FROM_RIGHT_TO_LEFT_STR = "From right variable to left variable mapping";
 	private static final String DUAL_SIDE_STR = "Dual side mapping";
 	private static final String COMMENT_PROP = "Connection.comment";
-	public static final int FROM_LEFT_TO_RIGHT = 1;
-	public static final int FROM_RIGHT_TO_LEFT = 2;
-	public static final int DUAL_SIDE = 3;
+	public static final int FROM_LEFT_TO_RIGHT = 0;
+	public static final int FROM_RIGHT_TO_LEFT = 1;
+	public static final int DUAL_SIDE = 2;
 	private static final long serialVersionUID = 1;
 
 	private boolean isConnected;
@@ -35,7 +32,7 @@ public class Connection extends ModelElement {
 	private String comment;
 
 	private CallNode rubyCodeNode;
-	
+
 	private Logger logger = Logger.getLogger(Connection.class);
 
 	private static List<Connection> connections = new ArrayList<Connection>();
@@ -104,13 +101,15 @@ public class Connection extends ModelElement {
 		if (id.equals(MAPPING_PROP)) {
 			// DUAL_SIDE is the third value in the combo dropdown
 			if (getMappingSide() == DUAL_SIDE)
-				return new Integer(2);
+				return 2;
 			// FROM_RIGHT_TO_LEFT is the second value in the combo dropdown
 			else if (getMappingSide() == FROM_RIGHT_TO_LEFT)
-				return new Integer(1);
+				return 1;
+			else if (getMappingSide() == FROM_LEFT_TO_RIGHT)
+				return 0;
 			// Solid is the first value in the combo dropdown
 			else
-				return new Integer(0);
+				return -1;
 		} else if (id.equals(COMMENT_PROP)) {
 			return comment;
 		}
@@ -144,7 +143,7 @@ public class Connection extends ModelElement {
 			source.addConnection(this);
 			target.addConnection(this);
 			isConnected = true;
-			
+
 			logger.debug("Created or reconnected connection:" + this);
 		}
 	}
@@ -196,7 +195,7 @@ public class Connection extends ModelElement {
 				setMappingSide(DUAL_SIDE);
 			} else if (value.equals(new Integer(1))) {
 				setMappingSide(FROM_RIGHT_TO_LEFT);
-			} else {
+			} else if (value.equals(new Integer(0))) {
 				setMappingSide(FROM_LEFT_TO_RIGHT);
 			}
 		} else if (id.equals(COMMENT_PROP)) {
@@ -216,9 +215,9 @@ public class Connection extends ModelElement {
 		} else if (side.equals("<<")) {
 			return Connection.FROM_RIGHT_TO_LEFT;
 		} else if (side.equals(">>")) {
-			return Connection.FROM_RIGHT_TO_LEFT;
+			return Connection.FROM_LEFT_TO_RIGHT;
 		} else {
-			return 0;
+			return -1;
 		}
 	}
 
@@ -227,7 +226,7 @@ public class Connection extends ModelElement {
 			return "<=>";
 		} else if (side == Connection.FROM_RIGHT_TO_LEFT) {
 			return "<<";
-		} else if (side == Connection.FROM_RIGHT_TO_LEFT) {
+		} else if (side == Connection.FROM_LEFT_TO_RIGHT) {
 			return ">>";
 		} else {
 			return "WRONG MAPPING";

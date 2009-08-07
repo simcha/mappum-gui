@@ -6,6 +6,8 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.gef.commands.Command;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
@@ -81,32 +83,13 @@ public class ConnectionCreateCommand extends Command {
 		else {
 			connection = new Connection(source, target, mappingSide);
 		}
+		createRubyMapping();
 
-		RootNodeHolder.getInstance().addMapping(
-				connection.getSource(),
-				connection.getTarget(),
-				Connection.translateSideFromIntToString(connection
-						.getMappingSide()), connection.getComment());
-
-		// TEST GENERACJI KODU
-		String code = "ERROR WHILE GENERATING CODE";
-		try {
-			code = new String("GENERATED CODE: "
-					+ ModelGenerator.getInstance().generateRubyCode());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		logger.info("Generated ruby code"+code);
-		System.out.println(RootNodeHolder.getInstance().findMappingPath(source, target));
-		// *
 	}
 
 	public void redo() {
 		connection.reconnect();
+		createRubyMapping();
 	}
 
 	public void setTarget(Shape target) {
@@ -117,6 +100,34 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	public void undo() {
+		removeRubbyMapping();
 		connection.disconnect();
+	}
+	
+	
+	private void createRubyMapping(){
+		RootNodeHolder.getInstance().addMapping(
+				connection.getSource(),
+				connection.getTarget(),
+				Connection.translateSideFromIntToString(connection
+						.getMappingSide()), connection.getComment());
+		
+		String viewId = "org.eclipse.ui.views.PropertySheet";
+
+
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage() .showView(viewId);
+		} catch (PartInitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.out.println(RootNodeHolder.getInstance().findMappingPath(source, target));
+	}
+	private void removeRubbyMapping(){
+		RootNodeHolder.getInstance().removeMapping(
+				connection.getSource(),
+				connection.getTarget(),
+				Connection.translateSideFromIntToString(connection
+						.getMappingSide()), connection.getComment());
 	}
 }

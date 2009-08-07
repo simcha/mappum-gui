@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.log4j.Logger;
@@ -33,10 +32,6 @@ public class ModelGeneratorFromXML {
 	private String mapFolder;
 	private String schemaFolder;
 	private String generatedClassesFolder;
-
-	private ScriptEngine engine;
-	private ScriptEngineManager manager;
-	private String language = LANGUAGE_RUBY;
 
 	private String xsd2rubyScriptCode;
 	private InputStreamReader xsd2rubyScript;
@@ -167,7 +162,7 @@ public class ModelGeneratorFromXML {
 	private Shape checkAndAddShape(String name, Shape parent, int side) {
 		if (parent == null) {
 			if (side == Shape.LEFT_SIDE) {
-				if (name.equals(Shape.getRootShapes().get(0).getName())) {
+				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
 				} else {
 					throw new IllegalArgumentException(
@@ -175,7 +170,7 @@ public class ModelGeneratorFromXML {
 									+ name + ", side: " + side);
 				}
 			} else {
-				if (name.equals(Shape.getRootShapes().get(1).getName())) {
+				if (name.equals(Shape.getRootShapes().get(1).getFullName())) {
 					return Shape.getRootShapes().get(1);
 				} else {
 					throw new IllegalArgumentException(

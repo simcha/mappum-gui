@@ -1,6 +1,5 @@
 package pl.ivmx.mappum.gui.model;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import org.jrubyparser.ast.CallNode;
 import pl.ivmx.mappum.gui.MappumPlugin;
 
 public class Shape extends ModelElement {
-	
+
 	private Logger logger = Logger.getLogger(Shape.class);
 	private static final Image RECTANGLE_ICON = createImage("icons/rectangle16.gif");
 	private static IPropertyDescriptor[] descriptors;
@@ -26,9 +25,9 @@ public class Shape extends ModelElement {
 	private static final long serialVersionUID = 1;
 
 	public static final String LAYOUT_PROP = "Shape.Layout";
-	
+
 	public static final String NAME_PROP = "Shape.Name";
-	
+
 	public static final String TYPE_PROP = "Shape.TYPE";
 
 	public static final String CHILD_ADDED_PROP = "Shape.ChildAdded";
@@ -63,8 +62,8 @@ public class Shape extends ModelElement {
 	private CallNode shapeNode;
 	static {
 		descriptors = new IPropertyDescriptor[] {
-				new TextPropertyDescriptor(NAME_PROP, "Name"), 
-				new TextPropertyDescriptor(TYPE_PROP, "Type"),};
+				new TextPropertyDescriptor(NAME_PROP, "Name"),
+				new TextPropertyDescriptor(TYPE_PROP, "Type"), };
 		// use a custom cell editor validator for all four array entries
 		for (int i = 0; i < descriptors.length; i++) {
 			((PropertyDescriptor) descriptors[i])
@@ -83,7 +82,6 @@ public class Shape extends ModelElement {
 		}
 	}
 
-
 	protected static Image createImage(String name) {
 		InputStream stream = MappumPlugin.class.getResourceAsStream(name);
 		Image image = new Image(null, stream);
@@ -93,8 +91,6 @@ public class Shape extends ModelElement {
 		}
 		return image;
 	}
-
-
 
 	public Shape(String name, String type, Shape shapeParent, int side,
 			CallNode shapeNode) {
@@ -107,15 +103,16 @@ public class Shape extends ModelElement {
 		this.name = name;
 		this.type = type;
 		this.shapeParent = shapeParent;
-		//if (this.shapeParent != null)
-		//	this.shapeParent.addChild(this);
+		// if (this.shapeParent != null)
+		// this.shapeParent.addChild(this);
 		this.side = side;
 		logger.debug("Created shape: " + this);
 	}
-	public boolean addToParent(){
+
+	public boolean addToParent() {
 		return shapeParent.addChild(this);
 	}
-	
+
 	public boolean addChild(Shape s) {
 		if (s != null && shapeChildren.add(s)) {
 			firePropertyChange(CHILD_ADDED_PROP, null, s);
@@ -123,6 +120,7 @@ public class Shape extends ModelElement {
 		}
 		return false;
 	}
+
 	public boolean removeChild(Shape s) {
 		if (s != null && shapeChildren.remove(s)) {
 			firePropertyChange(CHILD_REMOVED_PROP, null, s);
@@ -137,16 +135,28 @@ public class Shape extends ModelElement {
 
 	public static Shape createShape(String name, String type,
 			Shape shapeParent, int side, CallNode shapeNode) {
-		for (int i = 0; i < Shape.getShapes().size(); i++) {
-			if (Shape.getShapes().get(i).getName().equals(name)
-					&& Shape.getShapes().get(i).getSide() == side) {
-				if (Shape.getShapes().get(i).getShapeParent() != null
-						&& Shape.getShapes().get(i).getShapeParent().equals(
-								shapeParent)) {
-					return Shape.getShapes().get(i);
-				}
-
+//		for (int i = 0; i < Shape.getShapes().size(); i++) {
+//			if (Shape.getShapes().get(i).getName().equals(name)
+//					&& Shape.getShapes().get(i).getSide() == side) {
+//				if (Shape.getShapes().get(i).getShapeParent() != null
+//						&& Shape.getShapes().get(i).getShapeParent().equals(
+//								shapeParent)) {
+//					return Shape.getShapes().get(i);
+//				}
+//
+//			}
+//		}
+		if (shapeParent == null) {
+			for (Shape shape : Shape.getRootShapes()) {
+				if (shape.getName().equals(name) && shape.getSide() == side)
+					return shape;
 			}
+		} else {
+			for (Shape child : shapeParent.getShapeChildren()) {
+				if (child.getName().equals(name) && child.getSide() == side)
+					return child;
+			}
+
 		}
 		return new Shape(name, type, shapeParent, side, shapeNode);
 	}
@@ -304,8 +314,8 @@ public class Shape extends ModelElement {
 
 		}
 		setLayout(new Rectangle(x, y, sizeWidth, sizeHeight));
-		logger.debug("Shape layout info: " + this.getName() + " height: " + sizeHeight
-				+ " width:" + sizeWidth + " y:" + y + " x:" + x);
+		logger.debug("Shape layout info: " + this.getName() + " height: "
+				+ sizeHeight + " width:" + sizeWidth + " y:" + y + " x:" + x);
 	}
 
 	private static int getHeight(Shape shape) {
@@ -386,25 +396,37 @@ public class Shape extends ModelElement {
 					+ ", no parent ||";
 
 	}
-	public List<Shape> getShapeStack(){
+
+	public List<Shape> getShapeStack() {
 		return checkShapeStack(this, null);
 	}
+
+	public String getFullName() {
+		if (this.type != null)
+			return type + "::" + name;
+		else
+			return name;
+	}
+
 	/**
 	 * Returns all parents of the shape without rootParent
+	 * 
 	 * @return
 	 */
-	private static  List<Shape> checkShapeStack(Shape shape, List<Shape> initialShapeList){
-		if(initialShapeList == null){
-			initialShapeList = new ArrayList<Shape>(); 
-		}		
-		if(shape.getShapeParent() != null){
+	private static List<Shape> checkShapeStack(Shape shape,
+			List<Shape> initialShapeList) {
+		if (initialShapeList == null) {
+			initialShapeList = new ArrayList<Shape>();
+		}
+		if (shape.getShapeParent() != null) {
 			initialShapeList.add(shape);
-			if(!shape.getShapeParent().equals(Shape.getRootShapes().get(0)) && !shape.getShapeParent().equals(Shape.getRootShapes().get(1))){
+			if (!shape.getShapeParent().equals(Shape.getRootShapes().get(0))
+					&& !shape.getShapeParent().equals(
+							Shape.getRootShapes().get(1))) {
 				checkShapeStack(shape.getShapeParent(), initialShapeList);
 			}
 		}
 		return initialShapeList;
 	}
-
 
 }

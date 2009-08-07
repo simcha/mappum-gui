@@ -20,7 +20,6 @@ import java.util.EventObject;
 
 import javax.script.ScriptException;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -58,6 +57,7 @@ import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
+import pl.ivmx.mappum.gui.utils.TestNodeTreeWindow;
 
 public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -96,10 +96,12 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 								.getInstance().getRootNode());
 						ModelGeneratorFromXML.getInstance()
 								.addFieldsFromRubyArray(
-										Shape.getRootShapes().get(0).getName(),
-										Shape.getRootShapes().get(1).getName());
-						// new TestNodeTreeWindow(RootNodeHolder.getInstance()
-						// .getRootNode());
+										Shape.getRootShapes().get(0)
+												.getFullName(),
+										Shape.getRootShapes().get(1)
+												.getFullName());
+						new TestNodeTreeWindow(RootNodeHolder.getInstance()
+								.getRootNode());
 
 					} catch (CoreException e) {
 						e.printStackTrace();

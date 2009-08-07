@@ -83,7 +83,11 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		// "Hello, Eclipse world");
 		return null;
 	}
-
+/**
+ * Validates if project is proper mappum project
+ * @param project
+ * @return
+ */
 	private boolean validateProject(IProject project) {
 		if (project.getFolder(ModelGeneratorFromXML.DEFAULT_MAP_FOLDER) != null
 				&& project
@@ -98,7 +102,11 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 		return false;
 	}
-
+/**
+ * Checks if schema folder is not empty
+ * @param project
+ * @return
+ */
 	private boolean checkIfProjectSchemasExists(IProject project) {
 		try {
 			if (project.getFolder("schema").members().length > 0) {
@@ -109,7 +117,12 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 		return false;
 	}
-
+	
+/**
+ * Generates model from XSD Schemas
+ * @param project
+ * @return
+ */
 	private RubyArray generateModel(IProject project) {
 		final IProject finalProject = project;
 
@@ -159,14 +172,13 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		} catch (ScriptException e) {
 			e.printStackTrace();
 			if (e != null && e.getCause() != null) {
-				if(e.getCause() instanceof RaiseException){
+				if (e.getCause() instanceof RaiseException) {
 					logger.error("Error performing finish operations: "
 							+ e.getCause());
 					MessageDialog.openError(window.getShell(),
 							"Error while generating classes", e.getCause()
 									.getMessage());
 				}
-				
 
 			} else {
 				MessageDialog.openError(window.getShell(),

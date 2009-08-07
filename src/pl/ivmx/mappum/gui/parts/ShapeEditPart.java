@@ -280,6 +280,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		figure.setName(model.getName());
 		figure.setType(model.getType());
 		figure.setLayout(model.getLayout());
+		
 		if (model.getShapeParent() == null) {
 			figure.setImage(ImageFactory.getImage(ImageFactory.CLASS_IMAGE));
 		} else {

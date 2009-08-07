@@ -22,6 +22,8 @@ import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.gef.editpolicies.ConnectionEditPolicy;
 import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.ModelElement;
@@ -46,6 +48,15 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	public void activate() {
 		if (!isActive()) {
 			super.activate();
+			String viewId = "org.eclipse.ui.views.PropertySheet";
+
+			try {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+						.getActivePage().showView(viewId);
+			} catch (PartInitException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			((ModelElement) getModel()).addPropertyChangeListener(this);
 		}
 	}
