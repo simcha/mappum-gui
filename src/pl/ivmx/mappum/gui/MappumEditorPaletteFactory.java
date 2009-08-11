@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2008 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui;
 
 import org.eclipse.gef.palette.ConnectionCreationToolEntry;
@@ -21,12 +11,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 import pl.ivmx.mappum.gui.model.Connection;
 
-/**
- * Utility class that can create a GEF Palette.
- * 
- * @see #createPalette()
- * @author Elias Volanakis
- */
 final class MappumEditorPaletteFactory {
 	private static final String PALETTE_DOCK_LOCATION = "ShapesEditorPaletteFactory.Location";
 	private static final String PALETTE_SIZE = "ShapesEditorPaletteFactory.Size";
@@ -54,8 +38,9 @@ final class MappumEditorPaletteFactory {
 					public Object getNewObject() {
 						return null;
 					}
+
 					public Object getObjectType() {
-						//return null;
+						// return null;
 						return Connection.DUAL_SIDE;
 					}
 				}, ImageDescriptor.createFromFile(MappumPlugin.class,

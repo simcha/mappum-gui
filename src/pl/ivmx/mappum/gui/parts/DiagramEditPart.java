@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2005 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.parts;
 
 import java.beans.PropertyChangeEvent;
@@ -29,21 +19,6 @@ import org.eclipse.gef.editpolicies.RootComponentEditPolicy;
 import pl.ivmx.mappum.gui.model.ModelElement;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
 
-/**
- * EditPart for the a ShapesDiagram instance.
- * <p>
- * This edit part server as the main diagram container, the white area where
- * everything else is in. Also responsible for the container's layout (the way
- * the container rearanges is contents) and the container's capabilities (edit
- * policies).
- * </p>
- * <p>
- * This edit part must implement the PropertyChangeListener interface, so it can
- * be notified of property changes in the corresponding model element.
- * </p>
- * 
- * @author Elias Volanakis
- */
 class DiagramEditPart extends AbstractGraphicalEditPart implements
 		PropertyChangeListener {
 

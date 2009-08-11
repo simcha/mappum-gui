@@ -9,6 +9,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.jrubyparser.ast.CallNode;
 
+import pl.ivmx.mappum.gui.utils.Pair;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class Connection extends ModelElement {
@@ -49,6 +50,8 @@ public class Connection extends ModelElement {
 	 */
 	public Connection(Shape source, Shape target, int side) {
 		connections.add(this);
+		source.addToParent();
+		target.addToParent();
 		this.comment = "";
 		reconnect(source, target, side);
 	}
@@ -292,12 +295,42 @@ public class Connection extends ModelElement {
 				+ mappingSide + " ||";
 	}
 
-	public static boolean connectionNotExists(String sourceConnectionName,
-			String targetConnectionName) {
+	public static boolean connectionNotExists(Pair mapping, Pair parents) {
 		for (Connection tmpConnetion : Connection.getConnections()) {
-			if (tmpConnetion.getSource().getName().equals(sourceConnectionName)
+			if (tmpConnetion.getSource().getName().equals(
+					mapping.getLeftShape().getName())
 					&& tmpConnetion.getTarget().getName().equals(
-							targetConnectionName)) {
+							mapping.getRightShape().getName())) {
+
+				if (tmpConnetion.getSource().getShapeStack().size() == mapping
+						.getLeftShape().getShapeStack().size()
+						&& tmpConnetion.getTarget().getShapeStack().size() == mapping
+								.getRightShape().getShapeStack().size()) {
+
+					for (int i = 0; i < tmpConnetion.getSource()
+							.getShapeStack().size(); i++) {
+
+						if (!tmpConnetion.getSource().getShapeStack().get(i)
+								.getName().equals(
+										mapping.getLeftShape().getShapeStack()
+												.get(i).getName())) {
+							return true;
+						}
+
+					}
+
+					for (int i = 0; i < tmpConnetion.getTarget()
+							.getShapeStack().size(); i++) {
+
+						if (!tmpConnetion.getTarget().getShapeStack().get(i)
+								.getName().equals(
+										mapping.getRightShape().getShapeStack()
+												.get(i).getName())) {
+							return true;
+						}
+
+					}
+				}
 				return false;
 			}
 		}

@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2005 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.parts;
 
 import java.beans.PropertyChangeEvent;
@@ -17,6 +7,8 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.gef.EditPolicy;
+import org.eclipse.gef.Request;
+import org.eclipse.gef.RequestConstants;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.gef.editpolicies.ConnectionEditPolicy;
@@ -29,15 +21,6 @@ import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.ModelElement;
 import pl.ivmx.mappum.gui.model.commands.ConnectionDeleteCommand;
 
-/**
- * Edit part for Connection model elements.
- * <p>
- * This edit part must implement the PropertyChangeListener interface, so it can
- * be notified of property changes in the corresponding model element.
- * </p>
- * 
- * @author Elias Volanakis
- */
 class ConnectionEditPart extends AbstractConnectionEditPart implements
 		PropertyChangeListener {
 
@@ -140,5 +123,12 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 						.setSourceDecoration(new PolygonDecoration());
 			}
 		}
+	}
+
+	public void performRequest(Request req) {
+		if (req.getType().equals(RequestConstants.REQ_OPEN)) {
+			System.out.println("double-click");
+		}
+		super.performRequest(req);
 	}
 }

@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2005 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.model.commands;
 
 import java.util.Iterator;
@@ -20,34 +10,6 @@ import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
-/**
- * A command to reconnect a connection to a different start point or end point.
- * The command can be undone or redone.
- * <p>
- * This command is designed to be used together with a GraphicalNodeEditPolicy.
- * To use this command propertly, following steps are necessary:
- * </p>
- * <ol>
- * <li>Create a subclass of GraphicalNodeEditPolicy.</li>
- * <li>Override the <tt>getReconnectSourceCommand(...)</tt> method. Here you
- * need to obtain the Connection model element from the ReconnectRequest, create
- * a new ConnectionReconnectCommand, set the new connection <i>source</i> by
- * calling the <tt>setNewSource(Shape)</tt> method and return the command
- * instance.
- * <li>Override the <tt>getReconnectTargetCommand(...)</tt> method.</li>
- * Here again you need to obtain the Connection model element from the
- * ReconnectRequest, create a new ConnectionReconnectCommand, set the new
- * connection <i>target</i> by calling the <tt>setNewTarget(Shape)</tt> method
- * and return the command instance.</li>
- * </ol>
- * 
- * @see pl.ivmx.mappum.gui.parts.ShapeEditPart#createEditPolicies() for an
- *      example of the above procedure.
- * @see org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy
- * @see #setNewSource(Shape)
- * @see #setNewTarget(Shape)
- * @author Elias Volanakis
- */
 public class ConnectionReconnectCommand extends Command {
 
 	/** The connection instance to reconnect. */
@@ -236,7 +198,8 @@ public class ConnectionReconnectCommand extends Command {
 	 * Reconnect the connection to its original source and target endpoints.
 	 */
 	public void undo() {
-		removeRubbyMapping(connection.getSource(), connection.getTarget(), connection.getMappingSide(), connection.getComment());
+		removeRubbyMapping(connection.getSource(), connection.getTarget(),
+				connection.getMappingSide(), connection.getComment());
 		connection.reconnect(oldSource, oldTarget, oldSide);
 		connection.setComment(oldComment);
 		createRubyMapping(oldSource, oldTarget, oldSide, oldComment);

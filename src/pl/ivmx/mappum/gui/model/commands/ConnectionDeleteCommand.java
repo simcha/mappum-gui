@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2005 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.model.commands;
 
 import org.eclipse.gef.commands.Command;
@@ -17,12 +7,6 @@ import org.eclipse.ui.PlatformUI;
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
-/**
- * A command to disconnect (remove) a connection from its endpoints. The command
- * can be undone or redone.
- * 
- * @author Elias Volanakis
- */
 public class ConnectionDeleteCommand extends Command {
 
 	/** Connection instance to disconnect. */
@@ -55,6 +39,7 @@ public class ConnectionDeleteCommand extends Command {
 		// RootNodeHolder.getInstance().removeMapping(connection);
 
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -64,7 +49,7 @@ public class ConnectionDeleteCommand extends Command {
 		connection.reconnect();
 		createRubyMapping();
 	}
-	
+
 	private void createRubyMapping() {
 		RootNodeHolder.getInstance().addMapping(
 				connection.getSource(),

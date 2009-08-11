@@ -29,17 +29,25 @@ import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 
 public class RootNodeHolder {
+	public static final int LEFT_DASGN_CHANGE = 0;
+	public static final int RIGHT_DASGN_CHANGE = 1;
+	public static final int BOTH_DASGN_CHANGE = 2;
 	public static final int IDENT_LENGTH = 1;
 	private static final RootNodeHolder INSTANCE = new RootNodeHolder();
 	private static final String MAPPUM_STR = "mappum";
 	private static final String REQUIRE_STR = "require";
 	private static final String CATALOGUE_STR = "catalogue_add";
+
 	private Node rootNode;
 	private List<String> usedIdent = new ArrayList<String>();
 	private int usedCharIndex = 0;
 	private char[] charArray = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
 			'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
 			'w', 'x', 'y', 'z' };
+	private String lastNotSelfLeftVariable="";
+	private String lastNotSelfRightVariable="";
+	
+	
 	private Logger logger = Logger.getLogger(RootNodeHolder.class);
 
 	private RootNodeHolder() {
@@ -198,12 +206,18 @@ public class RootNodeHolder {
 														(callnode
 																.getReceiverNode()))
 												.getName();
+										if(!leftVariable.equals("self")){
+											lastNotSelfLeftVariable = leftVariable;
+										}
 										rightVariable = ModelGenerator
 												.findLastCallNodeInTree(
 														callnode.getArgsNode()
 																.childNodes()
 																.get(0))
 												.getName();
+										if(!rightVariable.equals("self")){
+											lastNotSelfRightVariable = rightVariable;
+										}
 										if (leftVariable.equals(connection
 												.getSource().getShapeNode()
 												.getName())
@@ -252,12 +266,12 @@ public class RootNodeHolder {
 															.equals(connection
 																	.getSource()
 																	.getShapeNode()
-																	.getName()) && rightVariable
+																	.getName()) && lastNotSelfRightVariable
 															.equals(connection
 																	.getTarget()
 																	.getShapeNode()
 																	.getName()))
-															|| (leftVariable
+															|| (lastNotSelfLeftVariable
 																	.equals(connection
 																			.getSource()
 																			.getShapeNode()
@@ -364,20 +378,58 @@ public class RootNodeHolder {
 		for (int i = 0; i < n; i++) {
 
 			if ((leftShapeList.size() > 1 && rightShapeList.size() > 1)
-					|| (leftShapeList.size() > 1 && rightShapeList.size() == 1)
-					|| (leftShapeList.size() == 1 && rightShapeList.size() > 1)) {
+					|| (leftShapeList.size() == 1 && rightShapeList.size() > 1)
+					|| (leftShapeList.size() > 1 && rightShapeList.size() == 1)) {
 				tmpNode = generateComplexMapping(
 						leftShapeList.get(0).getShapeNode(),
 						rightShapeList.get(0).getShapeNode(),
 						Connection
 								.translateSideFromIntToString(Connection.DUAL_SIDE),
-						node);
+						node, BOTH_DASGN_CHANGE);
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
 				getBlockNode(node).add(tmpNode);
 				leftShapeList.remove(0);
+				rightShapeList.remove(0);
+			}
+
+			else if (leftShapeList.size() > 1 && rightShapeList.size() == 0) {
+				ListNode listNode = new ListNode(new SourcePosition());
+				DVarNode dVarNode = new DVarNode(new SourcePosition(), 1,
+						"changeMe");
+				CallNode selfNode = new CallNode(new SourcePosition(),
+						dVarNode, "self", listNode);
+
+				tmpNode = generateComplexMapping(leftShapeList.get(0)
+						.getShapeNode(), selfNode, Connection
+						.translateSideFromIntToString(Connection.DUAL_SIDE),
+						node, BOTH_DASGN_CHANGE);
+				NewlineNode newLineNode;
+				if ((newLineNode = generateComment(comment)) != null) {
+					getBlockNode(node).add(newLineNode);
+				}
+				getBlockNode(node).add(tmpNode);
+				leftShapeList.remove(0);
+			}
+
+			else if (leftShapeList.size() == 0 && rightShapeList.size() > 1) {
+				ListNode listNode = new ListNode(new SourcePosition());
+				DVarNode dVarNode = new DVarNode(new SourcePosition(), 1,
+						"changeMe");
+				CallNode selfNode = new CallNode(new SourcePosition(),
+						dVarNode, "self", listNode);
+
+				tmpNode = generateComplexMapping(selfNode, rightShapeList
+						.get(0).getShapeNode(), Connection
+						.translateSideFromIntToString(Connection.DUAL_SIDE),
+						node, BOTH_DASGN_CHANGE);
+				NewlineNode newLineNode;
+				if ((newLineNode = generateComment(comment)) != null) {
+					getBlockNode(node).add(newLineNode);
+				}
+				getBlockNode(node).add(tmpNode);
 				rightShapeList.remove(0);
 			}
 
@@ -394,7 +446,7 @@ public class RootNodeHolder {
 				rightShapeList.clear();
 			}
 
-			else if (leftShapeList.size() > 0 && rightShapeList.size() == 0) {
+			else if (leftShapeList.size() == 1 && rightShapeList.size() == 0) {
 				ListNode listNode = new ListNode(new SourcePosition());
 				DVarNode dVarNode = new DVarNode(new SourcePosition(), 0,
 						"changeMe");
@@ -414,7 +466,7 @@ public class RootNodeHolder {
 				getBlockNode(node).add(tmpNode);
 			}
 
-			else if (leftShapeList.size() == 0 && rightShapeList.size() > 0) {
+			else if (leftShapeList.size() == 0 && rightShapeList.size() == 1) {
 				ListNode listNode = new ListNode(new SourcePosition());
 				DVarNode dVarNode = new DVarNode(new SourcePosition(), 1,
 						"changeMe");
@@ -447,7 +499,7 @@ public class RootNodeHolder {
 	 * @param rightShape
 	 * @param side
 	 * @param comment
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void removeMapping(Shape leftShape, Shape rightShape, String side,
 			String comment) {
@@ -459,43 +511,79 @@ public class RootNodeHolder {
 			node = (NewlineNode) getBlockNode(node).get(i);
 			mappingNodesStack.add(node);
 		}
-		
+
 		List<Shape> leftShapeList = leftShape.getShapeStack();
 		List<Shape> rightShapeList = rightShape.getShapeStack();
-		if(leftShapeList.size() != rightShapeList.size()){
+		if (leftShapeList.size() != rightShapeList.size()) {
 			int selfSide = leftShapeList.size() - rightShapeList.size();
-			if(selfSide == 1 && rightShapeList.size() == path.size()){
-				for(Node child: getBlockNode(mappingNodesStack.get(mappingNodesStack.size()-1)).childNodes()){
-					if(child instanceof NewlineNode){
-						if(mappingExists(leftShape.getName(), "self", (NewlineNode)child)){
-							mappingNodesStack.add((NewlineNode)child);
+			if (selfSide == 1 && rightShapeList.size() == path.size()) {
+				for (Node child : getBlockNode(
+						mappingNodesStack.get(mappingNodesStack.size() - 1))
+						.childNodes()) {
+					if (child instanceof NewlineNode) {
+						if (mappingExists(leftShape.getName(), "self",
+								(NewlineNode) child)) {
+							mappingNodesStack.add((NewlineNode) child);
 						}
-					}	
-				} 
-			}else if (selfSide == -1 && leftShapeList.size() == path.size()){
-				for(Node child: getBlockNode(mappingNodesStack.get(mappingNodesStack.size()-1)).childNodes()){
-					if(child instanceof NewlineNode){
-						if(mappingExists("self", rightShape.getName(), (NewlineNode)child)){
-							mappingNodesStack.add((NewlineNode)child);
+					}
+				}
+			} else if (selfSide == -1 && leftShapeList.size() == path.size()) {
+				for (Node child : getBlockNode(
+						mappingNodesStack.get(mappingNodesStack.size() - 1))
+						.childNodes()) {
+					if (child instanceof NewlineNode) {
+						if (mappingExists("self", rightShape.getName(),
+								(NewlineNode) child)) {
+							mappingNodesStack.add((NewlineNode) child);
 						}
-					}	
+					}
 				}
 			}
-			
+
 		}
-		
 
 		Collections.reverse(mappingNodesStack);
-		BlockNode parent = null;
+		BlockNode parentBlockNode = null;
 		for (int i = 0; i + 1 < mappingNodesStack.size(); i++) {
-			(parent = getBlockNode(mappingNodesStack.get(i + 1))).childNodes()
-					.remove(mappingNodesStack.get(i));
-			if (parent.childNodes().size() != 0) {
+			NewlineNode parent = mappingNodesStack.get(i + 1);
+			NewlineNode child = mappingNodesStack.get(i);
+			parentBlockNode = getBlockNode(mappingNodesStack.get(i + 1));
+			NewlineNode commentNode = null;
+			if ((commentNode = getChildBefore(parent, child)) != null) {
+				if (commentNode.getNextNode() != null
+						&& commentNode.getNextNode() instanceof XStrNode) {
+					parentBlockNode.childNodes().remove(commentNode);
+				}
+			}
+			parentBlockNode.childNodes().remove(mappingNodesStack.get(i));
+			if (parentBlockNode.childNodes().size() != 0) {
 				break;
 			}
 		}
 	}
-	
+
+	/**
+	 * Returns child of the parent with index 1 before that what is entered.
+	 * This is usable for getting comment tree before mapping tree.
+	 * 
+	 * @param parent
+	 * @param childAfter
+	 * @return
+	 */
+	private NewlineNode getChildBefore(NewlineNode parent,
+			NewlineNode childAfter) {
+		BlockNode parentBlockNode = getBlockNode(parent);
+		for (int i = 0; i < parentBlockNode.childNodes().size(); i++) {
+			if (parentBlockNode.childNodes().get(i).equals(childAfter)) {
+				if (i > 0) {
+					return (NewlineNode) parentBlockNode.childNodes()
+							.get(i - 1);
+				}
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Corrects nodes (inserts BlockNodes between Itarate and Newline if not
 	 * exists. This usually happened when there is only one Newline after
@@ -618,6 +706,7 @@ public class RootNodeHolder {
 		}
 		return false;
 	}
+
 	/**
 	 * Check if mapping exists in inserted Node
 	 * 
@@ -645,17 +734,40 @@ public class RootNodeHolder {
 		}
 		return false;
 	}
+
 	private StaticScope getNodeScope(NewlineNode node) {
 		return ((IterNode) ((FCallNode) node.childNodes().get(0)).getIterNode())
 				.getScope();
 	}
 
+	/**
+	 * Generates complex mapping tree node (complex means if mapping is a parent
+	 * for other mappings)
+	 * 
+	 * @param leftSide
+	 * @param rightSide
+	 * @param side
+	 * @param parentMapping
+	 * @param whichDAsagnChange
+	 *            sets which side of the mapping should have generated new
+	 *            assign prefixes
+	 * @return
+	 */
 	private NewlineNode generateComplexMapping(CallNode leftSide,
-			CallNode rightSide, String side, NewlineNode parentMapping) {
+			CallNode rightSide, String side, NewlineNode parentMapping,
+			int whichDAsagnChange) {
 		System.out.println("Mapping: " + leftSide.getName() + ", "
 				+ rightSide.getName() + ", side:" + side);
 		String leftPrefix = generateRandomIdent();
 		String rightPrefix = generateRandomIdent();
+		String[] s = findDVars(parentMapping);
+
+		if (whichDAsagnChange == LEFT_DASGN_CHANGE) {
+			rightPrefix = s[1];
+
+		} else if (whichDAsagnChange == RIGHT_DASGN_CHANGE) {
+			leftPrefix = s[0];
+		}
 		DAsgnNode leftAsgnNode = new DAsgnNode(new SourcePosition(),
 				leftPrefix, 0, null);
 		DAsgnNode rightAsgnNode = new DAsgnNode(new SourcePosition(),
@@ -680,16 +792,25 @@ public class RootNodeHolder {
 		fcallMapNode.setIterNode(iterNode);
 		NewlineNode newlineNode = new NewlineNode(new SourcePosition(),
 				fcallMapNode);
-		String[] s = findDVars(parentMapping);
+
 		changeMappingDVars(newlineNode, s[0], s[1]);
 		return newlineNode;
 	}
 
+	/**
+	 * Change mapping Dvars eg. "<b>a</b>.place"
+	 * 
+	 * @param node
+	 * @param leftDVarName
+	 * @param rightDVarName
+	 */
 	private void changeMappingDVars(NewlineNode node, String leftDVarName,
 			String rightDVarName) {
+
 		changeDVar(getMappingCallNode(node).childNodes().get(0), leftDVarName);
 		changeDVar(getMappingCallNode(node).childNodes().get(1).childNodes()
 				.get(0), rightDVarName);
+
 	}
 
 	private void changeDVar(Node node, String name) {

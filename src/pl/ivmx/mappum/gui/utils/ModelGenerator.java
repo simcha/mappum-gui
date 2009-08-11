@@ -208,8 +208,7 @@ public class ModelGenerator {
 		Connection connection = null;
 		CallNode parentCallNode = (CallNode) fcallnode.childNodes().get(0)
 				.childNodes().get(0);
-		Connection parentConnection = operateOnSimpleMapOrWithFunctionCall(
-				parentCallNode, parents, comment);
+		Pair mainPair = createShapesPair(parentCallNode, parents);
 		IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
 		CallNode callnode = null;
 		XStrNode childComment = null;
@@ -230,36 +229,28 @@ public class ModelGenerator {
 
 				}
 			}
-			// (CallNode) node.childNodes().get(0)
-			// .childNodes().get(0).childNodes().get(0);
+
 			if (callnode != null) {
-
-				Connection tmpConnection = operateOnSimpleMapOrWithFunctionCall(
-						callnode, new Pair(parentConnection.getSource(),
-								parentConnection.getTarget()), null);
-				if (tmpConnection.getSource().getName().equals("self")) {
-					connection = new Connection(parentConnection.getSource(),
-							tmpConnection.getTarget(), tmpConnection
-									.getMappingSide());
-					Shape.removeShape(tmpConnection.getSource());
+				int side = Connection
+				.translateSideFromStringToInt((callnode).getName());
+				if (checkLeftSideMappingName(callnode).equals("self")) {
+					connection = new Connection(mainPair.getLeftShape(),
+							createRightShape(callnode, mainPair), side);
 				} else {
-					connection = new Connection(tmpConnection.getSource(),
-							parentConnection.getTarget(), tmpConnection
-									.getMappingSide());
+					connection = new Connection(createLeftShape(callnode, mainPair),
+							mainPair.getRightShape(), side);
 
-					Shape.removeShape(tmpConnection.getTarget());
 				}
 				if (childComment != null) {
 					connection.setComment(childComment.getValue());
 				}
 				childComment = null;
-				tmpConnection = null;
 			}
 		}
-		Connection.removeConnection(parentConnection);
 		return connection;
 
 	}
+	
 
 	private Connection operateOnMapWithSubobject(FCallNode subobjectFcallnode,
 			Pair parents, XStrNode comment) {
@@ -267,8 +258,6 @@ public class ModelGenerator {
 		Connection connection = null;
 		CallNode parentCallNode = (CallNode) subobjectFcallnode.childNodes()
 				.get(0).childNodes().get(0);
-		Connection parentConnection = operateOnSimpleMapOrWithFunctionCall(
-				parentCallNode, parents, comment);
 		BlockNode blockNode = (BlockNode) subobjectFcallnode.childNodes()
 				.get(1).childNodes().get(1);
 		XStrNode childComment = null;
@@ -278,31 +267,24 @@ public class ModelGenerator {
 					childComment = (XStrNode) ((NewlineNode) node)
 							.getNextNode();
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
-					if (parentConnection.getSource().getName().equals("self")) {
+					if (checkLeftSideMappingName(parentCallNode).equals("self")) {
 						side = Shape.LEFT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(parents.getLeftShape(),
-										parentConnection.getTarget()),
+										createRightShape(parentCallNode, parents)),
 								childComment);
 
-					} else if (parentConnection.getTarget().getName().equals(
+					} else if (checkRightSideMappingName(parentCallNode).equals(
 							"self")) {
 						side = Shape.RIGHT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
-								new Pair(parentConnection.getSource(), parents
+								new Pair(createLeftShape(parentCallNode, parents), parents
 										.getRightShape()), childComment);
 					}
 					childComment = null;
 				}
 
 			}
-		}
-		if (side == Shape.LEFT_SIDE) {
-			Shape.removeShape(parentConnection.getSource());
-			parentConnection = null;
-		} else if (side == Shape.RIGHT_SIDE) {
-			Shape.removeShape(parentConnection.getTarget());
-			parentConnection = null;
 		}
 		return connection;
 	}
@@ -312,8 +294,10 @@ public class ModelGenerator {
 		Connection connection = null;
 		CallNode parentCallNode = (CallNode) fcallnode.childNodes().get(0)
 				.childNodes().get(0);
-		Connection parentConnection = operateOnSimpleMapOrWithFunctionCall(
-				parentCallNode, parents, comment);
+		// Connection parentConnection = operateOnSimpleMapOrWithFunctionCall(
+		// parentCallNode, parents, comment);
+
+		Pair mainPair = createShapesPair(parentCallNode, parents);
 		IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
 		XStrNode childComment = null;
 		for (Node node : iterNode.getBodyNode().childNodes()) {
@@ -323,13 +307,12 @@ public class ModelGenerator {
 							.getNextNode();
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					connection = operateOnInternalMap((NewlineNode) node,
-							new Pair(parentConnection.getSource(),
-									parentConnection.getTarget()), childComment);
+							mainPair, childComment);
 				}
 
 			}
 		}
-		Connection.removeConnection(parentConnection);
+		// Connection.removeConnection(parentConnection);
 		return connection;
 	}
 
@@ -353,8 +336,7 @@ public class ModelGenerator {
 					leftCallNode), Shape.createShape(
 					rightNode.getName() + "[]", null, parents.getRightShape(),
 					Shape.RIGHT_SIDE, rightCallNode), side);
-			connection.getSource().getShapeParent().addToParent();
-			connection.getTarget().getShapeParent().addToParent();
+
 		} else if (findNameNode(leftCallNode, "[]") != null
 				|| leftCallNode.getName().equals("[]")) {
 			connection = new Connection(Shape.createShape(leftNode.getName()
@@ -362,8 +344,6 @@ public class ModelGenerator {
 					leftCallNode), Shape.createShape(rightNode.getName(), null,
 					parents.getRightShape(), Shape.RIGHT_SIDE, rightCallNode),
 					side);
-			connection.getSource().getShapeParent().addToParent();
-			connection.getTarget().getShapeParent().addToParent();
 		} else if (findNameNode(rightCallNode, "[]") != null
 				|| rightCallNode.getName().equals("[]")) {
 			connection = new Connection(Shape
@@ -372,8 +352,6 @@ public class ModelGenerator {
 					Shape.createShape(rightNode.getName() + "[]", null, parents
 							.getRightShape(), Shape.RIGHT_SIDE, rightCallNode),
 					side);
-			connection.getSource().addToParent();
-			connection.getTarget().addToParent();
 		}
 		if (comment != null) {
 			connection.setComment(comment.getValue());
@@ -384,27 +362,80 @@ public class ModelGenerator {
 
 	private Connection operateOnSimpleMapOrWithFunctionCall(CallNode callnode,
 			Pair parents, XStrNode comment) {
-		CallNode leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
-		CallNode rightNode = findLastCallNodeInTree(callnode.childNodes()
-				.get(1).childNodes().get(0));
+		Pair pair = createShapesPair(callnode, parents);
 		int side = Connection
 				.translateSideFromStringToInt((callnode).getName());
-		boolean canCreate = Connection.connectionNotExists(leftNode.getName(),
-				rightNode.getName());
+		boolean canCreate = Connection.connectionNotExists(pair, parents);
 		Connection connection = null;
 		if (canCreate) {
-			connection = new Connection(Shape.createShape(leftNode.getName(),
-					null, parents.getLeftShape(), Shape.LEFT_SIDE, leftNode),
-					Shape.createShape(rightNode.getName(), null, parents
-							.getRightShape(), Shape.RIGHT_SIDE, rightNode),
-					side);
-			connection.getSource().addToParent();
-			connection.getTarget().addToParent();
+			connection = new Connection(pair.getLeftShape(), pair
+					.getRightShape(), side);
 		}
 		if (comment != null) {
 			connection.setComment(comment.getValue());
 		}
 		return connection;
+
+	}
+
+	private Pair createShapesPair(CallNode callnode, Pair parents) {
+		return new Pair(createLeftShape(callnode, parents), createRightShape(
+				callnode, parents));
+	}
+
+	/**
+	 * Creates left Shape on the ShapeDiagram
+	 * 
+	 * @param callnode
+	 * @param parents
+	 * @return
+	 */
+	private Shape createLeftShape(CallNode callnode, Pair parents) {
+		CallNode leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
+		Shape leftShape = Shape.createShape(leftNode.getName(), null, parents
+				.getLeftShape(), Shape.LEFT_SIDE, leftNode);
+		leftShape.addToParent();
+		return leftShape;
+
+	}
+
+	/**
+	 * Checks the name of the left side object of mapping
+	 * 
+	 * @param callnode
+	 * @return
+	 */
+	private String checkLeftSideMappingName(CallNode callnode) {
+		CallNode leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
+		return leftNode.getName();
+	}
+
+	/**
+	 * Checks the name of the right side object of mapping
+	 * 
+	 * @param callnode
+	 * @return
+	 */
+	private String checkRightSideMappingName(CallNode callnode) {
+		CallNode rightNode = findLastCallNodeInTree(callnode.childNodes()
+				.get(1).childNodes().get(0));
+		return rightNode.getName();
+	}
+
+	/**
+	 * Creates right Shape on the ShapeDiagram
+	 * 
+	 * @param callnode
+	 * @param parents
+	 * @return
+	 */
+	private Shape createRightShape(CallNode callnode, Pair parents) {
+		CallNode rightNode = findLastCallNodeInTree(callnode.childNodes()
+				.get(1).childNodes().get(0));
+		Shape rightShape = Shape.createShape(rightNode.getName(), null, parents
+				.getRightShape(), Shape.RIGHT_SIDE, rightNode);
+		rightShape.addToParent();
+		return rightShape;
 
 	}
 

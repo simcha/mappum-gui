@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2005 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.parts;
 
 import java.beans.PropertyChangeEvent;
@@ -280,7 +270,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		figure.setName(model.getName());
 		figure.setType(model.getType());
 		figure.setLayout(model.getLayout());
-		
+
 		if (model.getShapeParent() == null) {
 			figure.setImage(ImageFactory.getImage(ImageFactory.CLASS_IMAGE));
 		} else {

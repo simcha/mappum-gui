@@ -110,7 +110,12 @@ public class Shape extends ModelElement {
 	}
 
 	public boolean addToParent() {
-		return shapeParent.addChild(this);
+		if(shapeParent.getShapeChildren().contains(this)){
+			return false;
+		}else{
+			return shapeParent.addChild(this);
+		}
+		
 	}
 
 	public boolean addChild(Shape s) {

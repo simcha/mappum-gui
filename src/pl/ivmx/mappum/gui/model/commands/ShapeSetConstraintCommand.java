@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2005 Elias Volanakis and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    Elias Volanakis - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.model.commands;
 
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -17,11 +7,6 @@ import org.eclipse.gef.requests.ChangeBoundsRequest;
 
 import pl.ivmx.mappum.gui.model.Shape;
 
-/**
- * A command to resize and/or move a shape. The command can be undone or redone.
- * 
- * @author Elias Volanakis
- */
 public class ShapeSetConstraintCommand extends Command {
 	/** Stores the new size and location. */
 	private final Rectangle newBounds;

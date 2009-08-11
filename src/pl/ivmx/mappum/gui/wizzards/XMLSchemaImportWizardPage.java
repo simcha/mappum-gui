@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2006 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
 package pl.ivmx.mappum.gui.wizzards;
 
 import java.io.File;
@@ -29,20 +19,24 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
-
 public class XMLSchemaImportWizardPage extends WizardNewFileCreationPage {
-	
+
 	protected FileFieldEditor editor;
 
-	public XMLSchemaImportWizardPage(String pageName, IStructuredSelection selection) {
+	public XMLSchemaImportWizardPage(String pageName,
+			IStructuredSelection selection) {
 		super(pageName, selection);
-		setTitle(pageName); //NON-NLS-1
-		setDescription("Import a file from the local file system into the workspace"); //NON-NLS-1
+		setTitle(pageName); // NON-NLS-1
+		setDescription("Import a file from the local file system into the workspace"); // NON-NLS-1
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls(org.eclipse.swt.widgets.Composite)
-	 */	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.dialogs.WizardNewFileCreationPage#createAdvancedControls
+	 * (org.eclipse.swt.widgets.Composite)
+	 */
 	protected void createAdvancedControls(Composite parent) {
 		Composite fileSelectionArea = new Composite(parent, SWT.NONE);
 		GridData fileSelectionData = new GridData(GridData.GRAB_HORIZONTAL
@@ -55,28 +49,37 @@ public class XMLSchemaImportWizardPage extends WizardNewFileCreationPage {
 		fileSelectionLayout.marginWidth = 0;
 		fileSelectionLayout.marginHeight = 0;
 		fileSelectionArea.setLayout(fileSelectionLayout);
-		
-		editor = new FileFieldEditor("fileSelect","Select File: ",fileSelectionArea); //NON-NLS-1 //NON-NLS-2
-		editor.getTextControl(fileSelectionArea).addModifyListener(new ModifyListener(){
-			public void modifyText(ModifyEvent e) {
-				IPath path = new Path(XMLSchemaImportWizardPage.this.editor.getStringValue());
-				setFileName(path.lastSegment());
-			}
-		});
-		String[] extensions = new String[] { "*.xsd" }; //NON-NLS-1
+
+		editor = new FileFieldEditor("fileSelect", "Select File: ",
+				fileSelectionArea); // NON-NLS-1 //NON-NLS-2
+		editor.getTextControl(fileSelectionArea).addModifyListener(
+				new ModifyListener() {
+					public void modifyText(ModifyEvent e) {
+						IPath path = new Path(
+								XMLSchemaImportWizardPage.this.editor
+										.getStringValue());
+						setFileName(path.lastSegment());
+					}
+				});
+		String[] extensions = new String[] { "*.xsd" }; // NON-NLS-1
 		editor.setFileExtensions(extensions);
 		fileSelectionArea.moveAbove(null);
 
 	}
-	
-	 /* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#createLinkTarget()
 	 */
 	protected void createLinkTarget() {
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.dialogs.WizardNewFileCreationPage#getInitialContents()
 	 */
 	protected InputStream getInitialContents() {
 		try {
@@ -86,18 +89,24 @@ public class XMLSchemaImportWizardPage extends WizardNewFileCreationPage {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#getNewFileLabel()
 	 */
 	protected String getNewFileLabel() {
-		return "New File Name:"; //NON-NLS-1
+		return "New File Name:"; // NON-NLS-1
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.WizardNewFileCreationPage#validateLinkedResource()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.dialogs.WizardNewFileCreationPage#validateLinkedResource()
 	 */
 	protected IStatus validateLinkedResource() {
-		return new Status(IStatus.OK, "Mappum-GUI", IStatus.OK, "", null); //NON-NLS-1 //NON-NLS-2
+		return new Status(IStatus.OK, "Mappum-GUI", IStatus.OK, "", null); // NON-NLS-1
+																			// //NON-NLS-2
 	}
-	
+
 }

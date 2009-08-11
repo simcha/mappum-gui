@@ -1,8 +1,3 @@
-/*
- * Licensed Material - Property of IBM 
- * (C) Copyright IBM Corp. 2002 - All Rights Reserved. 
- */
-
 package pl.ivmx.mappum.gui.wizzards;
 
 import org.eclipse.jface.dialogs.IDialogPage;
@@ -108,7 +103,8 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	 * entered and the wizard can be completed
 	 */
 	public boolean isPageComplete() {
-		if(leftMappingList.getSelectionCount() == 0 && rightMappingList.getSelectionCount() == 0 ){
+		if (leftMappingList.getSelectionCount() == 0
+				&& rightMappingList.getSelectionCount() == 0) {
 			return false;
 		}
 		GenerateModelFromXsdWizard wizard = (GenerateModelFromXsdWizard) getWizard();
@@ -131,7 +127,7 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 
 		for (int i = 0; i < model.size(); i++) {
 			RubyClass clazz = (RubyClass) ((RubyArray) model.get(i)).get(0);
-			
+
 			leftMappingList.add(clazz.getName());
 			rightMappingList.add(clazz.getName());
 		}
