@@ -160,9 +160,9 @@ public class ModelGenerator {
 			return operateOnMapWithSubobject(subobjectFcallnode, parents,
 					comment);
 		case MAP_WITH_SELF:
-			FCallNode mapWithSelfFcallnode = (FCallNode) node.childNodes().get(
-					0);
-			return operateOnMapWithSelf(mapWithSelfFcallnode, parents, comment);
+			CallNode selfCallnode = (CallNode) node.childNodes().get(0)
+					.childNodes().get(0).childNodes().get(0);
+			return operateOnMapWithSelf(selfCallnode, parents, comment);
 		case MAP_WITH_SUBMAP:
 			FCallNode submapFcallnode = (FCallNode) node.childNodes().get(0);
 			return operateOnMapWithSubmap(submapFcallnode, parents, comment);
@@ -203,54 +203,61 @@ public class ModelGenerator {
 
 	}
 
-	private Connection operateOnMapWithSelf(FCallNode fcallnode, Pair parents,
+	private Connection operateOnMapWithSelf(CallNode callnode, Pair parents,
 			XStrNode comment) {
-		Connection connection = null;
-		CallNode parentCallNode = (CallNode) fcallnode.childNodes().get(0)
-				.childNodes().get(0);
-		Pair mainPair = createShapesPair(parentCallNode, parents);
-		IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
-		CallNode callnode = null;
-		XStrNode childComment = null;
-		for (Node node : iterNode.getBodyNode().childNodes()) {
-			if (node instanceof NewlineNode) {
-
-				for (Node child : node.childNodes()) {
-					if (child instanceof FCallNode) {
-						for (Node preChild : child.childNodes().get(0)
-								.childNodes()) {
-							if (preChild instanceof CallNode) {
-								callnode = (CallNode) preChild;
-							}
-						}
-					} else if (child instanceof XStrNode) {
-						childComment = (XStrNode) child;
-					}
-
-				}
-			}
-
-			if (callnode != null) {
-				int side = Connection
+		int side = Connection
 				.translateSideFromStringToInt((callnode).getName());
-				if (checkLeftSideMappingName(callnode).equals("self")) {
-					connection = new Connection(mainPair.getLeftShape(),
-							createRightShape(callnode, mainPair), side);
-				} else {
-					connection = new Connection(createLeftShape(callnode, mainPair),
-							mainPair.getRightShape(), side);
-
-				}
-				if (childComment != null) {
-					connection.setComment(childComment.getValue());
-				}
-				childComment = null;
-			}
+		Pair pair;
+		if (checkLeftSideMappingName(callnode).equals("self")) {
+			pair = new Pair(parents.getLeftShape(), createRightShape(callnode,
+					parents));
+		} else {
+			pair = new Pair(createLeftShape(callnode, parents), parents
+					.getRightShape());
+		}
+		boolean canCreate = Connection.connectionNotExists(pair, parents);
+		Connection connection = null;
+		if (canCreate) {
+			connection = new Connection(pair.getLeftShape(), pair
+					.getRightShape(), side);
+		}
+		if (comment != null) {
+			connection.setComment(comment.getValue());
 		}
 		return connection;
 
 	}
-	
+
+	/*
+	 * private Connection operateOnMapWithSelf(FCallNode fcallnode, Pair
+	 * parents, XStrNode comment) { Connection connection = null; CallNode
+	 * parentCallNode = (CallNode) fcallnode.childNodes().get(0)
+	 * .childNodes().get(0); Pair mainPair = createShapesPair(parentCallNode,
+	 * parents); IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
+	 * CallNode callnode = null; XStrNode childComment = null; for (Node node :
+	 * iterNode.getBodyNode().childNodes()) { if (node instanceof NewlineNode) {
+	 * 
+	 * for (Node child : node.childNodes()) { if (child instanceof FCallNode) {
+	 * for (Node preChild : child.childNodes().get(0) .childNodes()) { if
+	 * (preChild instanceof CallNode) { callnode = (CallNode) preChild; } } }
+	 * else if (child instanceof XStrNode) { childComment = (XStrNode) child; }
+	 * 
+	 * } }
+	 * 
+	 * 
+	 * if (callnode != null) { int side = Connection
+	 * .translateSideFromStringToInt((callnode).getName()); if
+	 * (checkLeftSideMappingName(callnode).equals("self")) { connection = new
+	 * Connection(mainPair.getLeftShape(), createRightShape(callnode, mainPair),
+	 * side); } else { connection = new Connection(createLeftShape(callnode,
+	 * mainPair), mainPair.getRightShape(), side);
+	 * 
+	 * } if (childComment != null) {
+	 * connection.setComment(childComment.getValue()); } childComment = null; }
+	 * } return connection;
+	 * 
+	 * }
+	 */
 
 	private Connection operateOnMapWithSubobject(FCallNode subobjectFcallnode,
 			Pair parents, XStrNode comment) {
@@ -271,15 +278,16 @@ public class ModelGenerator {
 						side = Shape.LEFT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(parents.getLeftShape(),
-										createRightShape(parentCallNode, parents)),
-								childComment);
+										createRightShape(parentCallNode,
+												parents)), childComment);
 
-					} else if (checkRightSideMappingName(parentCallNode).equals(
-							"self")) {
+					} else if (checkRightSideMappingName(parentCallNode)
+							.equals("self")) {
 						side = Shape.RIGHT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
-								new Pair(createLeftShape(parentCallNode, parents), parents
-										.getRightShape()), childComment);
+								new Pair(createLeftShape(parentCallNode,
+										parents), parents.getRightShape()),
+								childComment);
 					}
 					childComment = null;
 				}
@@ -294,9 +302,6 @@ public class ModelGenerator {
 		Connection connection = null;
 		CallNode parentCallNode = (CallNode) fcallnode.childNodes().get(0)
 				.childNodes().get(0);
-		// Connection parentConnection = operateOnSimpleMapOrWithFunctionCall(
-		// parentCallNode, parents, comment);
-
 		Pair mainPair = createShapesPair(parentCallNode, parents);
 		IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
 		XStrNode childComment = null;
@@ -312,7 +317,6 @@ public class ModelGenerator {
 
 			}
 		}
-		// Connection.removeConnection(parentConnection);
 		return connection;
 	}
 
@@ -495,6 +499,8 @@ public class ModelGenerator {
 						.childNodes().get(0);
 				if (findNameNode(mapType, "[]") != null) {
 					return SIMPLE_ARRAY_MAP;
+				} else if (findNameNode(mapType, "self") != null) {
+					return MAP_WITH_SELF;
 				} else {
 					return SIMPLE_MAP_OR_WITH_FUNCTION_CALL;
 				}
@@ -510,8 +516,6 @@ public class ModelGenerator {
 					|| findNameNode(callNode.childNodes().get(1), "<=>") != null) {
 				if (findNameNode(callNode.childNodes().get(0), "self") != null) {
 					return MAP_WITH_SUBOBJECT;
-				} else if (findNameNode(callNode.childNodes().get(1), "self") != null) {
-					return MAP_WITH_SELF;
 				} else {
 					return MAP_WITH_SUBMAP;
 				}
