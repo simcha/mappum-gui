@@ -208,7 +208,7 @@ public class ModelGenerator {
 		int side = Connection
 				.translateSideFromStringToInt((callnode).getName());
 		Pair pair;
-		if (checkLeftSideMappingName(callnode).equals("self")) {
+		if (RootNodeHolder.checkLeftSideMappingName(callnode).equals("self")) {
 			pair = new Pair(parents.getLeftShape(), createRightShape(callnode,
 					parents));
 		} else {
@@ -274,14 +274,14 @@ public class ModelGenerator {
 					childComment = (XStrNode) ((NewlineNode) node)
 							.getNextNode();
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
-					if (checkLeftSideMappingName(parentCallNode).equals("self")) {
+					if (RootNodeHolder.checkLeftSideMappingName(parentCallNode).equals("self")) {
 						side = Shape.LEFT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(parents.getLeftShape(),
 										createRightShape(parentCallNode,
 												parents)), childComment);
 
-					} else if (checkRightSideMappingName(parentCallNode)
+					} else if (RootNodeHolder.checkRightSideMappingName(parentCallNode)
 							.equals("self")) {
 						side = Shape.RIGHT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
@@ -403,28 +403,7 @@ public class ModelGenerator {
 
 	}
 
-	/**
-	 * Checks the name of the left side object of mapping
-	 * 
-	 * @param callnode
-	 * @return
-	 */
-	private String checkLeftSideMappingName(CallNode callnode) {
-		CallNode leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
-		return leftNode.getName();
-	}
 
-	/**
-	 * Checks the name of the right side object of mapping
-	 * 
-	 * @param callnode
-	 * @return
-	 */
-	private String checkRightSideMappingName(CallNode callnode) {
-		CallNode rightNode = findLastCallNodeInTree(callnode.childNodes()
-				.get(1).childNodes().get(0));
-		return rightNode.getName();
-	}
 
 	/**
 	 * Creates right Shape on the ShapeDiagram
