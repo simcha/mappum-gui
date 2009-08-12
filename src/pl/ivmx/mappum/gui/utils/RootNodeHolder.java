@@ -664,7 +664,7 @@ public class RootNodeHolder {
 	}
 
 	/**
-	 * Returns nect BlockNode of inserted Complex Mapping Node
+	 * Returns next BlockNode of inserted complex mapping Node
 	 * 
 	 * @param node
 	 * @return
