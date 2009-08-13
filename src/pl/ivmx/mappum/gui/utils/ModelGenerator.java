@@ -261,7 +261,6 @@ public class ModelGenerator {
 
 	private Connection operateOnMapWithSubobject(FCallNode subobjectFcallnode,
 			Pair parents, XStrNode comment) {
-		int side = 0;
 		Connection connection = null;
 		CallNode parentCallNode = (CallNode) subobjectFcallnode.childNodes()
 				.get(0).childNodes().get(0);
@@ -275,7 +274,6 @@ public class ModelGenerator {
 							.getNextNode();
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					if (RootNodeHolder.checkLeftSideMappingName(parentCallNode).equals("self")) {
-						side = Shape.LEFT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(parents.getLeftShape(),
 										createRightShape(parentCallNode,
@@ -283,7 +281,6 @@ public class ModelGenerator {
 
 					} else if (RootNodeHolder.checkRightSideMappingName(parentCallNode)
 							.equals("self")) {
-						side = Shape.RIGHT_SIDE;
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(createLeftShape(parentCallNode,
 										parents), parents.getRightShape()),

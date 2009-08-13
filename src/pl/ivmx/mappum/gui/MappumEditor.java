@@ -45,7 +45,6 @@ import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
-import pl.ivmx.mappum.gui.utils.TestNodeTreeWindow;
 
 public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -88,8 +87,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 												.getFullName(),
 										Shape.getRootShapes().get(1)
 												.getFullName());
-						new TestNodeTreeWindow(RootNodeHolder.getInstance()
-								.getRootNode());
+//						new TestNodeTreeWindow(RootNodeHolder.getInstance()
+//								.getRootNode());
 
 					} catch (CoreException e) {
 						e.printStackTrace();

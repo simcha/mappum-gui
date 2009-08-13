@@ -16,7 +16,6 @@ public class ShapeFigure extends Figure {
 	public ShapeFigure() {
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
-		
 		labelName.setIcon(new Image(null, 16, 16));
 		labelName.setForegroundColor(ColorConstants.darkGray);
 		add(labelName, ToolbarLayout.ALIGN_CENTER);
