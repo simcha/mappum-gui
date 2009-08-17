@@ -9,6 +9,7 @@ import java.util.EventObject;
 import javax.script.ScriptException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -45,6 +46,7 @@ import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
+import pl.ivmx.mappum.gui.utils.TestNodeTreeWindow;
 
 public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 
@@ -74,19 +76,25 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 				public void run(IProgressMonitor monitor) {
 					monitor.beginTask("Generating model...", 100);
 					try {
-						monitor.worked(5);
-						ModelGenerator.getInstance().generateModel(file);
-						monitor.worked(35);
+						file.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+						monitor.worked(15);
+						ModelGenerator.getInstance().generateModelRootElements(file);
+						monitor.worked(25);
 						ModelGeneratorFromXML.getInstance().generateModel(
 								file.getProject());
+						monitor.worked(35);
+						ModelGeneratorFromXML.getInstance()
+						.addFieldsFromRubyArray(
+								Shape.getRootShapes().get(0)
+										.getFullName(),
+								Shape.getRootShapes().get(1)
+										.getFullName());
+						monitor.worked(75);
+						ModelGenerator.getInstance().generateModelChildElements(file);
+						monitor.worked(85);
 						RootNodeHolder.generateRootBlockNode(RootNodeHolder
 								.getInstance().getRootNode());
-						ModelGeneratorFromXML.getInstance()
-								.addFieldsFromRubyArray(
-										Shape.getRootShapes().get(0)
-												.getFullName(),
-										Shape.getRootShapes().get(1)
-												.getFullName());
+
 //						new TestNodeTreeWindow(RootNodeHolder.getInstance()
 //								.getRootNode());
 

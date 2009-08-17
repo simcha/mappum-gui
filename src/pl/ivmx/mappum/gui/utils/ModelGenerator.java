@@ -68,23 +68,58 @@ public class ModelGenerator {
 		configuration = new ParserConfiguration();
 		return parser.parse(file.getName(), content, configuration);
 	}
-
 	/**
-	 * Generates GUI tree model from ruby tree model
-	 * 
+	 * Generates GUI tree model from ruby tree model root elements
 	 * @param file
 	 * @throws CoreException
 	 */
-	public void generateModel(IFile file) throws CoreException {
+	public void generateModelRootElements(IFile file) throws CoreException {
 		RootNodeHolder
 				.getInstance()
 				.setRootNode(
 						RootNodeHolder
 								.correctNodeIterationBlocks(parseRubbyFile(file)));
 
+		createRootMapElements(RootNodeHolder.getInstance().getRootNode());
+	}
+	/**
+	 * Generates GUI tree model from ruby tree model
+	 * 
+	 * @param file
+	 * @throws CoreException
+	 */
+	public void generateModelChildElements(IFile file) throws CoreException {
+//		RootNodeHolder
+//				.getInstance()
+//				.setRootNode(
+//						RootNodeHolder
+//								.correctNodeIterationBlocks(parseRubbyFile(file)));
+
 		findRootMap(RootNodeHolder.getInstance().getRootNode());
 	}
 
+	/**
+	 * Creates root map elements
+	 * 
+	 * @param node
+	 */
+	private void createRootMapElements(Node node) {
+		boolean iterate = true;
+		for (Node child : node.childNodes()) {
+			if (child instanceof FCallNode) {
+				if (((FCallNode) child).getName() == "map") {
+					// TODO generating comments for root Map
+					iterate = false;
+					Pair parents = new Pair();
+					createComplexElements(child, parents);
+					return;
+				}
+			}
+			if (iterate == true)
+				createRootMapElements(child);
+		}
+	}
+	
 	/**
 	 * Iterates as long as it finds first map
 	 * 
@@ -97,8 +132,8 @@ public class ModelGenerator {
 				if (((FCallNode) child).getName() == "map") {
 					// TODO generating comments for root Map
 					iterate = false;
-					Pair parents = new Pair();
-					createComplexElements(child, parents);
+//					Pair parents = new Pair();
+//					createComplexElements(child, parents);
 					if (((IterNode) ((FCallNode) child).getIterNode())
 							.getBodyNode() instanceof BlockNode) {
 						XStrNode comment = null;
