@@ -361,17 +361,26 @@ public class RootNodeHolder {
 		List<Shape> rightShapeList = rightShape.getShapeStack();
 		Collections.reverse(leftShapeList);
 		Collections.reverse(rightShapeList);
-
+		int usedPathSize = 0;
 		for (int i = 0; i < path.size(); i++) {
 			if (leftShapeList.size() == 1 && rightShapeList.size() > 1) {
 				rightShapeList.remove(0);
+				if(leftShapeList.size() == 1 && rightShapeList.size() == 1){
+					leftShapeList.remove(0);
+				}
+				usedPathSize++;
 			} else if (leftShapeList.size() > 1 && rightShapeList.size() == 1) {
 				leftShapeList.remove(0);
-			} else {
+				if(leftShapeList.size() == 1 && rightShapeList.size() == 1){
+					rightShapeList.remove(0);
+				}
+				usedPathSize++;
+			} 
+		}
+		
+		for (int i = 0; i < path.size() - usedPathSize; i++) {
 				leftShapeList.remove(0);
 				rightShapeList.remove(0);
-			}
-
 		}
 
 		int n = 0;
