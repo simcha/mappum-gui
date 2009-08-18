@@ -164,27 +164,27 @@ public class ModelGeneratorFromXML {
 			if (side == Shape.LEFT_SIDE) {
 				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
-				}
-				Shape shape = Shape.createShape(name, null, null, side,
-						generateRubyModelForField(name, side));
-				return shape;
-//				} else {
-//					throw new IllegalArgumentException(
-//							"There is no root element for arguments: Shape name: "
-//									+ name + ", side: " + side);
 //				}
+//				Shape shape = Shape.createShape(name, null, null, side,
+//						generateRubyModelForField(name, side));
+//				return shape;
+				} else {
+					throw new IllegalArgumentException(
+							"There is no root element for arguments: Shape name: "
+									+ name + ", side: " + side);
+				}
 			} else {
 				if (name.equals(Shape.getRootShapes().get(1).getFullName())) {
 					return Shape.getRootShapes().get(1);
-				}
-				Shape shape = Shape.createShape(name, null, null, side,
-						generateRubyModelForField(name, side));
-				return shape;
-//				} else {
-//					throw new IllegalArgumentException(
-//							"There is no root element for arguments: Shape name: "
-//									+ name + ", side: " + side);
 //				}
+//				Shape shape = Shape.createShape(name, null, null, side,
+//						generateRubyModelForField(name, side));
+//				return shape;
+				} else {
+					throw new IllegalArgumentException(
+							"There is no root element for arguments: Shape name: "
+									+ name + ", side: " + side);
+				}
 			}
 		} else {
 			for (Shape shape : parent.getShapeChildren()) {

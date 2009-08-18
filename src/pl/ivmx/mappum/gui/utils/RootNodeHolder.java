@@ -363,8 +363,15 @@ public class RootNodeHolder {
 		Collections.reverse(rightShapeList);
 
 		for (int i = 0; i < path.size(); i++) {
-			leftShapeList.remove(0);
-			rightShapeList.remove(0);
+			if (leftShapeList.size() == 1 && rightShapeList.size() > 1) {
+				rightShapeList.remove(0);
+			} else if (leftShapeList.size() > 1 && rightShapeList.size() == 1) {
+				leftShapeList.remove(0);
+			} else {
+				leftShapeList.remove(0);
+				rightShapeList.remove(0);
+			}
+
 		}
 
 		int n = 0;
@@ -627,46 +634,71 @@ public class RootNodeHolder {
 		List<Shape> rightShapeList = rightShape.getShapeStack();
 		Collections.reverse(leftShapeList);
 		Collections.reverse(rightShapeList);
-		int leftElements = rightShapeList.size();
-		int rightElements = leftShapeList.size();
+		int leftElements = leftShapeList.size();
+		int rightElements = rightShapeList.size();
 
 		if (leftLevel < leftElements && rightLevel < rightElements) {
 			List<List<Integer>> routeArray = new ArrayList<List<Integer>>();
 			for (int i = 0; i < rootNode.childNodes().size(); i++) {
-				
-				if(mappingExists(leftShapeList.get(leftLevel).getName(), "self", (NewlineNode) rootNode.childNodes().get(i))){
+
+				if (mappingExists(leftShapeList.get(leftLevel).getName(),
+						"self", (NewlineNode) rootNode.childNodes().get(i))) {
 					List<Integer> tmpList = new ArrayList<Integer>();
 					tmpList.add(i);
 					if (getNextChildBlockNode((NewlineNode) rootNode
 							.childNodes().get(i)) != null) {
-							tmpList.addAll(findMappingPath(leftShape, rightShape,
-									getNextChildBlockNode((NewlineNode) rootNode
-											.childNodes().get(i)), leftLevel+1, rightLevel));
+						tmpList.addAll(findMappingPath(leftShape, rightShape,
+								getNextChildBlockNode((NewlineNode) rootNode
+										.childNodes().get(i)), leftLevel + 1,
+								rightLevel));
 
 					}
 					routeArray.add(tmpList);
-				}else if(mappingExists("self", rightShapeList
-						.get(rightLevel).getName(), (NewlineNode) rootNode.childNodes().get(i))){
+				} else if (mappingExists("self", rightShapeList.get(rightLevel)
+						.getName(), (NewlineNode) rootNode.childNodes().get(i))) {
 					List<Integer> tmpList = new ArrayList<Integer>();
 					tmpList.add(i);
 					if (getNextChildBlockNode((NewlineNode) rootNode
 							.childNodes().get(i)) != null) {
-							tmpList.addAll(findMappingPath(leftShape, rightShape,
-									getNextChildBlockNode((NewlineNode) rootNode
-											.childNodes().get(i)), leftLevel, rightLevel+1));
+						tmpList.addAll(findMappingPath(leftShape, rightShape,
+								getNextChildBlockNode((NewlineNode) rootNode
+										.childNodes().get(i)), leftLevel,
+								rightLevel + 1));
 
 					}
 					routeArray.add(tmpList);
-				}
-				else if (mappingExists(leftShapeList.get(leftLevel), rightShapeList
-						.get(rightLevel), (NewlineNode) rootNode.childNodes().get(i))) {
+				} else if (mappingExists(leftShapeList.get(leftLevel),
+						rightShapeList.get(rightLevel), (NewlineNode) rootNode
+								.childNodes().get(i))) {
 					List<Integer> tmpList = new ArrayList<Integer>();
 					tmpList.add(i);
 					if (getNextChildBlockNode((NewlineNode) rootNode
 							.childNodes().get(i)) != null) {
-							tmpList.addAll(findMappingPath(leftShape, rightShape,
-									getNextChildBlockNode((NewlineNode) rootNode
-											.childNodes().get(i)), leftLevel + 1, rightLevel + 1));
+						if (leftElements == 1 && rightElements > 1) {
+							tmpList
+									.addAll(findMappingPath(
+											leftShape,
+											rightShape,
+											getNextChildBlockNode((NewlineNode) rootNode
+													.childNodes().get(i)),
+											leftLevel, rightLevel + 1));
+						} else if (leftElements > 1 && rightElements == 1) {
+							tmpList
+									.addAll(findMappingPath(
+											leftShape,
+											rightShape,
+											getNextChildBlockNode((NewlineNode) rootNode
+													.childNodes().get(i)),
+											leftLevel + 1, rightLevel));
+						} else {
+							tmpList
+									.addAll(findMappingPath(
+											leftShape,
+											rightShape,
+											getNextChildBlockNode((NewlineNode) rootNode
+													.childNodes().get(i)),
+											leftLevel + 1, rightLevel + 1));
+						}
 
 					}
 					routeArray.add(tmpList);
@@ -770,7 +802,6 @@ public class RootNodeHolder {
 		}
 		return false;
 	}
-
 
 	/**
 	 * Check if mapping exists in inserted Node
@@ -1023,6 +1054,7 @@ public class RootNodeHolder {
 				generateRootBlockNode(child);
 		}
 	}
+
 	/**
 	 * Checks the name of the left side object of mapping
 	 * 
@@ -1030,7 +1062,8 @@ public class RootNodeHolder {
 	 * @return
 	 */
 	public static String checkLeftSideMappingName(CallNode callnode) {
-		CallNode leftNode = ModelGenerator.findLastCallNodeInTree(callnode.childNodes().get(0));
+		CallNode leftNode = ModelGenerator.findLastCallNodeInTree(callnode
+				.childNodes().get(0));
 		return leftNode.getName();
 	}
 
@@ -1041,8 +1074,8 @@ public class RootNodeHolder {
 	 * @return
 	 */
 	public static String checkRightSideMappingName(CallNode callnode) {
-		CallNode rightNode = ModelGenerator.findLastCallNodeInTree(callnode.childNodes()
-				.get(1).childNodes().get(0));
+		CallNode rightNode = ModelGenerator.findLastCallNodeInTree(callnode
+				.childNodes().get(1).childNodes().get(0));
 		return rightNode.getName();
 	}
 }
