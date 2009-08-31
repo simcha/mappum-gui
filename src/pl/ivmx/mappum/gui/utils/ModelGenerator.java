@@ -1,6 +1,7 @@
 package pl.ivmx.mappum.gui.utils;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -46,6 +47,7 @@ public class ModelGenerator {
 	private static final ModelGenerator INSTANCE = new ModelGenerator();
 
 	private Logger logger = Logger.getLogger(ModelGenerator.class);
+	private ParserConfiguration parserConfiguration;
 
 	private ModelGenerator() {
 	}
@@ -68,8 +70,16 @@ public class ModelGenerator {
 		configuration = new ParserConfiguration();
 		return parser.parse(file.getName(), content, configuration);
 	}
+	public Node parseExternalRubbyCode(String code) throws CoreException {
+		Parser parser2 = new Parser();
+		InputStreamReader inputStreamReader = new InputStreamReader(new ByteArrayInputStream(code.getBytes()));
+		parserConfiguration = new ParserConfiguration();
+		return parser.parse("", inputStreamReader, parserConfiguration);
+	}
+
 	/**
 	 * Generates GUI tree model from ruby tree model root elements
+	 * 
 	 * @param file
 	 * @throws CoreException
 	 */
@@ -82,6 +92,7 @@ public class ModelGenerator {
 
 		createRootMapElements(RootNodeHolder.getInstance().getRootNode());
 	}
+
 	/**
 	 * Generates GUI tree model from ruby tree model
 	 * 
@@ -89,11 +100,11 @@ public class ModelGenerator {
 	 * @throws CoreException
 	 */
 	public void generateModelChildElements(IFile file) throws CoreException {
-//		RootNodeHolder
-//				.getInstance()
-//				.setRootNode(
-//						RootNodeHolder
-//								.correctNodeIterationBlocks(parseRubbyFile(file)));
+		// RootNodeHolder
+		// .getInstance()
+		// .setRootNode(
+		// RootNodeHolder
+		// .correctNodeIterationBlocks(parseRubbyFile(file)));
 
 		findRootMap(RootNodeHolder.getInstance().getRootNode());
 	}
@@ -119,7 +130,7 @@ public class ModelGenerator {
 				createRootMapElements(child);
 		}
 	}
-	
+
 	/**
 	 * Iterates as long as it finds first map
 	 * 
@@ -132,8 +143,8 @@ public class ModelGenerator {
 				if (((FCallNode) child).getName() == "map") {
 					// TODO generating comments for root Map
 					iterate = false;
-//					Pair parents = new Pair();
-//					createComplexElements(child, parents);
+					// Pair parents = new Pair();
+					// createComplexElements(child, parents);
 					if (((IterNode) ((FCallNode) child).getIterNode())
 							.getBodyNode() instanceof BlockNode) {
 						XStrNode comment = null;
@@ -308,14 +319,15 @@ public class ModelGenerator {
 					childComment = (XStrNode) ((NewlineNode) node)
 							.getNextNode();
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
-					if (RootNodeHolder.checkLeftSideMappingName(parentCallNode).equals("self")) {
+					if (RootNodeHolder.checkLeftSideMappingName(parentCallNode)
+							.equals("self")) {
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(parents.getLeftShape(),
 										createRightShape(parentCallNode,
 												parents)), childComment);
 
-					} else if (RootNodeHolder.checkRightSideMappingName(parentCallNode)
-							.equals("self")) {
+					} else if (RootNodeHolder.checkRightSideMappingName(
+							parentCallNode).equals("self")) {
 						connection = operateOnInternalMap((NewlineNode) node,
 								new Pair(createLeftShape(parentCallNode,
 										parents), parents.getRightShape()),
@@ -434,8 +446,6 @@ public class ModelGenerator {
 		return leftShape;
 
 	}
-
-
 
 	/**
 	 * Creates right Shape on the ShapeDiagram
@@ -594,7 +604,8 @@ public class ModelGenerator {
 		return new Pair(leftElement, rightElement);
 	}
 
-	public String generateRubyCode() throws IOException, CoreException {
+	public String generateRubyCodeFromRootNode() throws IOException,
+			CoreException {
 
 		String source = "";
 		if (file != null) {
@@ -608,6 +619,22 @@ public class ModelGenerator {
 
 		return ReWriteVisitor.createCodeFromNode(RootNodeHolder.getInstance()
 				.getRootNode(), source);
+	}
+
+	public String generateRubyCodeFromNode(Node node) throws IOException,
+			CoreException {
+
+		String source = "";
+		if (file != null) {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					file.getContents()));
+			String s = "";
+			while ((s = reader.readLine()) != null) {
+				source += s;
+			}
+		}
+
+		return ReWriteVisitor.createCodeFromNode(node, source);
 	}
 
 }

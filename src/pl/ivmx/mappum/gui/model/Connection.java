@@ -16,11 +16,12 @@ public class Connection extends ModelElement {
 
 	/** Property ID to use when the line style of this connection is modified. */
 	public static final String MAPPING_PROP = "Connection.Mapping";
-	private static final IPropertyDescriptor[] descriptors = new IPropertyDescriptor[2];
-	private static final String FROM_LEFT_TO_RIGHT_STR = "From left variable to right variable mapping";
-	private static final String FROM_RIGHT_TO_LEFT_STR = "From right variable to left variable mapping";
-	private static final String DUAL_SIDE_STR = "Dual side mapping";
-	private static final String COMMENT_PROP = "Connection.comment";
+	private static final IPropertyDescriptor[] descriptors = new IPropertyDescriptor[3];
+	public static final String FROM_LEFT_TO_RIGHT_STR = "From left variable to right variable mapping";
+	public static final String FROM_RIGHT_TO_LEFT_STR = "From right variable to left variable mapping";
+	public static final String DUAL_SIDE_STR = "Dual side mapping";
+	private static final String COMMENT_PROP = "Connection.Comment";
+	private static final String CODE_PROP = "Connection.code";
 	public static final int FROM_LEFT_TO_RIGHT = 0;
 	public static final int FROM_RIGHT_TO_LEFT = 1;
 	public static final int DUAL_SIDE = 2;
@@ -31,6 +32,7 @@ public class Connection extends ModelElement {
 	private Shape target;
 	private int mappingSide;
 	private String comment;
+	private String mappingCode;
 
 	private CallNode rubyCodeNode;
 
@@ -40,9 +42,10 @@ public class Connection extends ModelElement {
 
 	static {
 		descriptors[0] = new ComboBoxPropertyDescriptor(MAPPING_PROP,
-				MAPPING_PROP, new String[] { FROM_LEFT_TO_RIGHT_STR,
+				"Mapping side", new String[] { FROM_LEFT_TO_RIGHT_STR,
 						FROM_RIGHT_TO_LEFT_STR, DUAL_SIDE_STR });
 		descriptors[1] = new TextPropertyDescriptor(COMMENT_PROP, "Comment");
+		descriptors[2] = new TextPropertyDescriptor(CODE_PROP, "Code");
 	}
 
 	/**
@@ -53,12 +56,14 @@ public class Connection extends ModelElement {
 		source.addToParent();
 		target.addToParent();
 		this.comment = "";
+		this.mappingCode="";
 		reconnect(source, target, side);
 	}
 
 	public Connection(Shape source, Shape target, int side, String comment) {
 		connections.add(this);
 		this.comment = comment;
+		this.mappingCode="";
 		reconnect(source, target, side);
 	}
 
@@ -115,6 +120,8 @@ public class Connection extends ModelElement {
 				return -1;
 		} else if (id.equals(COMMENT_PROP)) {
 			return comment;
+		} else if (id.equals(CODE_PROP)) {
+			return getMappingCode();
 		}
 		return super.getPropertyValue(id);
 	}
@@ -206,6 +213,13 @@ public class Connection extends ModelElement {
 				RootNodeHolder.getInstance().changeMappingAtributes(this, null,
 						(String) value);
 				setComment((String) value);
+			}
+		} else if (id.equals(CODE_PROP)) {
+			if (value instanceof String) {
+				// RootNodeHolder.getInstance().changeMappingAtributes(this,
+				// null,
+				// (String) value);
+				setMappingCode((String) value);
 			}
 		} else
 			super.setPropertyValue(id, value);
@@ -343,6 +357,14 @@ public class Connection extends ModelElement {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public void setMappingCode(String mappingCode) {
+		this.mappingCode = mappingCode;
+	}
+
+	public String getMappingCode() {
+		return mappingCode;
 	}
 
 }

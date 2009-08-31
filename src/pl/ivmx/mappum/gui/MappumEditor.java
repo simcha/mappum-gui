@@ -186,7 +186,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	public void doSave(IProgressMonitor monitor) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			out.write(ModelGenerator.getInstance().generateRubyCode()
+			out.write(ModelGenerator.getInstance().generateRubyCodeFromRootNode()
 					.getBytes());
 			out.close();
 			IFile file = ((IFileEditorInput) getEditorInput()).getFile();
@@ -237,7 +237,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 								try {
 									ByteArrayOutputStream out = new ByteArrayOutputStream();
 									out.write(ModelGenerator.getInstance()
-											.generateRubyCode().getBytes());
+											.generateRubyCodeFromRootNode().getBytes());
 									out.close();
 									file.create(new ByteArrayInputStream(out
 											.toByteArray()), // contents

@@ -69,7 +69,7 @@ public class RootNodeHolder {
 		findRootBlockNode(rootNode).add(node);
 	}
 
-	private BlockNode findRootBlockNode(Node node) {
+	public BlockNode findRootBlockNode(Node node) {
 		boolean iterate = true;
 		BlockNode blockNode = null;
 		for (Node child : node.childNodes()) {
@@ -168,7 +168,7 @@ public class RootNodeHolder {
 
 	}
 
-	private Node getParentNode(Node nodeToFind, Node NodeToSearchIn) {
+	public Node getParentNode(Node nodeToFind, Node NodeToSearchIn) {
 		Node node = null;
 		for (Node child : NodeToSearchIn.childNodes()) {
 			if (child.equals(nodeToFind)) {
@@ -182,7 +182,7 @@ public class RootNodeHolder {
 		return node;
 	}
 
-	private NewlineNode findMappingNode(Connection connection, Node node) {
+	public NewlineNode findMappingNode(Connection connection, Node node) {
 		String leftVariable = null;
 		String rightVariable = null;
 		NewlineNode newlineNode = null;
@@ -196,27 +196,29 @@ public class RootNodeHolder {
 										.childNodes().get(0) instanceof CallNode) {
 									CallNode callnode = (CallNode) (((FCallNode) child)
 											.getArgsNode()).childNodes().get(0);
+									// if (Connection
+									// .translateSideFromIntToString(
+									// connection.getMappingSide())
+									// .equals(callnode.getName())) {
+									leftVariable = ModelGenerator
+											.findLastCallNodeInTree(
+													(callnode.getReceiverNode()))
+											.getName();
+									if (!leftVariable.equals("self")) {
+										lastNotSelfLeftVariable = leftVariable;
+									}
+									rightVariable = ModelGenerator
+											.findLastCallNodeInTree(
+													callnode.getArgsNode()
+															.childNodes()
+															.get(0)).getName();
+									if (!rightVariable.equals("self")) {
+										lastNotSelfRightVariable = rightVariable;
+									}
 									if (Connection
 											.translateSideFromIntToString(
 													connection.getMappingSide())
 											.equals(callnode.getName())) {
-										leftVariable = ModelGenerator
-												.findLastCallNodeInTree(
-														(callnode
-																.getReceiverNode()))
-												.getName();
-										if (!leftVariable.equals("self")) {
-											lastNotSelfLeftVariable = leftVariable;
-										}
-										rightVariable = ModelGenerator
-												.findLastCallNodeInTree(
-														callnode.getArgsNode()
-																.childNodes()
-																.get(0))
-												.getName();
-										if (!rightVariable.equals("self")) {
-											lastNotSelfRightVariable = rightVariable;
-										}
 										if (leftVariable.equals(connection
 												.getSource().getShapeNode()
 												.getName())
@@ -365,22 +367,22 @@ public class RootNodeHolder {
 		for (int i = 0; i < path.size(); i++) {
 			if (leftShapeList.size() == 1 && rightShapeList.size() > 1) {
 				rightShapeList.remove(0);
-				if(leftShapeList.size() == 1 && rightShapeList.size() == 1){
+				if (leftShapeList.size() == 1 && rightShapeList.size() == 1) {
 					leftShapeList.remove(0);
 				}
 				usedPathSize++;
 			} else if (leftShapeList.size() > 1 && rightShapeList.size() == 1) {
 				leftShapeList.remove(0);
-				if(leftShapeList.size() == 1 && rightShapeList.size() == 1){
+				if (leftShapeList.size() == 1 && rightShapeList.size() == 1) {
 					rightShapeList.remove(0);
 				}
 				usedPathSize++;
-			} 
+			}
 		}
-		
+
 		for (int i = 0; i < path.size() - usedPathSize; i++) {
-				leftShapeList.remove(0);
-				rightShapeList.remove(0);
+			leftShapeList.remove(0);
+			rightShapeList.remove(0);
 		}
 
 		int n = 0;

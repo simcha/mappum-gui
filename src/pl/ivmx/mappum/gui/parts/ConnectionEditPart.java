@@ -14,12 +14,16 @@ import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.gef.editpolicies.ConnectionEditPolicy;
 import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.ModelElement;
 import pl.ivmx.mappum.gui.model.commands.ConnectionDeleteCommand;
+import pl.ivmx.mappum.gui.utils.RootNodeHolder;
+import pl.ivmx.mappum.gui.wizzards.ChangeConnectionPropsWizard;
 
 class ConnectionEditPart extends AbstractConnectionEditPart implements
 		PropertyChangeListener {
@@ -125,8 +129,21 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 		}
 	}
 
+	// TODO dostawienie wygenerowanego kodu
+	private void openChangeConnectionPropsWizard() {
+		Connection connection = getCastedModel();
+		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
+		RootNodeHolder rootNodeHolder = RootNodeHolder.getInstance();
+		ChangeConnectionPropsWizard wizard = new ChangeConnectionPropsWizard(connection);
+		wizard.init();
+		WizardDialog dialog = new WizardDialog(shell, wizard);
+		dialog.open();
+
+	}
+
 	public void performRequest(Request req) {
 		if (req.getType().equals(RequestConstants.REQ_OPEN)) {
+			openChangeConnectionPropsWizard();
 			System.out.println("double-click");
 		}
 		super.performRequest(req);
