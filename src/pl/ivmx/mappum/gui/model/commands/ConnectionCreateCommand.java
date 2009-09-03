@@ -77,11 +77,11 @@ public class ConnectionCreateCommand extends Command {
 	public void execute() {
 		// create a new connection between source and target
 		if (source.getSide() == Shape.RIGHT_SIDE) {
-			connection = new Connection(target, source, mappingSide);
+			connection = new Connection(target, source, mappingSide, Connection.VAR_TO_VAR_CONN);
 		}
 
 		else {
-			connection = new Connection(source, target, mappingSide);
+			connection = new Connection(source, target, mappingSide, Connection.VAR_TO_VAR_CONN);
 		}
 		createRubyMapping();
 

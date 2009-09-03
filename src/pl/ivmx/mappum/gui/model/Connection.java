@@ -26,6 +26,10 @@ public class Connection extends ModelElement {
 	public static final int FROM_RIGHT_TO_LEFT = 1;
 	public static final int DUAL_SIDE = 2;
 	private static final long serialVersionUID = 1;
+	public static final int CONST_TO_VAR_CONN = 1;
+	public static final int VAR_TO_VAR_CONN = 2;
+	private int connectionType;
+	private String constantName;
 
 	private boolean isConnected;
 	private Shape source;
@@ -51,7 +55,8 @@ public class Connection extends ModelElement {
 	/**
 	 * Create a (solid) connection between two distinct shapes.
 	 */
-	public Connection(Shape source, Shape target, int side) {
+	public Connection(Shape source, Shape target, int side, int type) {
+		connectionType = type;
 		connections.add(this);
 		source.addToParent();
 		target.addToParent();
@@ -60,7 +65,8 @@ public class Connection extends ModelElement {
 		reconnect(source, target, side);
 	}
 
-	public Connection(Shape source, Shape target, int side, String comment) {
+	public Connection(Shape source, Shape target, int side, String comment, int type) {
+		connectionType = type;
 		connections.add(this);
 		this.comment = comment;
 		this.mappingCode="";
@@ -288,7 +294,6 @@ public class Connection extends ModelElement {
 	}
 
 	public void refreshMappingNode() {
-		CallNode oldRubyCodeNode = rubyCodeNode;
 		rubyCodeNode.setName(Connection
 				.translateSideFromIntToString(mappingSide));
 
@@ -365,6 +370,22 @@ public class Connection extends ModelElement {
 
 	public String getMappingCode() {
 		return mappingCode;
+	}
+
+	public void setConstantName(String constantName) {
+		this.constantName = constantName;
+	}
+
+	public String getConstantName() {
+		return constantName;
+	}
+
+	public void setConnectionType(int connectionType) {
+		this.connectionType = connectionType;
+	}
+
+	public int getConnectionType() {
+		return connectionType;
 	}
 
 }

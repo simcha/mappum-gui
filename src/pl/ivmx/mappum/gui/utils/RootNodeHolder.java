@@ -200,36 +200,100 @@ public class RootNodeHolder {
 									// .translateSideFromIntToString(
 									// connection.getMappingSide())
 									// .equals(callnode.getName())) {
-									leftVariable = ModelGenerator
-											.findLastCallNodeInTree(
-													(callnode.getReceiverNode()))
-											.getName();
-									if (!leftVariable.equals("self")) {
-										lastNotSelfLeftVariable = leftVariable;
-									}
-									rightVariable = ModelGenerator
-											.findLastCallNodeInTree(
-													callnode.getArgsNode()
-															.childNodes()
-															.get(0)).getName();
-									if (!rightVariable.equals("self")) {
-										lastNotSelfRightVariable = rightVariable;
-									}
-									if (Connection
-											.translateSideFromIntToString(
-													connection.getMappingSide())
-											.equals(callnode.getName())) {
-										if (leftVariable.equals(connection
-												.getSource().getShapeNode()
-												.getName())
-												&& rightVariable
+									if (connection.getConnectionType() == Connection.VAR_TO_VAR_CONN) {
+										leftVariable = ModelGenerator
+												.findLastCallNodeInTree(
+														(callnode
+																.getReceiverNode()))
+												.getName();
+										if (!leftVariable.equals("self")) {
+											lastNotSelfLeftVariable = leftVariable;
+										}
+										rightVariable = ModelGenerator
+												.findLastCallNodeInTree(
+														callnode.getArgsNode()
+																.childNodes()
+																.get(0))
+												.getName();
+										if (!rightVariable.equals("self")) {
+											lastNotSelfRightVariable = rightVariable;
+										}
+										if (Connection
+												.translateSideFromIntToString(
+														connection
+																.getMappingSide())
+												.equals(callnode.getName())) {
+											if (leftVariable.equals(connection
+													.getSource().getShapeNode()
+													.getName())
+													&& rightVariable
+															.equals(connection
+																	.getTarget()
+																	.getShapeNode()
+																	.getName())) {
+												return (NewlineNode) newline;
+											}
+										}
+									} else if (connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+										if (callnode.getReceiverNode() instanceof StrNode) {
+											leftVariable = ((StrNode) callnode
+													.getReceiverNode())
+													.getValue();
+											rightVariable = ModelGenerator
+													.findLastCallNodeInTree(
+															callnode
+																	.getArgsNode()
+																	.childNodes()
+																	.get(0))
+													.getName();
+
+											if (Connection
+													.translateSideFromIntToString(
+															connection
+																	.getMappingSide())
+													.equals(callnode.getName())) {
+												if (leftVariable
 														.equals(connection
-																.getTarget()
+																.getConstantName())
+														&& rightVariable
+																.equals(connection
+																		.getTarget()
+																		.getShapeNode()
+																		.getName())) {
+													return (NewlineNode) newline;
+												}
+											}
+
+										} else if (callnode.getArgsNode()
+												.childNodes().get(0) instanceof StrNode) {
+											leftVariable = ModelGenerator
+													.findLastCallNodeInTree(
+															(callnode
+																	.getReceiverNode()))
+													.getName();
+											rightVariable = ((StrNode) callnode
+													.getArgsNode().childNodes()
+													.get(0)).getValue();
+
+											if (Connection
+													.translateSideFromIntToString(
+															connection
+																	.getMappingSide())
+													.equals(callnode.getName())) {
+												if (leftVariable
+														.equals(connection
+																.getSource()
 																.getShapeNode()
-																.getName())) {
-											return (NewlineNode) newline;
+																.getName())
+														&& rightVariable
+																.equals(connection
+																		.getConstantName())) {
+													return (NewlineNode) newline;
+												}
+											}
 										}
 									}
+
 								}
 							}
 							if ((((FCallNode) child).getIterNode()) != null
