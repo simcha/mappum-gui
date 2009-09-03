@@ -742,8 +742,8 @@ public class RootNodeHolder {
 
 					}
 					routeArray.add(tmpList);
-				} else if (mappingExists(leftShapeList.get(leftLevel),
-						rightShapeList.get(rightLevel), (NewlineNode) rootNode
+				} else if (mappingExists(leftShapeList.get(leftLevel).getName(),
+						rightShapeList.get(rightLevel).getName(), (NewlineNode) rootNode
 								.childNodes().get(i))) {
 					List<Integer> tmpList = new ArrayList<Integer>();
 					tmpList.add(i);
@@ -858,49 +858,44 @@ public class RootNodeHolder {
 	 * @param newlineNode
 	 * @return
 	 */
-	private boolean mappingExists(Shape leftShape, Shape rightShape,
-			NewlineNode newlineNode) {
-		if (newlineNode.getNextNode() instanceof FCallNode) {
-			if (((FCallNode) newlineNode.getNextNode()).getName().equals("map")) {
-				CallNode callnode = (CallNode) newlineNode.getNextNode()
-						.childNodes().get(0).childNodes().get(0);
-				CallNode leftNode = ModelGenerator
-						.findLastCallNodeInTree(callnode.childNodes().get(0));
-				CallNode rightNode = ModelGenerator
-						.findLastCallNodeInTree(callnode.childNodes().get(1)
-								.childNodes().get(0));
-				if (leftNode.getName().equals(leftShape.getName())
-						&& rightNode.getName().equals(rightShape.getName())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Check if mapping exists in inserted Node
-	 * 
-	 * @param leftShape
-	 * @param rightShape
-	 * @param newlineNode
-	 * @return
-	 */
 	private boolean mappingExists(String leftShapeName, String rightShapeName,
 			NewlineNode newlineNode) {
 		if (newlineNode.getNextNode() instanceof FCallNode) {
 			if (((FCallNode) newlineNode.getNextNode()).getName().equals("map")) {
 				CallNode callnode = (CallNode) newlineNode.getNextNode()
 						.childNodes().get(0).childNodes().get(0);
-				CallNode leftNode = ModelGenerator
-						.findLastCallNodeInTree(callnode.childNodes().get(0));
-				CallNode rightNode = ModelGenerator
-						.findLastCallNodeInTree(callnode.childNodes().get(1)
-								.childNodes().get(0));
-				if (leftNode.getName().equals(leftShapeName)
-						&& rightNode.getName().equals(rightShapeName)) {
-					return true;
+				if (callnode.childNodes().get(0) instanceof StrNode) {
+					StrNode leftNode = ((StrNode)callnode.childNodes().get(0));
+					CallNode rightNode = ModelGenerator
+					.findLastCallNodeInTree(callnode.childNodes()
+							.get(1).childNodes().get(0));
+					if (leftNode.getValue().equals(leftShapeName)
+							&& rightNode.getName().equals(rightShapeName)) {
+						return true;
+					}
+
+				} else if (callnode.childNodes().get(1).childNodes().get(0) instanceof StrNode) {
+					CallNode leftNode = ModelGenerator
+					.findLastCallNodeInTree(callnode.childNodes()
+							.get(0));
+					StrNode rightNode = ((StrNode)callnode.childNodes().get(1).childNodes().get(0));
+					if (leftNode.getName().equals(leftShapeName)
+							&& rightNode.getValue().equals(rightShapeName)) {
+						return true;
+					}
+				} else {
+					CallNode leftNode = ModelGenerator
+							.findLastCallNodeInTree(callnode.childNodes()
+									.get(0));
+					CallNode rightNode = ModelGenerator
+							.findLastCallNodeInTree(callnode.childNodes()
+									.get(1).childNodes().get(0));
+					if (leftNode.getName().equals(leftShapeName)
+							&& rightNode.getName().equals(rightShapeName)) {
+						return true;
+					}
 				}
+
 			}
 		}
 		return false;
