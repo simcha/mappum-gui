@@ -1,19 +1,25 @@
 package pl.ivmx.mappum.gui.figure;
 
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Label;
-import org.eclipse.draw2d.LineBorder;
+import org.eclipse.draw2d.RoundedRectangle;
 import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.draw2d.XYLayout;
+import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 
-public class ShapeFigure extends Figure {
-	private Label labelName = new Label();
-	private Label labelType = new Label();
+public class ShapeFigure extends RoundedRectangle {
 
-	public ShapeFigure() {
+	private final static Color COLOR_LIGHT = new Color(null, 240, 240, 240);
+	private final static Color COLOR_DARK = new Color(null, 230, 230, 230);
+
+	private final Label labelName = new Label();
+	private final Label labelType = new Label();
+
+	public ShapeFigure(final boolean isDark) {
+		setCornerDimensions(new Dimension(20, 20));
 		XYLayout layout = new XYLayout();
 		setLayoutManager(layout);
 		labelName.setIcon(new Image(null, 16, 16));
@@ -24,10 +30,11 @@ public class ShapeFigure extends Figure {
 		add(labelType, ToolbarLayout.ALIGN_CENTER);
 		setConstraint(labelType, new Rectangle(24, 16, -1, -1));
 
-		/** Just for Fun :) **/
-		setBorder(new LineBorder(1));
-		//setBackgroundColor(new Color(null, 255, 255, 206));
-		//setForegroundColor(new Color(null, 0, 0, 0));
+		// setBorder(new LineBorder(1));
+
+		setBackgroundColor(isDark ? COLOR_DARK : COLOR_LIGHT);
+
+		// setForegroundColor(new Color(null, 0, 0, 0));
 
 	}
 
@@ -40,13 +47,14 @@ public class ShapeFigure extends Figure {
 		if (text != null)
 			labelType.setText("Type: " + text);
 	}
+
 	public String getName() {
-			return labelName.getText();
+		return labelName.getText();
 	}
 
 	public String getType() {
 		return labelType.getText();
-}
+	}
 
 	public void setLayout(Rectangle rect) {
 		getParent().setConstraint(this, rect);

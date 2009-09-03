@@ -10,7 +10,7 @@ public class ShapesDiagram extends ModelElement {
 	/** Property ID to use when a child is removed from this diagram. */
 	public static final String CHILD_REMOVED_PROP = "ShapesDiagram.ChildRemoved";
 	private static final long serialVersionUID = 1;
-	private List shapes = new ArrayList();
+	private List<Shape> shapes = new ArrayList<Shape>();
 
 	/**
 	 * Add a shape to this diagram.
@@ -19,7 +19,7 @@ public class ShapesDiagram extends ModelElement {
 	 *            a non-null shape instance
 	 * @return true, if the shape was added, false otherwise
 	 */
-	public boolean addChild(Shape s) {
+	public boolean addChild(final Shape s) {
 		if (s != null && shapes.add(s)) {
 			firePropertyChange(CHILD_ADDED_PROP, null, s);
 			return true;
@@ -31,7 +31,7 @@ public class ShapesDiagram extends ModelElement {
 	 * Return a List of Shapes in this diagram. The returned List should not be
 	 * modified.
 	 */
-	public List getChildren() {
+	public List<Shape> getChildren() {
 		return shapes;
 	}
 

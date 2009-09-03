@@ -17,6 +17,7 @@ import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editpolicies.RootComponentEditPolicy;
 
 import pl.ivmx.mappum.gui.model.ModelElement;
+import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
 
 class DiagramEditPart extends AbstractGraphicalEditPart implements
@@ -81,7 +82,7 @@ class DiagramEditPart extends AbstractGraphicalEditPart implements
 	 * 
 	 * @see org.eclipse.gef.editparts.AbstractEditPart#getModelChildren()
 	 */
-	protected List getModelChildren() {
+	protected List<Shape> getModelChildren() {
 		return getCastedModel().getChildren(); // return a list of shapes
 	}
 

@@ -18,7 +18,7 @@ import pl.ivmx.mappum.gui.MappumPlugin;
 
 public class Shape extends ModelElement {
 
-	private Logger logger = Logger.getLogger(Shape.class);
+	private final Logger logger = Logger.getLogger(Shape.class);
 	private static final Image RECTANGLE_ICON = createImage("icons/rectangle16.gif");
 	private static IPropertyDescriptor[] descriptors;
 
@@ -37,9 +37,9 @@ public class Shape extends ModelElement {
 
 	public static final String TARGET_CONNECTIONS_PROP = "Shape.TargetConn";
 
-	private List sourceConnections = new ArrayList();
+	private List<Connection> sourceConnections = new ArrayList<Connection>();
 
-	private List targetConnections = new ArrayList();
+	private List<Connection> targetConnections = new ArrayList<Connection>();
 
 	public static final int LEFT_SIDE = 1;
 	public static final int RIGHT_SIDE = 2;
@@ -53,7 +53,7 @@ public class Shape extends ModelElement {
 	public int sizeWidth;
 
 	private String type;
-	private Shape shapeParent;
+	private final Shape shapeParent;
 	private List<Shape> shapeChildren;
 	private int side;
 	private static List<Shape> shapes = new ArrayList<Shape>();
@@ -110,12 +110,12 @@ public class Shape extends ModelElement {
 	}
 
 	public boolean addToParent() {
-		if(shapeParent.getShapeChildren().contains(this)){
+		if (shapeParent.getShapeChildren().contains(this)) {
 			return false;
-		}else{
+		} else {
 			return shapeParent.addChild(this);
 		}
-		
+
 	}
 
 	public boolean addChild(Shape s) {
@@ -134,23 +134,19 @@ public class Shape extends ModelElement {
 		return false;
 	}
 
-	public Shape() {
-		// TODO Auto-generated constructor stub
-	}
-
 	public static Shape createShape(String name, String type,
 			Shape shapeParent, int side, CallNode shapeNode) {
-//		for (int i = 0; i < Shape.getShapes().size(); i++) {
-//			if (Shape.getShapes().get(i).getName().equals(name)
-//					&& Shape.getShapes().get(i).getSide() == side) {
-//				if (Shape.getShapes().get(i).getShapeParent() != null
-//						&& Shape.getShapes().get(i).getShapeParent().equals(
-//								shapeParent)) {
-//					return Shape.getShapes().get(i);
-//				}
-//
-//			}
-//		}
+		// for (int i = 0; i < Shape.getShapes().size(); i++) {
+		// if (Shape.getShapes().get(i).getName().equals(name)
+		// && Shape.getShapes().get(i).getSide() == side) {
+		// if (Shape.getShapes().get(i).getShapeParent() != null
+		// && Shape.getShapes().get(i).getShapeParent().equals(
+		// shapeParent)) {
+		// return Shape.getShapes().get(i);
+		// }
+		//
+		// }
+		// }
 		if (shapeParent == null) {
 			for (Shape shape : Shape.getRootShapes()) {
 				if (shape.getName().equals(name) && shape.getSide() == side)
@@ -197,12 +193,12 @@ public class Shape extends ModelElement {
 		return super.getPropertyValue(propertyId);
 	}
 
-	public List getSourceConnections() {
-		return new ArrayList(sourceConnections);
+	public List<Connection> getSourceConnections() {
+		return new ArrayList<Connection>(sourceConnections);
 	}
 
-	public List getTargetConnections() {
-		return new ArrayList(targetConnections);
+	public List<Connection> getTargetConnections() {
+		return new ArrayList<Connection>(targetConnections);
 
 	}
 
@@ -239,10 +235,6 @@ public class Shape extends ModelElement {
 
 	public Shape getShapeParent() {
 		return shapeParent;
-	}
-
-	public void setShapeParent(Shape shapeParent) {
-		this.shapeParent = shapeParent;
 	}
 
 	public void addShapeChild(Shape shape) {
@@ -336,7 +328,7 @@ public class Shape extends ModelElement {
 		return SMALLER_ELEMENT_HEIGHT;
 	}
 
-	private static int getChildrenDepth(Shape shape) {
+	private int getChildrenDepth(Shape shape) {
 		int i = 0;
 		if (shape.getShapeChildren().size() != 0) {
 			for (Shape node : shape.getShapeChildren()) {
@@ -345,6 +337,16 @@ public class Shape extends ModelElement {
 			return ++i;
 		}
 		return 0;
+	}
+
+	public int getDepth() {
+		int depth = 0;
+		Shape node = getShapeParent();
+		while (node != null) {
+			depth++;
+			node = node.getShapeParent();
+		}
+		return depth;
 	}
 
 	public CallNode getShapeNode() {
