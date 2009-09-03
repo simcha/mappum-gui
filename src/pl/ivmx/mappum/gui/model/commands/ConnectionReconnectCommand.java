@@ -51,6 +51,9 @@ public class ConnectionReconnectCommand extends Command {
 	 * @see org.eclipse.gef.commands.Command#canExecute()
 	 */
 	public boolean canExecute() {
+		if(connection.getConnectionType() == Connection.CONST_TO_VAR_CONN){
+			return false;
+		}
 		if (newSource != null) {
 			return checkSourceReconnection();
 		} else if (newTarget != null) {

@@ -3,7 +3,10 @@ package pl.ivmx.mappum.gui.parts;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.Label;
+import org.eclipse.draw2d.MidpointLocator;
 import org.eclipse.draw2d.PolygonDecoration;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.gef.EditPolicy;
@@ -79,6 +82,11 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	protected IFigure createFigure() {
 		PolylineConnection connection = (PolylineConnection) super
 				.createFigure();
+		if(getCastedModel().getConnectionType() == Connection.CONST_TO_VAR_CONN){
+			Label label = new Label(getCastedModel().getConstantName());
+			connection.add(label, new MidpointLocator(connection, 0));
+			connection.setLineStyle(Graphics.LINE_DOT);
+		}
 		if (getCastedModel().getMappingSide() == Connection.DUAL_SIDE) {
 			connection.setTargetDecoration(new PolygonDecoration()); // arrow at
 			// target
