@@ -16,6 +16,7 @@ import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
@@ -38,8 +39,11 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 			String viewId = "org.eclipse.ui.views.PropertySheet";
 
 			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-						.getActivePage().showView(viewId);
+				final IWorkbenchPage p = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+				if (p != null) {
+					p.showView(viewId);
+				}
 			} catch (PartInitException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -134,7 +138,8 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 		Connection connection = getCastedModel();
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
 		RootNodeHolder rootNodeHolder = RootNodeHolder.getInstance();
-		ChangeConnectionPropsWizard wizard = new ChangeConnectionPropsWizard(connection);
+		ChangeConnectionPropsWizard wizard = new ChangeConnectionPropsWizard(
+				connection);
 		wizard.init();
 		WizardDialog dialog = new WizardDialog(shell, wizard);
 		dialog.open();
