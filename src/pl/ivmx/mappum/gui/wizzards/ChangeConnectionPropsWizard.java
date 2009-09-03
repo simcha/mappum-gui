@@ -37,19 +37,14 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
 	public boolean performFinish() {
-		String rubyCode = mainPage.getRubyCode();
-		if(!rubyCode.equals(mainPage.getCode())){
+		final String rubyCode = mainPage.getRubyCode();
+		if (!rubyCode.equals(mainPage.getCode())) {
 			Node node = null;
-			try {
-				node = generateModelFromCode(rubyCode);
-			} catch (CoreException e) {
-			}
+			node = generateModelFromCode(rubyCode);
 			if (node != null) {
 				RootNodeHolder nodeHolder = RootNodeHolder.getInstance();
-				nodeHolder.changeMappingAtributes(connection, null, mainPage
-						.getRubyComment());
-				Node parentNode = nodeHolder.getParentNode(mappingNode, nodeHolder
-						.getRootNode());
+				Node parentNode = nodeHolder.getParentNode(mappingNode,
+						nodeHolder.getRootNode());
 				int pointer = 0;
 				for (Node child : parentNode.childNodes()) {
 					if (child.equals(mappingNode)) {
@@ -64,13 +59,15 @@ public class ChangeConnectionPropsWizard extends Wizard {
 				}
 				parentNode.childNodes().remove(pointer + moveCounter);
 
+				nodeHolder.changeMappingAtributes(connection, null, mainPage
+						.getRubyComment());
 			}
 			return true;
 		}
 		return true;
 	}
 
-	private Node generateModelFromCode(String code) throws CoreException {
+	private Node generateModelFromCode(String code) {
 		return ModelGenerator.getInstance().parseExternalRubbyCode(code);
 	}
 

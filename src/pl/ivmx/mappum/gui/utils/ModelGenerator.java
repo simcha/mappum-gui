@@ -73,7 +73,7 @@ public class ModelGenerator {
 		return parser.parse(file.getName(), content, configuration);
 	}
 
-	public Node parseExternalRubbyCode(String code) throws CoreException {
+	public Node parseExternalRubbyCode(String code) {
 		Parser parser2 = new Parser();
 		InputStreamReader inputStreamReader = new InputStreamReader(
 				new ByteArrayInputStream(code.getBytes()));
