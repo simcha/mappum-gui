@@ -38,33 +38,34 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		String rubyCode = mainPage.getRubyCode();
-		Node node;
-		try {
-			node = generateModelFromCode(rubyCode);
-		} catch (CoreException e) {
-			e.printStackTrace();
-			return false;
-		}
-		if (node != null) {
-			RootNodeHolder nodeHolder = RootNodeHolder.getInstance();
-			nodeHolder.changeMappingAtributes(connection, null, mainPage
-					.getRubyComment());
-			Node parentNode = nodeHolder.getParentNode(mappingNode, nodeHolder
-					.getRootNode());
-			int pointer = 0;
-			for (Node child : parentNode.childNodes()) {
-				if (child.equals(mappingNode)) {
-					break;
+		if(!rubyCode.equals(mainPage.getCode())){
+			Node node = null;
+			try {
+				node = generateModelFromCode(rubyCode);
+			} catch (CoreException e) {
+			}
+			if (node != null) {
+				RootNodeHolder nodeHolder = RootNodeHolder.getInstance();
+				nodeHolder.changeMappingAtributes(connection, null, mainPage
+						.getRubyComment());
+				Node parentNode = nodeHolder.getParentNode(mappingNode, nodeHolder
+						.getRootNode());
+				int pointer = 0;
+				for (Node child : parentNode.childNodes()) {
+					if (child.equals(mappingNode)) {
+						break;
+					}
+					pointer++;
 				}
-				pointer++;
-			}
-			int moveCounter = 0;
-			for (Node newChild : node.childNodes()) {
-				parentNode.childNodes().add(pointer, newChild);
-				moveCounter++;
-			}
-			parentNode.childNodes().remove(pointer + moveCounter);
+				int moveCounter = 0;
+				for (Node newChild : node.childNodes()) {
+					parentNode.childNodes().add(pointer, newChild);
+					moveCounter++;
+				}
+				parentNode.childNodes().remove(pointer + moveCounter);
 
+			}
+			return true;
 		}
 		return true;
 	}

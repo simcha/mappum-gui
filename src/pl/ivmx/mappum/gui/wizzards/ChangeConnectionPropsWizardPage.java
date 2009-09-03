@@ -48,7 +48,7 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 		return ((ChangeConnectionPropsWizard) getWizard()).getComment();
 	}
 
-	private String getCode() {
+	public String getCode() {
 		String code = "";
 		// if(code == null){
 		try {
