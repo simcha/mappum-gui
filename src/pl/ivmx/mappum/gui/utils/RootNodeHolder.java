@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.jrubyparser.BlockStaticScope;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.StaticScope;
@@ -47,7 +46,7 @@ public class RootNodeHolder {
 	private String lastNotSelfLeftVariable = "";
 	private String lastNotSelfRightVariable = "";
 
-	private Logger logger = Logger.getLogger(RootNodeHolder.class);
+//	private Logger logger = Logger.getLogger(RootNodeHolder.class);
 
 	private RootNodeHolder() {
 	}
@@ -92,8 +91,7 @@ public class RootNodeHolder {
 	private NewlineNode findRootMappingNode(Node node) {
 		for (Node child : node.childNodes()) {
 			if (child instanceof FCallNode) {
-				if (((FCallNode) child).getName() == "map") {
-
+				if ("map".equals(((FCallNode) child).getName())) {
 					return (NewlineNode) node;
 				}
 			}
@@ -168,11 +166,14 @@ public class RootNodeHolder {
 
 	}
 
-	public Node getParentNode(Node nodeToFind, Node NodeToSearchIn) {
+	public Node getParentNode(final Node nodeToFind, final Node nodeToSearchIn) {
+		if (nodeToSearchIn == null || nodeToFind == null) {
+			return null;
+		}
 		Node node = null;
-		for (Node child : NodeToSearchIn.childNodes()) {
-			if (child.equals(nodeToFind)) {
-				return NodeToSearchIn;
+		for (Node child : nodeToSearchIn.childNodes()) {
+			if (nodeToFind.equals(child)) {
+				return nodeToSearchIn;
 			} else {
 				node = getParentNode(nodeToFind, child);
 				if (node != null)
@@ -742,9 +743,10 @@ public class RootNodeHolder {
 
 					}
 					routeArray.add(tmpList);
-				} else if (mappingExists(leftShapeList.get(leftLevel).getName(),
-						rightShapeList.get(rightLevel).getName(), (NewlineNode) rootNode
-								.childNodes().get(i))) {
+				} else if (mappingExists(
+						leftShapeList.get(leftLevel).getName(), rightShapeList
+								.get(rightLevel).getName(),
+						(NewlineNode) rootNode.childNodes().get(i))) {
 					List<Integer> tmpList = new ArrayList<Integer>();
 					tmpList.add(i);
 					if (getNextChildBlockNode((NewlineNode) rootNode
@@ -865,10 +867,10 @@ public class RootNodeHolder {
 				CallNode callnode = (CallNode) newlineNode.getNextNode()
 						.childNodes().get(0).childNodes().get(0);
 				if (callnode.childNodes().get(0) instanceof StrNode) {
-					StrNode leftNode = ((StrNode)callnode.childNodes().get(0));
+					StrNode leftNode = ((StrNode) callnode.childNodes().get(0));
 					CallNode rightNode = ModelGenerator
-					.findLastCallNodeInTree(callnode.childNodes()
-							.get(1).childNodes().get(0));
+							.findLastCallNodeInTree(callnode.childNodes()
+									.get(1).childNodes().get(0));
 					if (leftNode.getValue().equals(leftShapeName)
 							&& rightNode.getName().equals(rightShapeName)) {
 						return true;
@@ -876,9 +878,10 @@ public class RootNodeHolder {
 
 				} else if (callnode.childNodes().get(1).childNodes().get(0) instanceof StrNode) {
 					CallNode leftNode = ModelGenerator
-					.findLastCallNodeInTree(callnode.childNodes()
-							.get(0));
-					StrNode rightNode = ((StrNode)callnode.childNodes().get(1).childNodes().get(0));
+							.findLastCallNodeInTree(callnode.childNodes()
+									.get(0));
+					StrNode rightNode = ((StrNode) callnode.childNodes().get(1)
+							.childNodes().get(0));
 					if (leftNode.getName().equals(leftShapeName)
 							&& rightNode.getValue().equals(rightShapeName)) {
 						return true;
