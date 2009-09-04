@@ -202,80 +202,26 @@ public class RootNodeHolder {
 									// connection.getMappingSide())
 									// .equals(callnode.getName())) {
 									if (connection.getConnectionType() == Connection.VAR_TO_VAR_CONN) {
-										leftVariable = ModelGenerator
-												.findLastCallNodeInTree(
-														(callnode
-																.getReceiverNode()))
-												.getName();
-										if (!leftVariable.equals("self")) {
-											lastNotSelfLeftVariable = leftVariable;
-										}
-										rightVariable = ModelGenerator
-												.findLastCallNodeInTree(
-														callnode.getArgsNode()
-																.childNodes()
-																.get(0))
-												.getName();
-										if (!rightVariable.equals("self")) {
-											lastNotSelfRightVariable = rightVariable;
-										}
-										if (Connection
-												.translateSideFromIntToString(
-														connection
-																.getMappingSide())
-												.equals(callnode.getName())) {
-											if (leftVariable.equals(connection
-													.getSource().getShapeNode()
-													.getName())
-													&& rightVariable
-															.equals(connection
-																	.getTarget()
-																	.getShapeNode()
-																	.getName())) {
-												return (NewlineNode) newline;
-											}
-										}
-									} else if (connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
-										if (callnode.getReceiverNode() instanceof StrNode) {
-											leftVariable = ((StrNode) callnode
-													.getReceiverNode())
-													.getValue();
-											rightVariable = ModelGenerator
-													.findLastCallNodeInTree(
-															callnode
-																	.getArgsNode()
-																	.childNodes()
-																	.get(0))
-													.getName();
+										CallNode leftNode = ModelGenerator
+												.findLastCallNodeInTree((callnode
+														.getReceiverNode()));
+										CallNode rightNode = ModelGenerator
+												.findLastCallNodeInTree(callnode
+														.getArgsNode()
+														.childNodes().get(0));
+										if (leftNode != null
+												&& rightNode != null) {
 
-											if (Connection
-													.translateSideFromIntToString(
-															connection
-																	.getMappingSide())
-													.equals(callnode.getName())) {
-												if (leftVariable
-														.equals(connection
-																.getConstantName())
-														&& rightVariable
-																.equals(connection
-																		.getTarget()
-																		.getShapeNode()
-																		.getName())) {
-													return (NewlineNode) newline;
-												}
+											leftVariable = leftNode.getName();
+											if (!leftVariable.equals("self")) {
+												lastNotSelfLeftVariable = leftVariable;
 											}
 
-										} else if (callnode.getArgsNode()
-												.childNodes().get(0) instanceof StrNode) {
-											leftVariable = ModelGenerator
-													.findLastCallNodeInTree(
-															(callnode
-																	.getReceiverNode()))
-													.getName();
-											rightVariable = ((StrNode) callnode
-													.getArgsNode().childNodes()
-													.get(0)).getValue();
+											rightVariable = rightNode.getName();
 
+											if (!rightVariable.equals("self")) {
+												lastNotSelfRightVariable = rightVariable;
+											}
 											if (Connection
 													.translateSideFromIntToString(
 															connection
@@ -288,8 +234,84 @@ public class RootNodeHolder {
 																.getName())
 														&& rightVariable
 																.equals(connection
-																		.getConstantName())) {
+																		.getTarget()
+																		.getShapeNode()
+																		.getName())) {
 													return (NewlineNode) newline;
+												}
+											}
+										}
+									} else if (connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+										if (callnode.getReceiverNode() instanceof StrNode) {
+											StrNode leftNode = ((StrNode) callnode
+													.getReceiverNode());
+											CallNode rightNode = ModelGenerator
+													.findLastCallNodeInTree(callnode
+															.getArgsNode()
+															.childNodes()
+															.get(0));
+
+											if (leftNode != null
+													&& rightNode != null) {
+
+												leftVariable = leftNode
+														.getValue();
+												rightVariable = rightNode
+														.getName();
+
+												if (Connection
+														.translateSideFromIntToString(
+																connection
+																		.getMappingSide())
+														.equals(
+																callnode
+																		.getName())) {
+													if (leftVariable
+															.equals(connection
+																	.getConstantName())
+															&& rightVariable
+																	.equals(connection
+																			.getTarget()
+																			.getShapeNode()
+																			.getName())) {
+														return (NewlineNode) newline;
+													}
+												}
+											}
+										} else if (callnode.getArgsNode()
+												.childNodes().get(0) instanceof StrNode) {
+											CallNode leftNode = ModelGenerator
+													.findLastCallNodeInTree((callnode
+															.getReceiverNode()));
+											StrNode rightNode = (StrNode) callnode
+													.getArgsNode().childNodes()
+													.get(0);
+
+											if (leftNode != null
+													&& rightNode != null) {
+
+												leftVariable = leftNode
+														.getName();
+												rightVariable = rightNode
+														.getValue();
+
+												if (Connection
+														.translateSideFromIntToString(
+																connection
+																		.getMappingSide())
+														.equals(
+																callnode
+																		.getName())) {
+													if (leftVariable
+															.equals(connection
+																	.getSource()
+																	.getShapeNode()
+																	.getName())
+															&& rightVariable
+																	.equals(connection
+																			.getConstantName())) {
+														return (NewlineNode) newline;
+													}
 												}
 											}
 										}

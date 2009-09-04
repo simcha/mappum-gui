@@ -156,8 +156,9 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 
 	public void performRequest(Request req) {
 		if (req.getType().equals(RequestConstants.REQ_OPEN)) {
-			openChangeConnectionPropsWizard();
 			System.out.println("double-click");
+			openChangeConnectionPropsWizard();
+			
 		}
 		super.performRequest(req);
 	}
