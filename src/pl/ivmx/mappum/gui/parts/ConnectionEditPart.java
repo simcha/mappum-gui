@@ -83,9 +83,19 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 		PolylineConnection connection = (PolylineConnection) super
 				.createFigure();
 		if(getCastedModel().getConnectionType() == Connection.CONST_TO_VAR_CONN){
-			Label label = new Label(getCastedModel().getConstantName());
+			Label label = new Label("CONSTANT: "+getCastedModel().getConstantName());
 			connection.add(label, new MidpointLocator(connection, 0));
 			connection.setLineStyle(Graphics.LINE_DOT);
+		}
+		else if(getCastedModel().getConnectionType() == Connection.FUN_TO_VAR_CONN){
+			String functions = "FUNCTIONS: ";
+			for(String function: getCastedModel().getFunctions()){
+				functions = functions + function + ", ";
+			}
+			String substring = functions.substring(0, functions.length()-2);
+			Label label = new Label(substring);
+			connection.add(label, new MidpointLocator(connection, 0));
+			connection.setLineStyle(Graphics.LINE_DASH);
 		}
 		if (getCastedModel().getMappingSide() == Connection.DUAL_SIDE) {
 			connection.setTargetDecoration(new PolygonDecoration()); // arrow at

@@ -22,6 +22,7 @@ import org.jrubyparser.ast.NilImplicitNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.RootNode;
 import org.jrubyparser.ast.StrNode;
+import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.XStrNode;
 
 import pl.ivmx.mappum.gui.model.Connection;
@@ -46,7 +47,7 @@ public class RootNodeHolder {
 	private String lastNotSelfLeftVariable = "";
 	private String lastNotSelfRightVariable = "";
 
-//	private Logger logger = Logger.getLogger(RootNodeHolder.class);
+	// private Logger logger = Logger.getLogger(RootNodeHolder.class);
 
 	private RootNodeHolder() {
 	}
@@ -316,7 +317,80 @@ public class RootNodeHolder {
 											}
 										}
 									}
+									//
+									else if (connection.getConnectionType() == Connection.FUN_TO_VAR_CONN) {
+										if (callnode.getReceiverNode() instanceof VCallNode) {
+											VCallNode leftNode = ((VCallNode) callnode
+													.getReceiverNode());
+											CallNode rightNode = ModelGenerator
+													.findLastCallNodeInTree(callnode
+															.getArgsNode()
+															.childNodes()
+															.get(0));
 
+											if (leftNode != null
+													&& rightNode != null) {
+
+												leftVariable = leftNode
+														.getName();
+												rightVariable = rightNode
+														.getName();
+
+												if (Connection
+														.translateSideFromIntToString(
+																connection
+																		.getMappingSide())
+														.equals(
+																callnode
+																		.getName())) {
+													if (leftVariable
+															.equals("func")
+															&& rightVariable
+																	.equals(connection
+																			.getTarget()
+																			.getShapeNode()
+																			.getName())) {
+														return (NewlineNode) newline;
+													}
+												}
+											}
+										} else if (callnode.getArgsNode()
+												.childNodes().get(0) instanceof VCallNode) {
+											CallNode leftNode = ModelGenerator
+													.findLastCallNodeInTree((callnode
+															.getReceiverNode()));
+											VCallNode rightNode = (VCallNode) callnode
+													.getArgsNode().childNodes()
+													.get(0);
+
+											if (leftNode != null
+													&& rightNode != null) {
+
+												leftVariable = leftNode
+														.getName();
+												rightVariable = rightNode
+														.getName();
+
+												if (Connection
+														.translateSideFromIntToString(
+																connection
+																		.getMappingSide())
+														.equals(
+																callnode
+																		.getName())) {
+													if (leftVariable
+															.equals(connection
+																	.getSource()
+																	.getShapeNode()
+																	.getName())
+															&& rightVariable
+																	.equals("func")) {
+														return (NewlineNode) newline;
+													}
+												}
+											}
+										}
+									}
 								}
 							}
 							if ((((FCallNode) child).getIterNode()) != null
@@ -906,6 +980,25 @@ public class RootNodeHolder {
 							.childNodes().get(0));
 					if (leftNode.getName().equals(leftShapeName)
 							&& rightNode.getValue().equals(rightShapeName)) {
+						return true;
+					}
+				} else if (callnode.childNodes().get(0) instanceof VCallNode) {
+					VCallNode leftNode = ((VCallNode) callnode.childNodes().get(0));
+					CallNode rightNode = ModelGenerator
+							.findLastCallNodeInTree(callnode.childNodes()
+									.get(1).childNodes().get(0));
+					if (leftNode.getName().equals("func")
+							&& rightNode.getName().equals(rightShapeName)) {
+						return true;
+					}
+				} else if (callnode.childNodes().get(1).childNodes().get(0) instanceof VCallNode) {
+					CallNode leftNode = ModelGenerator
+							.findLastCallNodeInTree(callnode.childNodes()
+									.get(0));
+					VCallNode rightNode = ((VCallNode) callnode.childNodes().get(1)
+							.childNodes().get(0));
+					if (leftNode.getName().equals(leftShapeName)
+							&& rightNode.getName().equals("func")) {
 						return true;
 					}
 				} else {

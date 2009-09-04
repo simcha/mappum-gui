@@ -28,8 +28,10 @@ public class Connection extends ModelElement {
 	private static final long serialVersionUID = 1;
 	public static final int CONST_TO_VAR_CONN = 1;
 	public static final int VAR_TO_VAR_CONN = 2;
+	public static final int FUN_TO_VAR_CONN = 3;
 	private int connectionType;
 	private String constantName;
+	private ArrayList<String> functions = new ArrayList<String>();
 
 	private boolean isConnected;
 	private Shape source;
@@ -387,5 +389,18 @@ public class Connection extends ModelElement {
 	public int getConnectionType() {
 		return connectionType;
 	}
+
+	public void setFunctions(ArrayList<String> functions) {
+		this.functions = functions;
+	}
+	
+	public void addFunction(String  function) {
+		this.functions.add(function);
+	}
+	public ArrayList<String> getFunctions() {
+		return functions;
+	}
+
+
 
 }

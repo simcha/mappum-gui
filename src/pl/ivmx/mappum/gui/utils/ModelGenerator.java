@@ -21,6 +21,7 @@ import org.jrubyparser.ast.NewlineNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.ast.StrNode;
 import org.jrubyparser.ast.SymbolNode;
+import org.jrubyparser.ast.VCallNode;
 import org.jrubyparser.ast.XStrNode;
 import org.jrubyparser.parser.ParserConfiguration;
 import org.jrubyparser.rewriter.ReWriteVisitor;
@@ -37,6 +38,7 @@ public class ModelGenerator {
 	private static final int MAP_WITH_SUBOBJECT = 6;
 	private static final int MAP_WITH_SUBMAP = 7;
 	private static final int MAP_WITH_CONSTANT = 8;
+	private static final int MAP_WITH_FUNCTION = 9;
 	/**
 	 * 
 	 */
@@ -93,7 +95,7 @@ public class ModelGenerator {
 				.setRootNode(
 						RootNodeHolder
 								.correctNodeIterationBlocks(parseRubbyFile(file)));
-		// new TestNodeTreeWindow(RootNodeHolder.getInstance().getRootNode());
+		new TestNodeTreeWindow(RootNodeHolder.getInstance().getRootNode());
 		createRootMapElements(RootNodeHolder.getInstance().getRootNode());
 	}
 
@@ -190,6 +192,9 @@ public class ModelGenerator {
 				mappingType = checkMappingType((FCallNode) child);
 		}
 		switch (mappingType) {
+		case MAP_WITH_FUNCTION:
+			FCallNode functnode = (FCallNode) node.childNodes().get(0);
+			return operateOnMapWithFunction(functnode, parents, comment);
 		case MAP_WITH_CONSTANT:
 			CallNode mapnode = (CallNode) node.childNodes().get(0).childNodes()
 					.get(0).childNodes().get(0);
@@ -231,6 +236,68 @@ public class ModelGenerator {
 			return null;
 		}
 
+	}
+
+	private String getFunction(Node node, String previousName) {
+		if (previousName == null) {
+			previousName = "";
+		}
+		if (node instanceof VCallNode) {
+			return ((VCallNode) node).getName();
+		} else if (node instanceof CallNode) {
+			if (previousName.equals("")) {
+				previousName = ((CallNode) node).getName();
+			} else {
+				previousName = ((CallNode) node).getName() + "." + previousName;
+			}
+			if (node.childNodes().size() > 0) {
+				previousName = getFunction(node.childNodes().get(0),
+						previousName);
+			}
+
+		} else if (node instanceof ConstNode) {
+			previousName = ((ConstNode) node).getName() + "." + previousName;
+		}
+		return previousName;
+	}
+
+	private Connection operateOnMapWithFunction(FCallNode mapNode,
+			Pair parents, XStrNode comment) {
+		CallNode assignNode = (CallNode) mapNode.childNodes().get(0)
+				.childNodes().get(0);
+		Pair pair = null;
+		if (assignNode.getReceiverNode() instanceof VCallNode) {
+			pair = new Pair(parents.getLeftShape(), createRightShape(
+					assignNode, parents));
+		} else if (assignNode.getArgsNode().childNodes().get(0) instanceof VCallNode) {
+			pair = new Pair(createLeftShape(assignNode, parents), parents
+					.getRightShape());
+		}
+		int side = Connection.translateSideFromStringToInt((assignNode)
+				.getName());
+
+		boolean canCreate = Connection.connectionNotExists(pair, new Pair(pair
+				.getLeftShape().getShapeParent(), pair.getRightShape()
+				.getShapeParent()));
+		Connection connection = null;
+		if (canCreate) {
+			connection = new Connection(pair.getLeftShape(), pair
+					.getRightShape(), side, Connection.FUN_TO_VAR_CONN);
+			if (comment != null) {
+				connection.setComment(comment.getValue());
+			}
+
+			BlockNode blockNode = (BlockNode) mapNode.childNodes().get(1)
+					.childNodes().get(0);
+			for (Node node : blockNode.childNodes()) {
+				if (node instanceof NewlineNode) {
+					connection.addFunction(getFunction(((NewlineNode) node)
+							.getNextNode(), null));
+				}
+			}
+		}
+
+		return connection;
 	}
 
 	private Connection operateOnMapWithConstant(CallNode mapnode, Pair parents,
@@ -587,6 +654,8 @@ public class ModelGenerator {
 				} else {
 					return MAP_WITH_SUBMAP;
 				}
+			} else if (findNameNode(callNode, "func") != null) {
+				return MAP_WITH_FUNCTION;
 			} else {
 				return MAP_WITH_CODE;
 			}
