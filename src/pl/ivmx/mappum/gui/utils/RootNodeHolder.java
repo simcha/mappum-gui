@@ -73,7 +73,7 @@ public class RootNodeHolder {
 		BlockNode blockNode = null;
 		for (Node child : node.childNodes()) {
 			if (child instanceof FCallNode) {
-				if (((FCallNode) child).getName() == "map") {
+				if ("map".equals(((FCallNode) child).getName())) {
 					iterate = false;
 					if (((FCallNode) child).getIterNode() != null) {
 						blockNode = (BlockNode) ((FCallNode) child)
