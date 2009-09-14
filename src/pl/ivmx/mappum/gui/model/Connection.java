@@ -67,17 +67,13 @@ public class Connection extends ModelElement {
 		reconnect(source, target, side);
 	}
 
-	public Connection(Shape source, Shape target, int side, String comment, int type) {
+	/*public Connection(Shape source, Shape target, int side, String comment, int type) {
 		connectionType = type;
 		connections.add(this);
 		this.comment = comment;
 		this.mappingCode="";
 		reconnect(source, target, side);
-	}
-
-	public Connection() {
-		// TODO Auto-generated constructor stub
-	}
+	}*/
 
 	/**
 	 * Disconnect this connection from the shapes it is attached to.
