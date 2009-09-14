@@ -464,6 +464,9 @@ public class ModelGenerator {
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					connection = operateOnInternalMap((NewlineNode) node,
 							mainPair, childComment);
+				}else if (((NewlineNode) node).getNextNode() instanceof CallNode){
+					connection = operateOnMapWithConstant((CallNode)((NewlineNode) node).getNextNode(),
+							mainPair, childComment);
 				}
 
 			}

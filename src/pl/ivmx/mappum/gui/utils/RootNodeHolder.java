@@ -452,6 +452,84 @@ public class RootNodeHolder {
 								}
 							}
 						}
+						//TODO
+					}else if(child instanceof CallNode && connection.getConnectionType() == Connection.CONST_TO_VAR_CONN){
+						if(child.childNodes().size() > 0){
+							CallNode callnode = (CallNode) child;
+							if (callnode.getReceiverNode() instanceof StrNode) {
+								StrNode leftNode = ((StrNode) callnode
+										.getReceiverNode());
+								CallNode rightNode = ModelGenerator
+										.findLastCallNodeInTree(callnode
+												.getArgsNode()
+												.childNodes()
+												.get(0));
+
+								if (leftNode != null
+										&& rightNode != null) {
+
+									leftVariable = leftNode
+											.getValue();
+									rightVariable = rightNode
+											.getName();
+
+									if (Connection
+											.translateSideFromIntToString(
+													connection
+															.getMappingSide())
+											.equals(
+													callnode
+															.getName())) {
+										if (leftVariable
+												.equals(connection
+														.getConstantName())
+												&& rightVariable
+														.equals(connection
+																.getTarget()
+																.getShapeNode()
+																.getName())) {
+											return (NewlineNode) newline;
+										}
+									}
+								}
+							} else if (callnode.getArgsNode()
+									.childNodes().get(0) instanceof StrNode) {
+								CallNode leftNode = ModelGenerator
+										.findLastCallNodeInTree((callnode
+												.getReceiverNode()));
+								StrNode rightNode = (StrNode) callnode
+										.getArgsNode().childNodes()
+										.get(0);
+
+								if (leftNode != null
+										&& rightNode != null) {
+
+									leftVariable = leftNode
+											.getName();
+									rightVariable = rightNode
+											.getValue();
+
+									if (Connection
+											.translateSideFromIntToString(
+													connection
+															.getMappingSide())
+											.equals(
+													callnode
+															.getName())) {
+										if (leftVariable
+												.equals(connection
+														.getSource()
+														.getShapeNode()
+														.getName())
+												&& rightVariable
+														.equals(connection
+																.getConstantName())) {
+											return (NewlineNode) newline;
+										}
+									}
+								}
+							}
+						}
 					}
 					if (getBlockNode((NewlineNode) newline) != null) {
 						newlineNode = findMappingNode(connection,
