@@ -29,6 +29,7 @@ public class Connection extends ModelElement {
 	public static final int CONST_TO_VAR_CONN = 1;
 	public static final int VAR_TO_VAR_CONN = 2;
 	public static final int FUN_TO_VAR_CONN = 3;
+	public static final int ARRAY_TO_VAR_CONN = 4;
 	private int connectionType;
 	private String constantName;
 	private ArrayList<String> functions = new ArrayList<String>();

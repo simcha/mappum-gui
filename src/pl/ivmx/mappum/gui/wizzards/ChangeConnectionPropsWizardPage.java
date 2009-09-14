@@ -2,7 +2,6 @@ package pl.ivmx.mappum.gui.wizzards;
 
 import java.io.IOException;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
@@ -15,7 +14,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-import org.jrubyparser.ast.Node;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
@@ -58,10 +56,6 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 			if (code == null || code.equals(""))
 				throw new IOException("Parsed code is null");
 		} catch (IOException e) {
-			MessageDialog.openError(getShell(), "Error while generating code",
-					"Error while generating code from ruby tree node");
-			e.printStackTrace();
-		} catch (CoreException e) {
 			MessageDialog.openError(getShell(), "Error while generating code",
 					"Error while generating code from ruby tree node");
 			e.printStackTrace();
@@ -184,12 +178,13 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 	void onEnterPage() {
 
 	}
-	public String getRubyCode(){
+
+	public String getRubyCode() {
 		return codeText.getText();
 	}
+
 	public String getRubyComment() {
 		return commentText.getText();
 	}
-
 
 }

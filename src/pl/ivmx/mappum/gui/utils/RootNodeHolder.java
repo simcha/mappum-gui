@@ -137,8 +137,15 @@ public class RootNodeHolder {
 			String newSide, String newComment) {
 		NewlineNode newlineNode = findMappingNode(connection,
 				findRootBlockNode(rootNode));
-		CallNode callnode = (CallNode) ((FCallNode) newlineNode.getNextNode())
-				.getArgsNode().childNodes().get(0);
+		CallNode callnode;
+		if(newlineNode.getNextNode() instanceof CallNode){
+			callnode = (CallNode) newlineNode.getNextNode();
+		}
+		else{
+			callnode = (CallNode) ((FCallNode) newlineNode.getNextNode())
+			.getArgsNode().childNodes().get(0);
+		}
+
 		if (newSide != null) {
 			callnode.setName(newSide);
 			return true;
