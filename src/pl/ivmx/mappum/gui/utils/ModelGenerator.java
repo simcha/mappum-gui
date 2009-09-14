@@ -1,8 +1,6 @@
 package pl.ivmx.mappum.gui.utils;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -45,7 +43,6 @@ public class ModelGenerator {
 	private static final long serialVersionUID = 1L;
 	private Parser parser;
 	private Reader content;
-	private IFile file;
 	private ParserConfiguration configuration;
 
 	private static final ModelGenerator INSTANCE = new ModelGenerator();
@@ -67,8 +64,7 @@ public class ModelGenerator {
 	 * @return
 	 * @throws CoreException
 	 */
-	private Node parseRubbyFile(IFile file) throws CoreException {
-		this.file = file;
+	private Node parseRubbyFile(final IFile file) throws CoreException {
 		parser = new Parser();
 		content = new InputStreamReader(file.getContents());
 		configuration = new ParserConfiguration();
@@ -105,13 +101,7 @@ public class ModelGenerator {
 	 * @param file
 	 * @throws CoreException
 	 */
-	public void generateModelChildElements(IFile file) throws CoreException {
-		// RootNodeHolder
-		// .getInstance()
-		// .setRootNode(
-		// RootNodeHolder
-		// .correctNodeIterationBlocks(parseRubbyFile(file)));
-
+	public void generateModelChildElements() throws CoreException {
 		findRootMap(RootNodeHolder.getInstance().getRootNode());
 	}
 
@@ -329,31 +319,6 @@ public class ModelGenerator {
 		}
 
 		return connection;
-	}
-
-	private Connection operateOnSimpleArrayMapWithNoElements(CallNode callnode,
-			Pair parents, XStrNode comment) {
-		int side = Connection
-				.translateSideFromStringToInt((callnode).getName());
-		CallNode leftSide = findLastCallNodeInTree(callnode.childNodes().get(0));
-		CallNode rightSide = findLastCallNodeInTree(callnode.childNodes()
-				.get(1).childNodes().get(0));
-		Shape leftShape = Shape.createShape(leftSide.getName() + "[]", null,
-				parents.getLeftShape(), Shape.LEFT_SIDE, (CallNode) callnode
-						.childNodes().get(0));
-		Shape rightShape = Shape.createShape(rightSide.getName() + "[]", null,
-				parents.getRightShape(), Shape.RIGHT_SIDE, (CallNode) callnode
-						.childNodes().get(1).childNodes().get(0));
-		parents.getLeftShape().addShapeChild(leftShape);
-		parents.getRightShape().addShapeChild(rightShape);
-		if (comment != null) {
-			return new Connection(leftShape, rightShape, side, comment
-					.getValue(), Connection.VAR_TO_VAR_CONN);
-		} else {
-			return new Connection(leftShape, rightShape, side,
-					Connection.VAR_TO_VAR_CONN);
-		}
-
 	}
 
 	private Connection operateOnMapWithSelf(CallNode callnode, Pair parents,
@@ -723,37 +688,13 @@ public class ModelGenerator {
 		return new Pair(leftElement, rightElement);
 	}
 
-	public String generateRubyCodeFromRootNode() throws IOException,
-			CoreException {
-
-		String source = "";
-		if (file != null) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					file.getContents()));
-			String s = "";
-			while ((s = reader.readLine()) != null) {
-				source += s;
-			}
-		}
-
-		return ReWriteVisitor.createCodeFromNode(RootNodeHolder.getInstance()
-				.getRootNode(), source);
+	public String generateRubyCodeFromRootNode() {
+		return generateRubyCodeFromNode(RootNodeHolder.getInstance()
+				.getRootNode());
 	}
 
-	public String generateRubyCodeFromNode(Node node) throws IOException,
-			CoreException {
-
-		String source = "";
-		if (file != null) {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					file.getContents()));
-			String s = "";
-			while ((s = reader.readLine()) != null) {
-				source += s;
-			}
-		}
-
-		return ReWriteVisitor.createCodeFromNode(node, source);
+	public String generateRubyCodeFromNode(Node node) {
+		// TODO: "" == 'lekkie' naduzycie
+		return ReWriteVisitor.createCodeFromNode(node, "");
 	}
-
 }
