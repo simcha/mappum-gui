@@ -10,6 +10,9 @@ import javax.script.ScriptException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -31,6 +34,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.TransferDropTargetListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -46,28 +53,38 @@ import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
-import pl.ivmx.mappum.gui.utils.TestNodeTreeWindow;
 
-public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
+public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
+		IResourceChangeListener {
 
 	/** This is the root of the editor's model. */
 	private ShapesDiagram diagram;
+	private boolean dirtyInput = false;
+
+	private TransferDropTargetListener transferDropTargetListener;
+
 	/** Palette component, holding the tools and shapes. */
-	private static PaletteRoot PALETTE_MODEL;
+	private PaletteRoot PALETTE_MODEL;
 
 	/** Create a new ShapesEditor instance. This is called by the Workspace. */
 	public MappumEditor() {
 		setEditDomain(new DefaultEditDomain(this));
 	}
 
-	protected void setInput(IEditorInput input) {
-		System.out.println("SET INPUT");
-		super.setInput(input);
+	private void cleanup() {
 		RootNodeHolder.getInstance().setRootNode(null);
 		Connection.getConnections().clear();
 		Shape.getRootShapes().clear();
 		Shape.getShapes().clear();
 		ModelGeneratorFromXML.getInstance().setModelArray(null);
+	}
+
+	protected void setInput(IEditorInput input) {
+		System.out.println("SET INPUT");
+		super.setInput(input);
+
+		cleanup();
+
 		final IFile file = ((IFileEditorInput) input).getFile();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getSite()
 				.getShell());
@@ -76,27 +93,29 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 				public void run(IProgressMonitor monitor) {
 					monitor.beginTask("Generating model...", 100);
 					try {
-						file.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+						file.getProject().refreshLocal(
+								IResource.DEPTH_INFINITE, null);
 						monitor.worked(15);
-						ModelGenerator.getInstance().generateModelRootElements(file);
+						ModelGenerator.getInstance().generateModelRootElements(
+								file);
 						monitor.worked(25);
 						ModelGeneratorFromXML.getInstance().generateModel(
 								file.getProject());
 						monitor.worked(35);
 						ModelGeneratorFromXML.getInstance()
-						.addFieldsFromRubyArray(
-								Shape.getRootShapes().get(0)
-										.getFullName(),
-								Shape.getRootShapes().get(1)
-										.getFullName());
+								.addFieldsFromRubyArray(
+										Shape.getRootShapes().get(0)
+												.getFullName(),
+										Shape.getRootShapes().get(1)
+												.getFullName());
 						monitor.worked(75);
-						ModelGenerator.getInstance().generateModelChildElements(file);
+						ModelGenerator.getInstance()
+								.generateModelChildElements();
 						monitor.worked(85);
 						RootNodeHolder.generateRootBlockNode(RootNodeHolder
 								.getInstance().getRootNode());
-
-//						new TestNodeTreeWindow(RootNodeHolder.getInstance()
-//								.getRootNode());
+						// new TestNodeTreeWindow(RootNodeHolder.getInstance()
+						// .getRootNode());
 
 					} catch (CoreException e) {
 						e.printStackTrace();
@@ -104,6 +123,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 						e.printStackTrace();
 					}
 					monitor.done();
+					ResourcesPlugin.getWorkspace().addResourceChangeListener(
+							MappumEditor.this);
 				}
 			});
 		} catch (InvocationTargetException e) {
@@ -120,7 +141,24 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	protected void configureGraphicalViewer() {
 		super.configureGraphicalViewer();
 
-		GraphicalViewer viewer = getGraphicalViewer();
+		final GraphicalViewer viewer = getGraphicalViewer();
+		viewer.getControl().addListener(SWT.Activate, new Listener() {
+			public void handleEvent(Event e) {
+				if (dirtyInput) {
+					final MessageBox mb = new MessageBox(viewer.getControl()
+							.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+					mb
+							.setMessage("Input has changed outside this editor window.\n"
+									+ "Do you want to reload?");
+					mb.setText("Input changed");
+					dirtyInput = false;
+					if (mb.open() == SWT.YES) {
+						setInput(getEditorInput());
+						initializeGraphicalViewer();
+					}
+				}
+			}
+		});
 		viewer.setEditPartFactory(new ShapesEditPartFactory());
 		viewer.setRootEditPart(new ScalableFreeformRootEditPart());
 		viewer.setKeyHandler(new GraphicalViewerKeyHandler(viewer));
@@ -171,7 +209,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	private TransferDropTargetListener createTransferDropTargetListener() {
 		return new TemplateTransferDropTargetListener(getGraphicalViewer()) {
 			protected CreationFactory getFactory(Object template) {
-				return new SimpleFactory((Class) template);
+				return new SimpleFactory((Class<?>) template);
 			}
 		};
 	}
@@ -186,8 +224,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	public void doSave(IProgressMonitor monitor) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
-			out.write(ModelGenerator.getInstance().generateRubyCodeFromRootNode()
-					.getBytes());
+			out.write(ModelGenerator.getInstance()
+					.generateRubyCodeFromRootNode().getBytes());
 			out.close();
 			IFile file = ((IFileEditorInput) getEditorInput()).getFile();
 			file.setContents(new ByteArrayInputStream(out.toByteArray()), true, // keep
@@ -205,6 +243,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 					false, // dont keep history
 					monitor); // progress monitor
 			getCommandStack().markSaveLocation();
+			setInput(new FileEditorInput(file));
 		} catch (CoreException ce) {
 			ce.printStackTrace();
 		} catch (IOException ioe) {
@@ -237,7 +276,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 								try {
 									ByteArrayOutputStream out = new ByteArrayOutputStream();
 									out.write(ModelGenerator.getInstance()
-											.generateRubyCodeFromRootNode().getBytes());
+											.generateRubyCodeFromRootNode()
+											.getBytes());
 									out.close();
 									file.create(new ByteArrayInputStream(out
 											.toByteArray()), // contents
@@ -253,8 +293,9 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 							}
 						});
 				// set input to the new file
-				setInput(new FileEditorInput(file));
 				getCommandStack().markSaveLocation();
+				setInput(new FileEditorInput(file));
+				initializeGraphicalViewer();
 			} catch (InterruptedException ie) {
 				// should not happen, since the monitor dialog is not cancelable
 				ie.printStackTrace();
@@ -287,14 +328,22 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 	 * @see org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette#initializeGraphicalViewer()
 	 */
 	protected void initializeGraphicalViewer() {
-		GraphicalViewer viewer = getGraphicalViewer();
+
+		final GraphicalViewer viewer = getGraphicalViewer();
+
+		if (transferDropTargetListener != null) {
+			viewer.removeDropTargetListener(transferDropTargetListener);
+		}
+		transferDropTargetListener = createTransferDropTargetListener();
+
 		diagram = new ShapesDiagram();
 		diagram.addChild(Shape.getRootShapes().get(0));
 		diagram.addChild(Shape.getRootShapes().get(1));
-		viewer.setContents(getModel()); // set the contents of this editor
 
-		// listen for dropped parts
-		viewer.addDropTargetListener(createTransferDropTargetListener());
+		viewer.setContents(getModel()); // set the contents of this editor
+		viewer.addDropTargetListener(transferDropTargetListener); // listen for
+		// dropped
+		// parts
 	}
 
 	/*
@@ -312,8 +361,35 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette {
 		Shape.getRootShapes().clear();
 		Shape.getShapes().clear();
 		ModelGeneratorFromXML.getInstance().setModelArray(null);
-		// dispose
 		super.dispose();
 	}
 
+	@Override
+	public void resourceChanged(IResourceChangeEvent event) {
+		if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
+			final String path = ((IFileEditorInput) getEditorInput()).getFile()
+					.getFullPath().toString();
+			if (isChanged(path, event.getDelta().getAffectedChildren(
+					IResourceDelta.CHANGED))) {
+				dirtyInput = true;
+			}
+		}
+	}
+
+	private boolean isChanged(final String path, final IResourceDelta[] ird) {
+		for (final IResourceDelta el : ird) {
+			final IResourceDelta[] children = el
+					.getAffectedChildren(IResourceDelta.CHANGED);
+			if (children.length > 0) {
+				if (isChanged(path, children)) {
+					return true;
+				}
+			} else {
+				if (path.equals(el.getFullPath().toString())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
