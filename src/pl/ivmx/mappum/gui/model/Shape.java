@@ -57,6 +57,8 @@ public class Shape extends ModelElement {
 	private List<Shape> shapeChildren;
 	private int side;
 	private static List<Shape> shapes = new ArrayList<Shape>();
+	
+	private boolean arrayType = false;
 
 	private Rectangle layout;
 	private CallNode shapeNode;
@@ -437,6 +439,14 @@ public class Shape extends ModelElement {
 			}
 		}
 		return initialShapeList;
+	}
+
+	public void setArrayType(boolean arrayType) {
+		this.arrayType = arrayType;
+	}
+
+	public boolean isArrayType() {
+		return arrayType;
 	}
 
 }

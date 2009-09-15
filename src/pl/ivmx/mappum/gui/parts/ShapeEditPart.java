@@ -267,7 +267,11 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 
 		ShapeFigure figure = (ShapeFigure) getFigure();
 		Shape model = (Shape) getModel();
-		figure.setName(model.getName());
+		if(model.isArrayType()){
+			figure.setName(model.getName() + "[]");
+		}else{
+			figure.setName(model.getName());
+		}
 		figure.setType(model.getType());
 		figure.setLayout(model.getLayout());
 

@@ -194,10 +194,10 @@ public class ModelGenerator {
 					.childNodes().get(0).childNodes().get(0);
 			return operateOnSimpleMapOrWithFunctionCall(callnode, parents,
 					comment);
-		case SIMPLE_ARRAY_MAP:
-			CallNode arrayCallNode = (CallNode) node.childNodes().get(0)
-					.childNodes().get(0).childNodes().get(0);
-			return operateOnArrayMap(arrayCallNode, parents, comment);
+			// case SIMPLE_ARRAY_MAP:
+			// CallNode arrayCallNode = (CallNode) node.childNodes().get(0)
+			// .childNodes().get(0).childNodes().get(0);
+			// return operateOnArrayMap(arrayCallNode, parents, comment);
 		case MAP_WITH_DICTIONARY:
 			// narazie zwykle mapowanie
 			CallNode dictionaryCallnode = (CallNode) node.childNodes().get(0)
@@ -429,8 +429,9 @@ public class ModelGenerator {
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					connection = operateOnInternalMap((NewlineNode) node,
 							mainPair, childComment);
-				}else if (((NewlineNode) node).getNextNode() instanceof CallNode){
-					connection = operateOnMapWithConstant((CallNode)((NewlineNode) node).getNextNode(),
+				} else if (((NewlineNode) node).getNextNode() instanceof CallNode) {
+					connection = operateOnMapWithConstant(
+							(CallNode) ((NewlineNode) node).getNextNode(),
 							mainPair, childComment);
 				}
 
@@ -515,10 +516,20 @@ public class ModelGenerator {
 	 * @return
 	 */
 	private Shape createLeftShape(CallNode callnode, Pair parents) {
+		CallNode rootNode = null;
+		if (callnode.childNodes().get(0) instanceof CallNode) {
+			rootNode = (CallNode) callnode.childNodes().get(0);
+		}
 		CallNode leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
 		Shape leftShape = Shape.createShape(leftNode.getName(), null, parents
 				.getLeftShape(), Shape.LEFT_SIDE, leftNode);
 		leftShape.addToParent();
+		if (rootNode != null) {
+			if (findNameNode(rootNode, "[]") != null
+					|| rootNode.getName().equals("[]"))
+				leftShape.setArrayType(true);
+		}
+
 		return leftShape;
 
 	}
@@ -531,11 +542,21 @@ public class ModelGenerator {
 	 * @return
 	 */
 	private Shape createRightShape(CallNode callnode, Pair parents) {
+		CallNode rootNode = null;
+		if (callnode.childNodes().get(1).childNodes().get(0) instanceof CallNode) {
+			rootNode = (CallNode) callnode.childNodes().get(1).childNodes()
+					.get(0);
+		}
 		CallNode rightNode = findLastCallNodeInTree(callnode.childNodes()
 				.get(1).childNodes().get(0));
 		Shape rightShape = Shape.createShape(rightNode.getName(), null, parents
 				.getRightShape(), Shape.RIGHT_SIDE, rightNode);
 		rightShape.addToParent();
+		if (rootNode != null) {
+			if (findNameNode(rootNode, "[]") != null
+					|| rootNode.getName().equals("[]"))
+				rightShape.setArrayType(true);
+		}
 		return rightShape;
 
 	}
@@ -596,9 +617,9 @@ public class ModelGenerator {
 				// SIMPLE_MAP_OR_WITH_FUNCTION_CALL, SIMPLE_ARRAY_MAP
 				CallNode mapNode = (CallNode) callNode.childNodes().get(0)
 						.childNodes().get(0);
-				if (findNameNode(mapNode, "[]") != null) {
-					return SIMPLE_ARRAY_MAP;
-				} else if (findNameNode(mapNode, "self") != null) {
+				// if (findNameNode(mapNode, "[]") != null) {
+				// return SIMPLE_ARRAY_MAP;
+				if (findNameNode(mapNode, "self") != null) {
 					return MAP_WITH_SELF;
 				} else {
 					if (mapNode.getArgsNode().childNodes().get(0) instanceof StrNode
