@@ -18,19 +18,26 @@ import org.eclipse.gef.editpolicies.ConnectionEditPolicy;
 import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import pl.ivmx.mappum.gui.IMappumEditor;
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.ModelElement;
 import pl.ivmx.mappum.gui.model.commands.ConnectionDeleteCommand;
-import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 import pl.ivmx.mappum.gui.wizzards.ChangeConnectionPropsWizard;
 
 class ConnectionEditPart extends AbstractConnectionEditPart implements
 		PropertyChangeListener {
+
+	private final IMappumEditor editor;
+
+	public ConnectionEditPart(final IMappumEditor editor) {
+		this.editor = editor;
+	}
 
 	/**
 	 * Upon activation, attach to the model element as a property change
@@ -82,17 +89,17 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	protected IFigure createFigure() {
 		PolylineConnection connection = (PolylineConnection) super
 				.createFigure();
-		if(getCastedModel().getConnectionType() == Connection.CONST_TO_VAR_CONN){
-			Label label = new Label("CONSTANT: "+getCastedModel().getConstantName());
+		if (getCastedModel().getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+			Label label = new Label("CONSTANT: "
+					+ getCastedModel().getConstantName());
 			connection.add(label, new MidpointLocator(connection, 0));
 			connection.setLineStyle(Graphics.LINE_DOT);
-		}
-		else if(getCastedModel().getConnectionType() == Connection.FUN_TO_VAR_CONN){
+		} else if (getCastedModel().getConnectionType() == Connection.FUN_TO_VAR_CONN) {
 			String functions = "FUNCTIONS: ";
-			for(String function: getCastedModel().getFunctions()){
+			for (String function : getCastedModel().getFunctions()) {
 				functions = functions + function + ", ";
 			}
-			String substring = functions.substring(0, functions.length()-2);
+			String substring = functions.substring(0, functions.length() - 2);
 			Label label = new Label(substring);
 			connection.add(label, new MidpointLocator(connection, 0));
 			connection.setLineStyle(Graphics.LINE_DASH);
@@ -152,24 +159,23 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	}
 
 	// TODO dostawienie wygenerowanego kodu
-	private void openChangeConnectionPropsWizard() {
+	private int openChangeConnectionPropsWizard() {
+
 		Connection connection = getCastedModel();
 		Shell shell = PlatformUI.getWorkbench().getDisplay().getActiveShell();
-		RootNodeHolder rootNodeHolder = RootNodeHolder.getInstance();
 		ChangeConnectionPropsWizard wizard = new ChangeConnectionPropsWizard(
-				connection);
+				connection, editor);
 		wizard.init();
 		WizardDialog dialog = new WizardDialog(shell, wizard);
-		dialog.open();
-
+		return dialog.open();
 	}
 
 	public void performRequest(Request req) {
-		if (req.getType().equals(RequestConstants.REQ_OPEN)) {
+		if (req.getType().equals(RequestConstants.REQ_OPEN))
 			System.out.println("double-click");
-			openChangeConnectionPropsWizard();
-			
+		final int res = openChangeConnectionPropsWizard();
+		if (res == SWT.OK) {
+			editor.reload();
 		}
-		super.performRequest(req);
 	}
 }

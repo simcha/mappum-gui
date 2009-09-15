@@ -55,11 +55,12 @@ import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
-		IResourceChangeListener {
+		IResourceChangeListener, IMappumEditor {
 
 	/** This is the root of the editor's model. */
 	private ShapesDiagram diagram;
 	private boolean dirtyInput = false;
+	private volatile boolean resourceChangedBySelf = false;
 
 	private TransferDropTargetListener transferDropTargetListener;
 
@@ -138,6 +139,11 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		}
 	}
 
+	public void reload() {
+		setInput(getEditorInput());
+		initializeGraphicalViewer();
+	}
+
 	protected void configureGraphicalViewer() {
 		super.configureGraphicalViewer();
 
@@ -153,13 +159,12 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 					mb.setText("Input changed");
 					dirtyInput = false;
 					if (mb.open() == SWT.YES) {
-						setInput(getEditorInput());
-						initializeGraphicalViewer();
+						reload();
 					}
 				}
 			}
 		});
-		viewer.setEditPartFactory(new ShapesEditPartFactory());
+		viewer.setEditPartFactory(new ShapesEditPartFactory(this));
 		viewer.setRootEditPart(new ScalableFreeformRootEditPart());
 		viewer.setKeyHandler(new GraphicalViewerKeyHandler(viewer));
 
@@ -228,6 +233,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 					.generateRubyCodeFromRootNode().getBytes());
 			out.close();
 			IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+			resourceChangedBySelf = true;
 			file.setContents(new ByteArrayInputStream(out.toByteArray()), true, // keep
 					// saving,
 					// even
@@ -243,7 +249,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 					false, // dont keep history
 					monitor); // progress monitor
 			getCommandStack().markSaveLocation();
-			setInput(new FileEditorInput(file));
+			// setInput(new FileEditorInput(file));
 		} catch (CoreException ce) {
 			ce.printStackTrace();
 		} catch (IOException ioe) {
@@ -367,6 +373,10 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
 		if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
+			if (resourceChangedBySelf) {
+				resourceChangedBySelf = false;
+				return;
+			}
 			final String path = ((IFileEditorInput) getEditorInput()).getFile()
 					.getFullPath().toString();
 			if (isChanged(path, event.getDelta().getAffectedChildren(

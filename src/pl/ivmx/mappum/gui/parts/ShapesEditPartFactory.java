@@ -3,11 +3,18 @@ package pl.ivmx.mappum.gui.parts;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPartFactory;
 
+import pl.ivmx.mappum.gui.IMappumEditor;
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
 
 public class ShapesEditPartFactory implements EditPartFactory {
+
+	private final IMappumEditor editor;
+
+	public ShapesEditPartFactory(final IMappumEditor editor) {
+		this.editor = editor;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -38,7 +45,7 @@ public class ShapesEditPartFactory implements EditPartFactory {
 			return new ShapeEditPart();
 		}
 		if (modelElement instanceof Connection) {
-			return new ConnectionEditPart();
+			return new ConnectionEditPart(editor);
 		}
 		throw new RuntimeException("Can't create part for model element: "
 				+ ((modelElement != null) ? modelElement.getClass().getName()
