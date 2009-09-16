@@ -552,13 +552,6 @@ public class RootNodeHolder {
 		return newlineNode;
 	}
 
-	public void addSimpleMapping(CallNode leftSide, CallNode rightSide,
-			String side) {
-		// addMappingNewlineNode(generateSimpleMapping(leftSide, rightSide,
-		// side));
-
-	}
-
 	/**
 	 * Generates comment Node
 	 * 
