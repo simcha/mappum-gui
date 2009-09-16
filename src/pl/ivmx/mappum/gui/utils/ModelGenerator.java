@@ -439,6 +439,8 @@ public class ModelGenerator {
 								new Pair(parents.getLeftShape(),
 										createRightShape(parentCallNode,
 												parents)), childComment);
+						
+						
 
 					} else if (RootNodeHolder.checkRightSideMappingName(
 							parentCallNode).equals("self")) {
@@ -448,6 +450,26 @@ public class ModelGenerator {
 								childComment);
 					}
 					childComment = null;
+					
+					if (connection != null) {
+						if (parents.getLeftShape().isArrayType()
+								&& !parents.getRightShape().isArrayType()) {
+							connection
+									.setArrayNumber(parents.getLeftShape()
+											.getArrayCounters().get(
+													parents.getLeftShape()
+															.getArrayCounters()
+															.size() - 1));
+						} else if (!parents.getLeftShape().isArrayType()
+								&& parents.getRightShape().isArrayType()) {
+							connection
+									.setArrayNumber(parents.getRightShape()
+											.getArrayCounters().get(
+													parents.getRightShape()
+															.getArrayCounters()
+															.size() - 1));
+						}
+					}
 				}
 
 			}
