@@ -35,12 +35,6 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 	private Logger logger = Logger.getLogger(GenerateModelFromXsdHandler.class);
 
 	/**
-	 * The constructor.
-	 */
-	public GenerateModelFromXsdHandler() {
-	}
-
-	/**
 	 * the command has been executed, so extract extract the needed information
 	 * from the application context.
 	 */

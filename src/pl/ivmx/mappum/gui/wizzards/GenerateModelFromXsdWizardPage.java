@@ -45,7 +45,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	 * @see IDialogPage#createControl(Composite)
 	 */
 	public void createControl(Composite parent) {
-		GridData gd;
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout gl = new GridLayout();
 		gl.numColumns = 2;
@@ -111,13 +110,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		wizard.setLeftChoosenElement(leftMappingList.getSelection()[0]);
 		wizard.setRightChoosenElement(rightMappingList.getSelection()[0]);
 		return true;
-	}
-
-	private void saveDataToModel() {
-		// HolidayWizard wizard = (HolidayWizard)getWizard();
-		// wizard.model.selectedFlight = flightsList.getSelection()[0];
-		// wizard.model.price = price;
-		// wizard.planeCompleted = true;
 	}
 
 	void onEnterPage() {

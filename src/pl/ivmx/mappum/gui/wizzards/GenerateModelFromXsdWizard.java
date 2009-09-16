@@ -2,18 +2,18 @@ package pl.ivmx.mappum.gui.wizzards;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.MessageBox;
 import org.jruby.RubyArray;
 
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
@@ -23,8 +23,8 @@ public class GenerateModelFromXsdWizard extends Wizard {
 	private GenerateModelFromXsdWizardPage page;
 	private Logger logger = Logger.getLogger(GenerateModelFromXsdWizard.class);
 	private RubyArray model;
-	private String leftChoosenElement = null;
-	private String rightChoosenElement = null;
+	private String leftChosenElement = null;
+	private String rightChosenElement = null;
 	private IProject project;
 
 	public GenerateModelFromXsdWizard(RubyArray model) {
@@ -34,15 +34,23 @@ public class GenerateModelFromXsdWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		final String leftElement = leftChoosenElement;
-		final String rightElement = rightChoosenElement;
-
-		if (leftElement != null && rightElement != null) {
-			getMapFile(null);
+		try {
+			if (leftChosenElement != null && rightChosenElement != null) {
+				getMapFile(null);
+				return true;
+			}
+			return false;
+		} catch (final Exception e) {
+			e.printStackTrace();
+			logger.error("Error while generating model:  " + e.getMessage());
+			final MessageBox mb = new MessageBox(getShell(), SWT.ERROR);
+			mb.setMessage("Model generation failed:\n" + e.getMessage());
+			mb.setText("Problem occurred");
+			mb.open();
+			return false;
+		} finally {
 			logger.debug("Generate model from XSD wizard ended.");
-			return true;
 		}
-		return false;
 	}
 
 	public void init(IStructuredSelection selection) {
@@ -70,29 +78,29 @@ public class GenerateModelFromXsdWizard extends Wizard {
 	}
 
 	public void setLeftChoosenElement(String leftChoosenElement) {
-		this.leftChoosenElement = leftChoosenElement;
+		this.leftChosenElement = leftChoosenElement;
 	}
 
 	public String getLeftChoosenElement() {
-		return leftChoosenElement;
+		return leftChosenElement;
 	}
 
 	public void setRightChoosenElement(String rightChoosenElement) {
-		this.rightChoosenElement = rightChoosenElement;
+		this.rightChosenElement = rightChoosenElement;
 	}
 
 	public String getRightChoosenElement() {
-		return rightChoosenElement;
+		return rightChosenElement;
 	}
 
 	private String getSimpleElementName(final String element) {
 		return element.split("::")[element.split("::").length - 1];
 	}
 
-	private IFile getMapFile(IProgressMonitor monitor) {
+	private IFile getMapFile(IProgressMonitor monitor) throws Exception {
 
-		final String leftElementSimple = getSimpleElementName(leftChoosenElement);
-		final String rightElementSimple = getSimpleElementName(rightChoosenElement);
+		final String leftElementSimple = getSimpleElementName(leftChosenElement);
+		final String rightElementSimple = getSimpleElementName(rightChosenElement);
 
 		final IPath fullPath = project.getFullPath();
 
@@ -102,34 +110,22 @@ public class GenerateModelFromXsdWizard extends Wizard {
 				.getFolder(
 						fullPath
 								.append(ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER));
-		if (mapFolder.exists()) {
-			final IPath filePath = fullPath.append(
-					ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER).append(
-					leftElementSimple + rightElementSimple + ".rb");
-			final IFile file = ResourcesPlugin.getWorkspace().getRoot()
-					.getFile(filePath);
-			if (!file.exists()) {
-				try {
-					final ByteArrayOutputStream out = new ByteArrayOutputStream();
-					out.write(generateRubyCode().getBytes());
-					out.close();
-					file.create(new ByteArrayInputStream(out.toByteArray()),
-							true, monitor);
-				} catch (CoreException e) {
-					e.printStackTrace();
-					logger.error("Error while generating model:  "
-							+ e.getCause().getMessage());
-					return null;
-				} catch (IOException e) {
-					e.printStackTrace();
-					logger.error("Error while generating model:  "
-							+ e.getCause().getMessage());
-					return null;
-				}
-			}
-			return file;
+		if (!mapFolder.exists()) {
+			mapFolder.create(false, false, null);
 		}
-		return null;
+		final IPath filePath = fullPath.append(
+				ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER).append(
+				leftElementSimple + rightElementSimple + ".rb");
+		final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
+				filePath);
+		if (!file.exists()) {
+			final ByteArrayOutputStream out = new ByteArrayOutputStream();
+			out.write(generateRubyCode().getBytes());
+			out.close();
+			file.create(new ByteArrayInputStream(out.toByteArray()), true,
+					monitor);
+		}
+		return file;
 	}
 
 	private String generateRubyCode() {
@@ -141,9 +137,8 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		params.append("\n\n");
 		params.append("Mappum.catalogue_add do");
 		params.append("\n");
-		params.append("  map " + leftChoosenElement + ", "
-				+ rightChoosenElement + " do |" + leftPrefix + ", "
-				+ rightPrefix + "|");
+		params.append("  map " + leftChosenElement + ", " + rightChosenElement
+				+ " do |" + leftPrefix + ", " + rightPrefix + "|");
 		params.append("\n");
 		params.append("  end");
 		params.append("\n");
