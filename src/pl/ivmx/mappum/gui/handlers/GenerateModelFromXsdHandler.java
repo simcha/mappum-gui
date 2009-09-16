@@ -57,7 +57,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 				if (model != null) {
 					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(
 							model);
-					wizard.init(window.getWorkbench(), selection);
+					wizard.init(selection);
 					WizardDialog dialog = new WizardDialog(window
 							.getWorkbench().getActiveWorkbenchWindow()
 							.getShell(), wizard);
@@ -171,7 +171,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 			return ModelGeneratorFromXML.getInstance().getModelArray();
 		} catch (ScriptException e) {
 			e.printStackTrace();
-			if (e != null && e.getCause() != null) {
+			if (e.getCause() != null) {
 				if (e.getCause() instanceof RaiseException) {
 					logger.error("Error performing finish operations: "
 							+ e.getCause());

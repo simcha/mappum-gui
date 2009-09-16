@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.ui.IWorkbench;
 import org.jruby.RubyArray;
 
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
@@ -26,7 +25,6 @@ public class GenerateModelFromXsdWizard extends Wizard {
 	private RubyArray model;
 	private String leftChoosenElement = null;
 	private String rightChoosenElement = null;
-	private IWorkbench workbench;
 	private IProject project;
 
 	public GenerateModelFromXsdWizard(RubyArray model) {
@@ -40,28 +38,17 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		final String rightElement = rightChoosenElement;
 
 		if (leftElement != null && rightElement != null) {
-			IFile file = getMapFile(null);
-			/*
-			 * IWorkbenchPage page = workbench.getActiveWorkbenchWindow()
-			 * .getActivePage(); if (file != null && page != null) { try {
-			 * IDE.openEditor(page, file, "pl.ivmx.mappum.gui.editor"); } catch
-			 * (PartInitException e) {
-			 * logger.error("Error performing finish operations: " +
-			 * e.getCause().getMessage()); } }
-			 */
-
+			getMapFile(null);
 			logger.debug("Generate model from XSD wizard ended.");
 			return true;
 		}
 		return false;
-
 	}
 
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
+	public void init(IStructuredSelection selection) {
 		logger.debug("Generate model from XSD schema wizard started.");
 		setWindowTitle("Generate model from XSD schema"); // NON-NLS-1
 		setNeedsProgressMonitor(true);
-		this.workbench = workbench;
 		if (selection.getFirstElement() instanceof IProject) {
 			project = (IProject) selection.getFirstElement();
 		}
@@ -98,34 +85,36 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		return rightChoosenElement;
 	}
 
-	private IFile getMapFile(IProgressMonitor monitor) {
-		String leftElementSimple = leftChoosenElement.split("::")[leftChoosenElement
-				.split("::").length - 1];
-		String rightElementSimple = rightChoosenElement.split("::")[rightChoosenElement
-				.split("::").length - 1];
-		IPath fullPath = project.getFullPath();
+	private String getSimpleElementName(final String element) {
+		return element.split("::")[element.split("::").length - 1];
+	}
 
-		IFolder mapFolder = ResourcesPlugin
+	private IFile getMapFile(IProgressMonitor monitor) {
+
+		final String leftElementSimple = getSimpleElementName(leftChoosenElement);
+		final String rightElementSimple = getSimpleElementName(rightChoosenElement);
+
+		final IPath fullPath = project.getFullPath();
+
+		final IFolder mapFolder = ResourcesPlugin
 				.getWorkspace()
 				.getRoot()
 				.getFolder(
 						fullPath
 								.append(ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER));
 		if (mapFolder.exists()) {
-			IPath filePath = fullPath.append(
+			final IPath filePath = fullPath.append(
 					ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER).append(
 					leftElementSimple + rightElementSimple + ".rb");
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-					filePath);
-			if (file == null || !file.exists()) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
+			final IFile file = ResourcesPlugin.getWorkspace().getRoot()
+					.getFile(filePath);
+			if (!file.exists()) {
 				try {
+					final ByteArrayOutputStream out = new ByteArrayOutputStream();
 					out.write(generateRubyCode().getBytes());
 					out.close();
-					IFile newFile = project.getFile(filePath);
 					file.create(new ByteArrayInputStream(out.toByteArray()),
 							true, monitor);
-					return newFile;
 				} catch (CoreException e) {
 					e.printStackTrace();
 					logger.error("Error while generating model:  "
@@ -137,14 +126,10 @@ public class GenerateModelFromXsdWizard extends Wizard {
 							+ e.getCause().getMessage());
 					return null;
 				}
-
-			} else {
-				return file;
 			}
-
+			return file;
 		}
 		return null;
-
 	}
 
 	private String generateRubyCode() {
