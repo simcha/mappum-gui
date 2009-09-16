@@ -46,6 +46,8 @@ public class Connection extends ModelElement {
 	private Logger logger = Logger.getLogger(Connection.class);
 
 	private static List<Connection> connections = new ArrayList<Connection>();
+	
+	private int arrayNumber = -1;
 
 	static {
 		descriptors[0] = new ComboBoxPropertyDescriptor(MAPPING_PROP,
@@ -396,4 +398,11 @@ public class Connection extends ModelElement {
 		return functions;
 	}
 
+	public void setArrayNumber(int arrayNumber) {
+		this.arrayNumber = arrayNumber;
+	}
+
+	public int getArrayNumber() {
+		return arrayNumber;
+	}
 }

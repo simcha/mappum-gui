@@ -103,6 +103,11 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 			Label label = new Label(substring);
 			connection.add(label, new MidpointLocator(connection, 0));
 			connection.setLineStyle(Graphics.LINE_DASH);
+		} else if (getCastedModel().getConnectionType() == Connection.VAR_TO_VAR_CONN
+				&& getCastedModel().getArrayNumber() >= 0) {
+			Label label = new Label("[" + getCastedModel().getArrayNumber()
+					+ "]");
+			connection.add(label, new MidpointLocator(connection, 0));
 		}
 		if (getCastedModel().getMappingSide() == Connection.DUAL_SIDE) {
 			connection.setTargetDecoration(new PolygonDecoration()); // arrow at
