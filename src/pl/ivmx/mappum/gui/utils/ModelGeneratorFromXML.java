@@ -81,7 +81,7 @@ public class ModelGeneratorFromXML {
 		// manager = new ScriptEngineManager();
 		// if (engine == null)
 		// engine = manager.getEngineByName(language);
-		ScriptEngineFactory factory = (ScriptEngineFactory) new JRubyScriptEngineFactory();
+		ScriptEngineFactory factory = new JRubyScriptEngineFactory();
 		System.out.println("Getting engine");
 		final ClassLoader oldClassLoader = Thread.currentThread()
 				.getContextClassLoader();
@@ -164,10 +164,10 @@ public class ModelGeneratorFromXML {
 			if (side == Shape.LEFT_SIDE) {
 				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
-//				}
-//				Shape shape = Shape.createShape(name, null, null, side,
-//						generateRubyModelForField(name, side));
-//				return shape;
+					// }
+					// Shape shape = Shape.createShape(name, null, null, side,
+					// generateRubyModelForField(name, side));
+					// return shape;
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
@@ -176,10 +176,10 @@ public class ModelGeneratorFromXML {
 			} else {
 				if (name.equals(Shape.getRootShapes().get(1).getFullName())) {
 					return Shape.getRootShapes().get(1);
-//				}
-//				Shape shape = Shape.createShape(name, null, null, side,
-//						generateRubyModelForField(name, side));
-//				return shape;
+					// }
+					// Shape shape = Shape.createShape(name, null, null, side,
+					// generateRubyModelForField(name, side));
+					// return shape;
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "

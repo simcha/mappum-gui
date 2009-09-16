@@ -57,7 +57,7 @@ public class Shape extends ModelElement {
 	private List<Shape> shapeChildren;
 	private int side;
 	private static List<Shape> shapes = new ArrayList<Shape>();
-	
+
 	private boolean arrayType = false;
 
 	private Rectangle layout;
@@ -282,8 +282,8 @@ public class Shape extends ModelElement {
 		int tmpDepth = 0;
 		if (shapeParent != null) {
 			for (Shape node : shapeParent.getShapeChildren()) {
-				if (tmpDepth < getChildrenDepth((Shape) node)) {
-					tmpDepth = getChildrenDepth((Shape) node);
+				if (tmpDepth < getChildrenDepth(node)) {
+					tmpDepth = getChildrenDepth(node);
 				}
 			}
 		} else {
@@ -307,10 +307,10 @@ public class Shape extends ModelElement {
 			x = SPACE_BETWEEN_ELEMENTS;
 			y = CEIL_SPACE;
 			for (Shape node : shapeParent.getShapeChildren()) {
-				if (((Shape) node).equals(this)) {
+				if ((node).equals(this)) {
 					break;
 				} else {
-					y = y + getHeight((Shape) node) + SPACE_BETWEEN_ELEMENTS;
+					y = y + getHeight(node) + SPACE_BETWEEN_ELEMENTS;
 				}
 			}
 
@@ -324,7 +324,7 @@ public class Shape extends ModelElement {
 		int i = 0;
 		if (shape.getShapeChildren().size() != 0) {
 			for (Shape node : shape.getShapeChildren()) {
-				i = i + getHeight((Shape) node);
+				i = i + getHeight(node);
 			}
 			i = i + CEIL_SPACE + shape.getShapeChildren().size()
 					* SPACE_BETWEEN_ELEMENTS;
@@ -337,7 +337,7 @@ public class Shape extends ModelElement {
 		int i = 0;
 		if (shape.getShapeChildren().size() != 0) {
 			for (Shape node : shape.getShapeChildren()) {
-				i = i + getChildrenDepth((Shape) node);
+				i = i + getChildrenDepth(node);
 			}
 			return ++i;
 		}
@@ -381,11 +381,11 @@ public class Shape extends ModelElement {
 						}
 					}
 					for (int j = 0; j < shape.getSourceConnections().size(); j++) {
-						Connection.removeConnection((Connection) shape
+						Connection.removeConnection(shape
 								.getSourceConnections().get(j));
 					}
 					for (int j = 0; j < shape.getTargetConnections().size(); j++) {
-						Connection.removeConnection((Connection) shape
+						Connection.removeConnection(shape
 								.getTargetConnections().get(j));
 					}
 					Shape.getShapes().remove(shape);

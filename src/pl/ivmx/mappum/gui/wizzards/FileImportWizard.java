@@ -25,14 +25,14 @@ public class FileImportWizard extends Wizard implements IImportWizard {
 	 * @see org.eclipse.jface.wizard.Wizard#performFinish()
 	 */
 	public boolean performFinish() {
-		IFile file = mainPage.createNewFile();
+		final IFile file = mainPage.createNewFile();
 		if (file == null)
 			return false;
 		else {
 			logger.debug("Imported map file: " + file.getName());
 			IWorkbenchPage page = workbench.getActiveWorkbenchWindow()
 					.getActivePage();
-			if (file != null && page != null) {
+			if (page != null) {
 				try {
 					IDE.openEditor(page, file, "pl.ivmx.mappum.gui.editor");
 				} catch (PartInitException e) {

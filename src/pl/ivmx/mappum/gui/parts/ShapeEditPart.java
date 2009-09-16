@@ -177,7 +177,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	 * org.eclipse.gef.editparts.AbstractGraphicalEditPart#getModelSourceConnections
 	 * ()
 	 */
-	protected List getModelSourceConnections() {
+	protected List<Connection> getModelSourceConnections() {
 		return getCastedModel().getSourceConnections();
 	}
 
@@ -188,7 +188,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	 * org.eclipse.gef.editparts.AbstractGraphicalEditPart#getModelTargetConnections
 	 * ()
 	 */
-	protected List getModelTargetConnections() {
+	protected List<Connection> getModelTargetConnections() {
 		return getCastedModel().getTargetConnections();
 	}
 

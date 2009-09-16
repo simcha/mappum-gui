@@ -138,12 +138,11 @@ public class RootNodeHolder {
 		NewlineNode newlineNode = findMappingNode(connection,
 				findRootBlockNode(rootNode));
 		CallNode callnode;
-		if(newlineNode.getNextNode() instanceof CallNode){
+		if (newlineNode.getNextNode() instanceof CallNode) {
 			callnode = (CallNode) newlineNode.getNextNode();
-		}
-		else{
+		} else {
 			callnode = (CallNode) ((FCallNode) newlineNode.getNextNode())
-			.getArgsNode().childNodes().get(0);
+					.getArgsNode().childNodes().get(0);
 		}
 
 		if (newSide != null) {
@@ -459,37 +458,30 @@ public class RootNodeHolder {
 								}
 							}
 						}
-						//TODO
-					}else if(child instanceof CallNode && connection.getConnectionType() == Connection.CONST_TO_VAR_CONN){
-						if(child.childNodes().size() > 0){
+						// TODO
+					} else if (child instanceof CallNode
+							&& connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+						if (child.childNodes().size() > 0) {
 							CallNode callnode = (CallNode) child;
 							if (callnode.getReceiverNode() instanceof StrNode) {
 								StrNode leftNode = ((StrNode) callnode
 										.getReceiverNode());
 								CallNode rightNode = ModelGenerator
 										.findLastCallNodeInTree(callnode
-												.getArgsNode()
-												.childNodes()
+												.getArgsNode().childNodes()
 												.get(0));
 
-								if (leftNode != null
-										&& rightNode != null) {
+								if (leftNode != null && rightNode != null) {
 
-									leftVariable = leftNode
-											.getValue();
-									rightVariable = rightNode
-											.getName();
+									leftVariable = leftNode.getValue();
+									rightVariable = rightNode.getName();
 
 									if (Connection
 											.translateSideFromIntToString(
-													connection
-															.getMappingSide())
-											.equals(
-													callnode
-															.getName())) {
-										if (leftVariable
-												.equals(connection
-														.getConstantName())
+													connection.getMappingSide())
+											.equals(callnode.getName())) {
+										if (leftVariable.equals(connection
+												.getConstantName())
 												&& rightVariable
 														.equals(connection
 																.getTarget()
@@ -499,35 +491,26 @@ public class RootNodeHolder {
 										}
 									}
 								}
-							} else if (callnode.getArgsNode()
-									.childNodes().get(0) instanceof StrNode) {
+							} else if (callnode.getArgsNode().childNodes().get(
+									0) instanceof StrNode) {
 								CallNode leftNode = ModelGenerator
 										.findLastCallNodeInTree((callnode
 												.getReceiverNode()));
 								StrNode rightNode = (StrNode) callnode
-										.getArgsNode().childNodes()
-										.get(0);
+										.getArgsNode().childNodes().get(0);
 
-								if (leftNode != null
-										&& rightNode != null) {
+								if (leftNode != null && rightNode != null) {
 
-									leftVariable = leftNode
-											.getName();
-									rightVariable = rightNode
-											.getValue();
+									leftVariable = leftNode.getName();
+									rightVariable = rightNode.getValue();
 
 									if (Connection
 											.translateSideFromIntToString(
-													connection
-															.getMappingSide())
-											.equals(
-													callnode
-															.getName())) {
-										if (leftVariable
-												.equals(connection
-														.getSource()
-														.getShapeNode()
-														.getName())
+													connection.getMappingSide())
+											.equals(callnode.getName())) {
+										if (leftVariable.equals(connection
+												.getSource().getShapeNode()
+												.getName())
 												&& rightVariable
 														.equals(connection
 																.getConstantName())) {
@@ -583,7 +566,7 @@ public class RootNodeHolder {
 	 * @return
 	 */
 	private NewlineNode generateComment(String comment) {
-		if (comment.equals("") || comment == null) {
+		if ("".equals(comment) || comment == null) {
 			return null;
 		}
 		XStrNode commentNode = new XStrNode(new SourcePosition(), comment);
@@ -699,7 +682,7 @@ public class RootNodeHolder {
 			else if (leftShapeList.size() == 1 && rightShapeList.size() == 1) {
 				tmpNode = generateSimpleMapping(leftShapeList.get(0)
 						.getShapeNode(), rightShapeList.get(0).getShapeNode(),
-						side, (NewlineNode) node);
+						side, node);
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
@@ -1068,7 +1051,8 @@ public class RootNodeHolder {
 						return true;
 					}
 				} else if (callnode.childNodes().get(0) instanceof VCallNode) {
-					VCallNode leftNode = ((VCallNode) callnode.childNodes().get(0));
+					VCallNode leftNode = ((VCallNode) callnode.childNodes()
+							.get(0));
 					CallNode rightNode = ModelGenerator
 							.findLastCallNodeInTree(callnode.childNodes()
 									.get(1).childNodes().get(0));
@@ -1080,8 +1064,8 @@ public class RootNodeHolder {
 					CallNode leftNode = ModelGenerator
 							.findLastCallNodeInTree(callnode.childNodes()
 									.get(0));
-					VCallNode rightNode = ((VCallNode) callnode.childNodes().get(1)
-							.childNodes().get(0));
+					VCallNode rightNode = ((VCallNode) callnode.childNodes()
+							.get(1).childNodes().get(0));
 					if (leftNode.getName().equals(leftShapeName)
 							&& rightNode.getName().equals("func")) {
 						return true;

@@ -64,17 +64,15 @@ public class Connection extends ModelElement {
 		source.addToParent();
 		target.addToParent();
 		this.comment = "";
-		this.mappingCode="";
+		this.mappingCode = "";
 		reconnect(source, target, side);
 	}
 
-	/*public Connection(Shape source, Shape target, int side, String comment, int type) {
-		connectionType = type;
-		connections.add(this);
-		this.comment = comment;
-		this.mappingCode="";
-		reconnect(source, target, side);
-	}*/
+	/*
+	 * public Connection(Shape source, Shape target, int side, String comment,
+	 * int type) { connectionType = type; connections.add(this); this.comment =
+	 * comment; this.mappingCode=""; reconnect(source, target, side); }
+	 */
 
 	/**
 	 * Disconnect this connection from the shapes it is attached to.
@@ -296,11 +294,10 @@ public class Connection extends ModelElement {
 		rubyCodeNode.setName(Connection
 				.translateSideFromIntToString(mappingSide));
 
-		CallNode receiverChild = (CallNode) ((CallNode) rubyCodeNode)
-				.getReceiverNode();
+		CallNode receiverChild = (CallNode) (rubyCodeNode).getReceiverNode();
 		receiverChild.setName(source.getName());
-		CallNode senderChild = (CallNode) ((CallNode) rubyCodeNode)
-				.getArgsNode().childNodes().get(0);
+		CallNode senderChild = (CallNode) (rubyCodeNode).getArgsNode()
+				.childNodes().get(0);
 		senderChild.setName(target.getName());
 
 	}
@@ -390,14 +387,13 @@ public class Connection extends ModelElement {
 	public void setFunctions(ArrayList<String> functions) {
 		this.functions = functions;
 	}
-	
-	public void addFunction(String  function) {
+
+	public void addFunction(String function) {
 		this.functions.add(function);
 	}
+
 	public ArrayList<String> getFunctions() {
 		return functions;
 	}
-
-
 
 }

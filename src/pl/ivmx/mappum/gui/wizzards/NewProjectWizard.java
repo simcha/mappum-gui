@@ -1,7 +1,6 @@
 package pl.ivmx.mappum.gui.wizzards;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.internal.resources.Workspace;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -38,7 +37,6 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 			logger.error("Error performing finish operations: "
 					+ e.getCause().getMessage());
 		}
-		Workspace workspace = (Workspace) projectHandle.getWorkspace();
 
 		IPath projectPath = projectHandle.getFullPath();
 		IPath folderMapPath = projectPath
