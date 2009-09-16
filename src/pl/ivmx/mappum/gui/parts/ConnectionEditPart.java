@@ -104,7 +104,7 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 			connection.add(label, new MidpointLocator(connection, 0));
 			connection.setLineStyle(Graphics.LINE_DASH);
 		} else if (getCastedModel().getConnectionType() == Connection.VAR_TO_VAR_CONN
-				&& getCastedModel().getArrayNumber() >= 0) {
+				&& getCastedModel().getArrayNumber() > -1) {
 			Label label = new Label("[" + getCastedModel().getArrayNumber()
 					+ "]");
 			connection.add(label, new MidpointLocator(connection, 0));

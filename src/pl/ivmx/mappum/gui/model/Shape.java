@@ -59,7 +59,7 @@ public class Shape extends ModelElement {
 	private static List<Shape> shapes = new ArrayList<Shape>();
 
 	private boolean arrayType = false;
-	private int arrayCounter = 0;
+	private List<Integer> arrayCounters = new ArrayList<Integer>();
 
 	private Rectangle layout;
 	private CallNode shapeNode;
@@ -403,10 +403,12 @@ public class Shape extends ModelElement {
 	public String toString() {
 		if (shapeParent != null)
 			return "|| Variable: " + name + ", type: " + type + ", parent: "
-					+ shapeParent.getName() + " ||";
+					+ shapeParent.getName() + ", array: " + arrayType
+					+ ", array counters: " + arrayCounters + " ||";
 		else
-			return "|| Variable: " + name + ", type: " + type
-					+ ", no parent ||";
+			return "|| Variable: " + name + ", type: " + type + ", no parent "
+					+ ", array: " + arrayType + ", array counters: "
+					+ arrayCounters + " ||";
 
 	}
 
@@ -450,12 +452,12 @@ public class Shape extends ModelElement {
 		return arrayType;
 	}
 
-	public void setArrayCounter(int arrayCounter) {
-		this.arrayCounter = arrayCounter;
+	public void addArrayCounter(int arrayCounter) {
+		this.arrayCounters.add(arrayCounter);
 	}
 
-	public int getArrayCounter() {
-		return arrayCounter;
+	public  List<Integer> getArrayCounters() {
+		return arrayCounters;
 	}
 
 }

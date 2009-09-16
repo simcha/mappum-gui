@@ -8,11 +8,13 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.jrubyparser.Parser;
+import org.jrubyparser.ast.ArrayNode;
 import org.jrubyparser.ast.BlockNode;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.Colon2Node;
 import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.FCallNode;
+import org.jrubyparser.ast.FixnumNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.NewlineNode;
@@ -276,7 +278,19 @@ public class ModelGenerator {
 			if (comment != null) {
 				connection.setComment(comment.getValue());
 			}
-
+			if (connection.getSource().isArrayType()
+					&& !connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getSource()
+						.getArrayCounters().get(
+								connection.getSource().getArrayCounters()
+										.size() - 1));
+			} else if (!connection.getSource().isArrayType()
+					&& connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getTarget()
+						.getArrayCounters().get(
+								connection.getTarget().getArrayCounters()
+										.size() - 1));
+			}
 			BlockNode blockNode = (BlockNode) mapNode.childNodes().get(1)
 					.childNodes().get(0);
 			for (Node node : blockNode.childNodes()) {
@@ -313,6 +327,19 @@ public class ModelGenerator {
 			connection = new Connection(pair.getLeftShape(), pair
 					.getRightShape(), side, Connection.CONST_TO_VAR_CONN);
 			connection.setConstantName(constantName);
+			if (connection.getSource().isArrayType()
+					&& !connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getSource()
+						.getArrayCounters().get(
+								connection.getSource().getArrayCounters()
+										.size() - 1));
+			} else if (!connection.getSource().isArrayType()
+					&& connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getTarget()
+						.getArrayCounters().get(
+								connection.getTarget().getArrayCounters()
+										.size() - 1));
+			}
 			if (comment != null) {
 				connection.setComment(comment.getValue());
 			}
@@ -338,10 +365,25 @@ public class ModelGenerator {
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
 					.getRightShape(), side, Connection.VAR_TO_VAR_CONN);
+			if (connection.getSource().isArrayType()
+					&& !connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getSource()
+						.getArrayCounters().get(
+								connection.getSource().getArrayCounters()
+										.size() - 1));
+			} else if (!connection.getSource().isArrayType()
+					&& connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getTarget()
+						.getArrayCounters().get(
+								connection.getTarget().getArrayCounters()
+										.size() - 1));
+			}
+
+			if (comment != null) {
+				connection.setComment(comment.getValue());
+			}
 		}
-		if (comment != null) {
-			connection.setComment(comment.getValue());
-		}
+
 		return connection;
 
 	}
@@ -429,57 +471,55 @@ public class ModelGenerator {
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					connection = operateOnInternalMap((NewlineNode) node,
 							mainPair, childComment);
+
+					if (connection != null) {
+						if (mainPair.getLeftShape().isArrayType()
+								&& !mainPair.getRightShape().isArrayType()) {
+							connection
+									.setArrayNumber(mainPair.getLeftShape()
+											.getArrayCounters().get(
+													mainPair.getLeftShape()
+															.getArrayCounters()
+															.size() - 1));
+						} else if (!mainPair.getLeftShape().isArrayType()
+								&& mainPair.getRightShape().isArrayType()) {
+							connection
+									.setArrayNumber(mainPair.getRightShape()
+											.getArrayCounters().get(
+													mainPair.getRightShape()
+															.getArrayCounters()
+															.size() - 1));
+						}
+					}
+
 				} else if (((NewlineNode) node).getNextNode() instanceof CallNode) {
 					connection = operateOnMapWithConstant(
 							(CallNode) ((NewlineNode) node).getNextNode(),
 							mainPair, childComment);
+
+					if (connection != null) {
+						if (mainPair.getLeftShape().isArrayType()
+								&& !mainPair.getRightShape().isArrayType()) {
+							connection
+									.setArrayNumber(mainPair.getLeftShape()
+											.getArrayCounters().get(
+													mainPair.getLeftShape()
+															.getArrayCounters()
+															.size() - 1));
+						} else if (!mainPair.getLeftShape().isArrayType()
+								&& mainPair.getRightShape().isArrayType()) {
+							connection
+									.setArrayNumber(mainPair.getRightShape()
+											.getArrayCounters().get(
+													mainPair.getRightShape()
+															.getArrayCounters()
+															.size() - 1));
+						}
+					}
+
 				}
 
 			}
-		}
-		return connection;
-	}
-
-	private Connection operateOnArrayMap(CallNode arrayCallNode, Pair parents,
-			XStrNode comment) {
-		System.out.println("Parents:" + parents);
-		int side = Connection.translateSideFromStringToInt((arrayCallNode)
-				.getName());
-		CallNode leftCallNode = (CallNode) arrayCallNode.childNodes().get(0);
-		CallNode rightCallNode = (CallNode) arrayCallNode.childNodes().get(1)
-				.childNodes().get(0);
-		CallNode leftNode = findLastCallNodeInTree(leftCallNode);
-		CallNode rightNode = findLastCallNodeInTree(rightCallNode);
-		Connection connection = null;
-		if ((findNameNode(leftCallNode, "[]") != null && findNameNode(
-				rightCallNode, "[]") != null)
-				|| (leftCallNode.getName().equals("[]") && rightCallNode
-						.getName().equals("[]"))) {
-			connection = new Connection(Shape.createShape(leftNode.getName()
-					+ "[]", null, parents.getLeftShape(), Shape.LEFT_SIDE,
-					leftCallNode), Shape.createShape(
-					rightNode.getName() + "[]", null, parents.getRightShape(),
-					Shape.RIGHT_SIDE, rightCallNode), side,
-					Connection.VAR_TO_VAR_CONN);
-
-		} else if (findNameNode(leftCallNode, "[]") != null
-				|| leftCallNode.getName().equals("[]")) {
-			connection = new Connection(Shape.createShape(leftNode.getName()
-					+ "[]", null, parents.getLeftShape(), Shape.LEFT_SIDE,
-					leftCallNode), Shape.createShape(rightNode.getName(), null,
-					parents.getRightShape(), Shape.RIGHT_SIDE, rightCallNode),
-					side, Connection.VAR_TO_VAR_CONN);
-		} else if (findNameNode(rightCallNode, "[]") != null
-				|| rightCallNode.getName().equals("[]")) {
-			connection = new Connection(Shape
-					.createShape(leftNode.getName(), null, parents
-							.getLeftShape(), Shape.LEFT_SIDE, leftCallNode),
-					Shape.createShape(rightNode.getName() + "[]", null, parents
-							.getRightShape(), Shape.RIGHT_SIDE, rightCallNode),
-					side, Connection.VAR_TO_VAR_CONN);
-		}
-		if (comment != null) {
-			connection.setComment(comment.getValue());
 		}
 
 		return connection;
@@ -495,10 +535,27 @@ public class ModelGenerator {
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
 					.getRightShape(), side, Connection.VAR_TO_VAR_CONN);
+
+			if (connection.getSource().isArrayType()
+					&& !connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getSource()
+						.getArrayCounters().get(
+								connection.getSource().getArrayCounters()
+										.size() - 1));
+			} else if (!connection.getSource().isArrayType()
+					&& connection.getTarget().isArrayType()) {
+				connection.setArrayNumber(connection.getTarget()
+						.getArrayCounters().get(
+								connection.getTarget().getArrayCounters()
+										.size() - 1));
+			}
+
+			if (comment != null) {
+				connection.setComment(comment.getValue());
+			}
+
 		}
-		if (comment != null) {
-			connection.setComment(comment.getValue());
-		}
+
 		return connection;
 
 	}
@@ -517,17 +574,32 @@ public class ModelGenerator {
 	 */
 	private Shape createLeftShape(CallNode callnode, Pair parents) {
 		CallNode rootNode = null;
+		CallNode leftNode = null;
+		Shape leftShape = null;
 		if (callnode.childNodes().get(0) instanceof CallNode) {
 			rootNode = (CallNode) callnode.childNodes().get(0);
-		}
-		CallNode leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
-		Shape leftShape = Shape.createShape(leftNode.getName(), null, parents
-				.getLeftShape(), Shape.LEFT_SIDE, leftNode);
-		leftShape.addToParent();
-		if (rootNode != null) {
-			if (findNameNode(rootNode, "[]") != null
-					|| rootNode.getName().equals("[]"))
-				leftShape.setArrayType(true);
+			leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
+			leftShape = Shape.createShape(leftNode.getName(), null, parents
+					.getLeftShape(), Shape.LEFT_SIDE, rootNode);
+			leftShape.addToParent();
+			if (rootNode != null) {
+
+				if (findNameNode(rootNode, "[]") != null
+						|| rootNode.getName().equals("[]"))
+					leftShape.setArrayType(true);
+				CallNode arrayNode = (CallNode) findNameNode(rootNode, "[]");
+				if (arrayNode == null)
+					arrayNode = rootNode;
+				if (arrayNode.childNodes().size() > 1
+						&& arrayNode.childNodes().get(1) instanceof ArrayNode) {
+					if (arrayNode.childNodes().get(1).childNodes().get(0) instanceof FixnumNode) {
+						FixnumNode numberNode = (FixnumNode) arrayNode
+								.childNodes().get(1).childNodes().get(0);
+						leftShape
+								.addArrayCounter(((int) numberNode.getValue()));
+					}
+				}
+			}
 		}
 
 		return leftShape;
@@ -543,19 +615,35 @@ public class ModelGenerator {
 	 */
 	private Shape createRightShape(CallNode callnode, Pair parents) {
 		CallNode rootNode = null;
+		CallNode rightNode = null;
+		Shape rightShape = null;
 		if (callnode.childNodes().get(1).childNodes().get(0) instanceof CallNode) {
 			rootNode = (CallNode) callnode.childNodes().get(1).childNodes()
 					.get(0);
-		}
-		CallNode rightNode = findLastCallNodeInTree(callnode.childNodes()
-				.get(1).childNodes().get(0));
-		Shape rightShape = Shape.createShape(rightNode.getName(), null, parents
-				.getRightShape(), Shape.RIGHT_SIDE, rightNode);
-		rightShape.addToParent();
-		if (rootNode != null) {
-			if (findNameNode(rootNode, "[]") != null
-					|| rootNode.getName().equals("[]"))
-				rightShape.setArrayType(true);
+			rightNode = findLastCallNodeInTree(callnode.childNodes().get(1)
+					.childNodes().get(0));
+			rightShape = Shape.createShape(rightNode.getName(), null, parents
+					.getRightShape(), Shape.RIGHT_SIDE, (CallNode) callnode
+					.childNodes().get(1).childNodes().get(0));
+			rightShape.addToParent();
+			if (rootNode != null) {
+
+				if (findNameNode(rootNode, "[]") != null
+						|| rootNode.getName().equals("[]"))
+					rightShape.setArrayType(true);
+				CallNode arrayNode = (CallNode) findNameNode(rootNode, "[]");
+				if (arrayNode == null)
+					arrayNode = rootNode;
+				if (arrayNode.childNodes().size() > 1
+						&& arrayNode.childNodes().get(1) instanceof ArrayNode) {
+					if (arrayNode.childNodes().get(1).childNodes().get(0) instanceof FixnumNode) {
+						FixnumNode numberNode = (FixnumNode) arrayNode
+								.childNodes().get(1).childNodes().get(0);
+						rightShape
+								.addArrayCounter(((int) numberNode.getValue()));
+					}
+				}
+			}
 		}
 		return rightShape;
 
