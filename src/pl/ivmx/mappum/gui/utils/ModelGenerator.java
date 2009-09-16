@@ -268,9 +268,7 @@ public class ModelGenerator {
 		int side = Connection.translateSideFromStringToInt((assignNode)
 				.getName());
 
-		boolean canCreate = Connection.connectionNotExists(pair, new Pair(pair
-				.getLeftShape().getShapeParent(), pair.getRightShape()
-				.getShapeParent()));
+		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
@@ -319,9 +317,7 @@ public class ModelGenerator {
 					.getValue();
 		}
 		int side = Connection.translateSideFromStringToInt((mapnode).getName());
-		boolean canCreate = Connection.connectionNotExists(pair, new Pair(pair
-				.getLeftShape().getShapeParent(), pair.getRightShape()
-				.getShapeParent()));
+		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
@@ -360,7 +356,7 @@ public class ModelGenerator {
 			pair = new Pair(createLeftShape(callnode, parents), parents
 					.getRightShape());
 		}
-		boolean canCreate = Connection.connectionNotExists(pair, parents);
+		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
@@ -552,7 +548,7 @@ public class ModelGenerator {
 		Pair pair = createShapesPair(callnode, parents);
 		int side = Connection
 				.translateSideFromStringToInt((callnode).getName());
-		boolean canCreate = Connection.connectionNotExists(pair, parents);
+		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair

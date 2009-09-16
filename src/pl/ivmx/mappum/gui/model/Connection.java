@@ -311,7 +311,7 @@ public class Connection extends ModelElement {
 				+ mappingSide + " ||";
 	}
 
-	public static boolean connectionNotExists(Pair mapping, Pair parents) {
+	public static boolean connectionNotExists(Pair mapping) {
 		for (Connection tmpConnetion : Connection.getConnections()) {
 			if (tmpConnetion.getSource().getName().equals(
 					mapping.getLeftShape().getName())
