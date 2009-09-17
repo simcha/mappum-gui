@@ -119,7 +119,7 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 		} else {
 			figure.setSourceDecoration(new PolygonDecoration());
 		}
-		figure.setToolTip(new Label(connection.getCode()));
+		figure.setToolTip(new Label(connection.getMappingCode()));
 		
 		return figure;
 	}

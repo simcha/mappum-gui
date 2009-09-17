@@ -88,7 +88,7 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 		new Label(composite, SWT.NONE);
 
 		codeText = new Text(composite, SWT.MULTI | SWT.BORDER);
-		codeText.setText(getWizard().getConnection().getCode());
+		codeText.setText(getWizard().getConnection().getMappingCode());
 		final GridData gd_codeText = new GridData(SWT.LEFT, SWT.CENTER, false,
 				false, 2, 1);
 		gd_codeText.heightHint = 159;
@@ -128,7 +128,7 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 					getWizard().getConnection(),
 					Connection.translateSideFromIntToString(newSide), null);
 			getWizard().getConnection().setMappingSide(newSide);
-			codeText.setText(getWizard().getConnection().getCode());
+			codeText.setText(getWizard().getConnection().getMappingCode());
 			codeText.update();
 			sideCombo.setEnabled(true);
 		}

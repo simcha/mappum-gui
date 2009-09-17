@@ -40,7 +40,6 @@ public class Connection extends ModelElement {
 	private Shape target;
 	private int mappingSide;
 	private String comment;
-	private String mappingCode;
 
 	private CallNode rubyCodeNode;
 
@@ -67,7 +66,6 @@ public class Connection extends ModelElement {
 		source.addToParent();
 		target.addToParent();
 		this.comment = "";
-		this.mappingCode = "";
 		reconnect(source, target, side);
 	}
 
@@ -96,7 +94,7 @@ public class Connection extends ModelElement {
 		return h.findMappingNode(this, h.findRootBlockNode(h.getRootNode()));
 	}
 
-	public String getCode() {
+	public String getMappingCode() {
 		return ModelGenerator.getInstance().generateRubyCodeFromNode(
 				getMappingNode());
 	}
@@ -223,13 +221,6 @@ public class Connection extends ModelElement {
 				RootNodeHolder.getInstance().changeMappingAtributes(this, null,
 						(String) value);
 				setComment((String) value);
-			}
-		} else if (id.equals(CODE_PROP)) {
-			if (value instanceof String) {
-				// RootNodeHolder.getInstance().changeMappingAtributes(this,
-				// null,
-				// (String) value);
-				setMappingCode((String) value);
 			}
 		} else
 			super.setPropertyValue(id, value);
@@ -365,14 +356,6 @@ public class Connection extends ModelElement {
 
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	public void setMappingCode(String mappingCode) {
-		this.mappingCode = mappingCode;
-	}
-
-	public String getMappingCode() {
-		return mappingCode;
 	}
 
 	public void setConstantName(String constantName) {

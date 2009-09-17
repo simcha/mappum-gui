@@ -36,7 +36,7 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		final String rubyCode = mainPage.getRubyCode();
-		if (!rubyCode.equals(connection.getCode())) {
+		if (!rubyCode.equals(connection.getMappingCode())) {
 			Node newNode = null;
 
 			try {
