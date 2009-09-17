@@ -33,7 +33,6 @@ public class ModelGenerator {
 	private static final int SIMPLE_MAP_OR_WITH_FUNCTION_CALL = 1;
 	private static final int MAP_WITH_DICTIONARY = 2;
 	private static final int MAP_WITH_CODE = 3;
-	private static final int SIMPLE_ARRAY_MAP = 4;
 	private static final int MAP_WITH_SELF = 5;
 	private static final int MAP_WITH_SUBOBJECT = 6;
 	private static final int MAP_WITH_SUBMAP = 7;
