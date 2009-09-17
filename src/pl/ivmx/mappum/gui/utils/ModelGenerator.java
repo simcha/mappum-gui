@@ -278,16 +278,18 @@ public class ModelGenerator {
 			}
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getSource()
-						.getArrayCounters().get(
-								connection.getSource().getArrayCounters()
-										.size() - 1));
+				if (connection.getSource().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getSource()
+							.getArrayCounters().get(
+									connection.getSource().getArrayCounters()
+											.size() - 1));
 			} else if (!connection.getSource().isArrayType()
 					&& connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getTarget()
-						.getArrayCounters().get(
-								connection.getTarget().getArrayCounters()
-										.size() - 1));
+				if (connection.getTarget().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getTarget()
+							.getArrayCounters().get(
+									connection.getTarget().getArrayCounters()
+											.size() - 1));
 			}
 			BlockNode blockNode = (BlockNode) mapNode.childNodes().get(1)
 					.childNodes().get(0);
@@ -325,16 +327,18 @@ public class ModelGenerator {
 			connection.setConstantName(constantName);
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getSource()
-						.getArrayCounters().get(
-								connection.getSource().getArrayCounters()
-										.size() - 1));
+				if (connection.getSource().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getSource()
+							.getArrayCounters().get(
+									connection.getSource().getArrayCounters()
+											.size() - 1));
 			} else if (!connection.getSource().isArrayType()
 					&& connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getTarget()
-						.getArrayCounters().get(
-								connection.getTarget().getArrayCounters()
-										.size() - 1));
+				if (connection.getTarget().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getTarget()
+							.getArrayCounters().get(
+									connection.getTarget().getArrayCounters()
+											.size() - 1));
 			}
 			if (comment != null) {
 				connection.setComment(comment.getValue());
@@ -363,16 +367,18 @@ public class ModelGenerator {
 					.getRightShape(), side, Connection.VAR_TO_VAR_CONN);
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getSource()
-						.getArrayCounters().get(
-								connection.getSource().getArrayCounters()
-										.size() - 1));
+				if (connection.getSource().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getSource()
+							.getArrayCounters().get(
+									connection.getSource().getArrayCounters()
+											.size() - 1));
 			} else if (!connection.getSource().isArrayType()
 					&& connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getTarget()
-						.getArrayCounters().get(
-								connection.getTarget().getArrayCounters()
-										.size() - 1));
+				if (connection.getTarget().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getTarget()
+							.getArrayCounters().get(
+									connection.getTarget().getArrayCounters()
+											.size() - 1));
 			}
 
 			if (comment != null) {
@@ -435,8 +441,6 @@ public class ModelGenerator {
 								new Pair(parents.getLeftShape(),
 										createRightShape(parentCallNode,
 												parents)), childComment);
-						
-						
 
 					} else if (RootNodeHolder.checkRightSideMappingName(
 							parentCallNode).equals("self")) {
@@ -446,24 +450,27 @@ public class ModelGenerator {
 								childComment);
 					}
 					childComment = null;
-					
+
 					if (connection != null) {
 						if (parents.getLeftShape().isArrayType()
 								&& !parents.getRightShape().isArrayType()) {
-							connection
-									.setArrayNumber(parents.getLeftShape()
-											.getArrayCounters().get(
-													parents.getLeftShape()
-															.getArrayCounters()
-															.size() - 1));
+							if (parents.getLeftShape().getArrayCounters()
+									.size() > 0)
+								connection.setArrayNumber(parents
+										.getLeftShape().getArrayCounters().get(
+												parents.getLeftShape()
+														.getArrayCounters()
+														.size() - 1));
 						} else if (!parents.getLeftShape().isArrayType()
 								&& parents.getRightShape().isArrayType()) {
-							connection
-									.setArrayNumber(parents.getRightShape()
-											.getArrayCounters().get(
-													parents.getRightShape()
-															.getArrayCounters()
-															.size() - 1));
+							if (parents.getRightShape().getArrayCounters()
+									.size() > 0)
+								connection.setArrayNumber(parents
+										.getRightShape().getArrayCounters()
+										.get(
+												parents.getRightShape()
+														.getArrayCounters()
+														.size() - 1));
 						}
 					}
 				}
@@ -493,20 +500,23 @@ public class ModelGenerator {
 					if (connection != null) {
 						if (mainPair.getLeftShape().isArrayType()
 								&& !mainPair.getRightShape().isArrayType()) {
-							connection
-									.setArrayNumber(mainPair.getLeftShape()
-											.getArrayCounters().get(
-													mainPair.getLeftShape()
-															.getArrayCounters()
-															.size() - 1));
+							if (mainPair.getLeftShape().getArrayCounters()
+									.size() > 0)
+								connection.setArrayNumber(mainPair
+										.getLeftShape().getArrayCounters().get(
+												mainPair.getLeftShape()
+														.getArrayCounters()
+														.size() - 1));
 						} else if (!mainPair.getLeftShape().isArrayType()
 								&& mainPair.getRightShape().isArrayType()) {
-							connection
-									.setArrayNumber(mainPair.getRightShape()
-											.getArrayCounters().get(
-													mainPair.getRightShape()
-															.getArrayCounters()
-															.size() - 1));
+							if (mainPair.getRightShape().getArrayCounters()
+									.size() > 0)
+								connection.setArrayNumber(mainPair
+										.getRightShape().getArrayCounters()
+										.get(
+												mainPair.getRightShape()
+														.getArrayCounters()
+														.size() - 1));
 						}
 					}
 
@@ -518,20 +528,23 @@ public class ModelGenerator {
 					if (connection != null) {
 						if (mainPair.getLeftShape().isArrayType()
 								&& !mainPair.getRightShape().isArrayType()) {
-							connection
-									.setArrayNumber(mainPair.getLeftShape()
-											.getArrayCounters().get(
-													mainPair.getLeftShape()
-															.getArrayCounters()
-															.size() - 1));
+							if (mainPair.getLeftShape().getArrayCounters()
+									.size() > 0)
+								connection.setArrayNumber(mainPair
+										.getLeftShape().getArrayCounters().get(
+												mainPair.getLeftShape()
+														.getArrayCounters()
+														.size() - 1));
 						} else if (!mainPair.getLeftShape().isArrayType()
 								&& mainPair.getRightShape().isArrayType()) {
-							connection
-									.setArrayNumber(mainPair.getRightShape()
-											.getArrayCounters().get(
-													mainPair.getRightShape()
-															.getArrayCounters()
-															.size() - 1));
+							if (mainPair.getRightShape().getArrayCounters()
+									.size() > 0)
+								connection.setArrayNumber(mainPair
+										.getRightShape().getArrayCounters()
+										.get(
+												mainPair.getRightShape()
+														.getArrayCounters()
+														.size() - 1));
 						}
 					}
 
@@ -556,16 +569,18 @@ public class ModelGenerator {
 
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getSource()
-						.getArrayCounters().get(
-								connection.getSource().getArrayCounters()
-										.size() - 1));
+				if (connection.getSource().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getSource()
+							.getArrayCounters().get(
+									connection.getSource().getArrayCounters()
+											.size() - 1));
 			} else if (!connection.getSource().isArrayType()
 					&& connection.getTarget().isArrayType()) {
-				connection.setArrayNumber(connection.getTarget()
-						.getArrayCounters().get(
-								connection.getTarget().getArrayCounters()
-										.size() - 1));
+				if (connection.getTarget().getArrayCounters().size() > 0)
+					connection.setArrayNumber(connection.getTarget()
+							.getArrayCounters().get(
+									connection.getTarget().getArrayCounters()
+											.size() - 1));
 			}
 
 			if (comment != null) {
