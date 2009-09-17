@@ -8,7 +8,9 @@ import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.jrubyparser.ast.CallNode;
+import org.jrubyparser.ast.NewlineNode;
 
+import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.Pair;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
@@ -45,7 +47,7 @@ public class Connection extends ModelElement {
 	private Logger logger = Logger.getLogger(Connection.class);
 
 	private static List<Connection> connections = new ArrayList<Connection>();
-	
+
 	private int arrayNumber = -1;
 
 	static {
@@ -87,6 +89,16 @@ public class Connection extends ModelElement {
 	 */
 	public int getMappingSide() {
 		return mappingSide;
+	}
+
+	public NewlineNode getMappingNode() {
+		final RootNodeHolder h = RootNodeHolder.getInstance();
+		return h.findMappingNode(this, h.findRootBlockNode(h.getRootNode()));
+	}
+
+	public String getCode() {
+		return ModelGenerator.getInstance().generateRubyCodeFromNode(
+				getMappingNode());
 	}
 
 	/**

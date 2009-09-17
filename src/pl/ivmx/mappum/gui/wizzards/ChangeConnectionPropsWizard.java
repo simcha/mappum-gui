@@ -5,7 +5,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.jrubyparser.ast.NewlineNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.lexer.SyntaxException;
 
@@ -15,26 +14,19 @@ import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class ChangeConnectionPropsWizard extends Wizard {
-	private int mappingSide;
-	private String comment;
+
 	private final Connection connection;
 	private final IMappumEditor editor;
-	private NewlineNode mappingNode;
-	
+	private final int originalMappingSide;
 
 	private Logger logger = Logger.getLogger(ChangeConnectionPropsWizard.class);
 	ChangeConnectionPropsWizardPage mainPage;
 
-	public ChangeConnectionPropsWizard(final Connection connection, final IMappumEditor editor) {
+	public ChangeConnectionPropsWizard(final Connection connection,
+			final IMappumEditor editor) {
 		this.connection = connection;
+		this.originalMappingSide = connection.getMappingSide();
 		this.editor = editor;
-		RootNodeHolder rootNodeHolder = RootNodeHolder.getInstance();
-		this
-				.setMappingNode(rootNodeHolder.findMappingNode(connection,
-						rootNodeHolder.findRootBlockNode(rootNodeHolder
-								.getRootNode())));
-		this.setMappingSide(connection.getMappingSide());
-		this.setComment(connection.getComment());
 	}
 
 	/*
@@ -44,7 +36,7 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		final String rubyCode = mainPage.getRubyCode();
-		if (!rubyCode.equals(mainPage.getCode())) {
+		if (!rubyCode.equals(connection.getCode())) {
 			Node newNode = null;
 
 			try {
@@ -65,11 +57,11 @@ public class ChangeConnectionPropsWizard extends Wizard {
 				final RootNodeHolder nodeHolder = RootNodeHolder.getInstance();
 				nodeHolder.changeMappingAtributes(connection, null, mainPage
 						.getRubyComment());
-				final Node parentNode = nodeHolder.getParentNode(mappingNode,
-						nodeHolder.getRootNode());
+				final Node parentNode = nodeHolder.getParentNode(connection
+						.getMappingNode(), nodeHolder.getRootNode());
 				int pointer = 0;
 				for (Node child : parentNode.childNodes()) {
-					if (mappingNode.equals(child)) {
+					if (connection.getMappingNode().equals(child)) {
 						break;
 					}
 					pointer++;
@@ -94,10 +86,10 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	}
 
 	public boolean performCancel() {
-		RootNodeHolder rootNodeHolder = RootNodeHolder.getInstance();
+		final RootNodeHolder rootNodeHolder = RootNodeHolder.getInstance();
 		rootNodeHolder.changeMappingAtributes(getConnection(), Connection
-				.translateSideFromIntToString(mappingSide), null);
-		getConnection().setMappingSide(mappingSide);
+				.translateSideFromIntToString(originalMappingSide), null);
+		connection.setMappingSide(originalMappingSide);
 		return true;
 	}
 
@@ -122,30 +114,6 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	public void addPages() {
 		super.addPages();
 		addPage(mainPage);
-	}
-
-	public void setMappingSide(int mappingSide) {
-		this.mappingSide = mappingSide;
-	}
-
-	public int getMappingSide() {
-		return mappingSide;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setMappingNode(NewlineNode mappingNode) {
-		this.mappingNode = mappingNode;
-	}
-
-	public NewlineNode getMappingNode() {
-		return mappingNode;
 	}
 
 	public Connection getConnection() {

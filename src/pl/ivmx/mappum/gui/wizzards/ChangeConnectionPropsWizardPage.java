@@ -1,9 +1,6 @@
 package pl.ivmx.mappum.gui.wizzards;
 
-import java.io.IOException;
-
 import org.eclipse.jface.dialogs.IDialogPage;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -16,7 +13,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 import pl.ivmx.mappum.gui.model.Connection;
-import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 /**
@@ -39,34 +35,16 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 			Connection.FROM_RIGHT_TO_LEFT_STR, Connection.DUAL_SIDE_STR };
 
 	private int getSide() {
-		return ((ChangeConnectionPropsWizard) getWizard()).getMappingSide();
+		return getWizard().getConnection().getMappingSide();
 	}
 
 	private String getComment() {
-		return ((ChangeConnectionPropsWizard) getWizard()).getComment();
-	}
-
-	public String getCode() {
-		String code = "";
-		// if(code == null){
-		try {
-			code = ModelGenerator.getInstance().generateRubyCodeFromNode(
-					((ChangeConnectionPropsWizard) getWizard())
-							.getMappingNode());
-			if (code == null || code.equals(""))
-				throw new IOException("Parsed code is null");
-		} catch (IOException e) {
-			MessageDialog.openError(getShell(), "Error while generating code",
-					"Error while generating code from ruby tree node");
-			e.printStackTrace();
-		}
-		// }
-		return code;
+		return getWizard().getConnection().getComment();
 	}
 
 	protected ChangeConnectionPropsWizardPage(String name) {
 		super(name);
-		setTitle("Mapping properties");
+		setTitle(name);
 		setDescription("Change mapping side and (optional) comment and code");
 	}
 
@@ -110,14 +88,13 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 		new Label(composite, SWT.NONE);
 
 		codeText = new Text(composite, SWT.MULTI | SWT.BORDER);
-		codeText.setText(getCode());
+		codeText.setText(getWizard().getConnection().getCode());
 		final GridData gd_codeText = new GridData(SWT.LEFT, SWT.CENTER, false,
 				false, 2, 1);
 		gd_codeText.heightHint = 159;
 		gd_codeText.widthHint = 453;
 		codeText.setLayoutData(gd_codeText);
 		addListeners();
-		onEnterPage();
 		setPageComplete(false);
 	}
 
@@ -147,20 +124,14 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 			} else {
 				newSide = Connection.DUAL_SIDE;
 			}
-			RootNodeHolder.getInstance()
-					.changeMappingAtributes(
-							((ChangeConnectionPropsWizard) getWizard())
-									.getConnection(),
-							Connection.translateSideFromIntToString(newSide),
-							null);
-			((ChangeConnectionPropsWizard) getWizard()).getConnection()
-					.setMappingSide(newSide);
-			codeText.setText(getCode());
+			RootNodeHolder.getInstance().changeMappingAtributes(
+					getWizard().getConnection(),
+					Connection.translateSideFromIntToString(newSide), null);
+			getWizard().getConnection().setMappingSide(newSide);
+			codeText.setText(getWizard().getConnection().getCode());
 			codeText.update();
 			sideCombo.setEnabled(true);
-
 		}
-
 		setPageComplete(isPageComplete());
 		getWizard().getContainer().updateButtons();
 	}
@@ -170,13 +141,7 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 	 * entered and the wizard can be completed
 	 */
 	public boolean isPageComplete() {
-		// commentText.setText("dupa");
-		// commentText.update();
 		return true;
-	}
-
-	void onEnterPage() {
-
 	}
 
 	public String getRubyCode() {
@@ -185,6 +150,11 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 
 	public String getRubyComment() {
 		return commentText.getText();
+	}
+
+	@Override
+	public ChangeConnectionPropsWizard getWizard() {
+		return (ChangeConnectionPropsWizard) super.getWizard();
 	}
 
 }

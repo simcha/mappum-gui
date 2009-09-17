@@ -87,39 +87,41 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	 * @see org.eclipse.gef.editparts.AbstractGraphicalEditPart#createFigure()
 	 */
 	protected IFigure createFigure() {
-		PolylineConnection connection = (PolylineConnection) super
+		final PolylineConnection figure = (PolylineConnection) super
 				.createFigure();
-		if (getCastedModel().getConnectionType() == Connection.CONST_TO_VAR_CONN) {
-			Label label = new Label("CONSTANT: "
-					+ getCastedModel().getConstantName());
-			connection.add(label, new MidpointLocator(connection, 0));
-			connection.setLineStyle(Graphics.LINE_DOT);
-		} else if (getCastedModel().getConnectionType() == Connection.FUN_TO_VAR_CONN) {
+		final Connection connection = getCastedModel();
+
+		if (connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+			Label label = new Label("CONSTANT: " + connection.getConstantName());
+			figure.add(label, new MidpointLocator(figure, 0));
+			figure.setLineStyle(Graphics.LINE_DOT);
+		} else if (connection.getConnectionType() == Connection.FUN_TO_VAR_CONN) {
 			String functions = "FUNCTIONS: ";
-			for (String function : getCastedModel().getFunctions()) {
+			for (String function : connection.getFunctions()) {
 				functions = functions + function + ", ";
 			}
 			String substring = functions.substring(0, functions.length() - 2);
 			Label label = new Label(substring);
-			connection.add(label, new MidpointLocator(connection, 0));
-			connection.setLineStyle(Graphics.LINE_DASH);
-		} else if (getCastedModel().getConnectionType() == Connection.VAR_TO_VAR_CONN
-				&& getCastedModel().getArrayNumber() > -1) {
-			Label label = new Label("[" + getCastedModel().getArrayNumber()
-					+ "]");
-			connection.add(label, new MidpointLocator(connection, 0));
+			figure.add(label, new MidpointLocator(figure, 0));
+			figure.setLineStyle(Graphics.LINE_DASH);
+		} else if (connection.getConnectionType() == Connection.VAR_TO_VAR_CONN
+				&& connection.getArrayNumber() > -1) {
+			Label label = new Label("[" + connection.getArrayNumber() + "]");
+			figure.add(label, new MidpointLocator(figure, 0));
 		}
-		if (getCastedModel().getMappingSide() == Connection.DUAL_SIDE) {
-			connection.setTargetDecoration(new PolygonDecoration()); // arrow at
+		if (connection.getMappingSide() == Connection.DUAL_SIDE) {
+			figure.setTargetDecoration(new PolygonDecoration()); // arrow at
 			// target
 			// endpoint
-			connection.setSourceDecoration(new PolygonDecoration());
-		} else if (getCastedModel().getMappingSide() == Connection.FROM_LEFT_TO_RIGHT) {
-			connection.setTargetDecoration(new PolygonDecoration());
+			figure.setSourceDecoration(new PolygonDecoration());
+		} else if (connection.getMappingSide() == Connection.FROM_LEFT_TO_RIGHT) {
+			figure.setTargetDecoration(new PolygonDecoration());
 		} else {
-			connection.setSourceDecoration(new PolygonDecoration());
+			figure.setSourceDecoration(new PolygonDecoration());
 		}
-		return connection;
+		figure.setToolTip(new Label(connection.getCode()));
+		
+		return figure;
 	}
 
 	/**
