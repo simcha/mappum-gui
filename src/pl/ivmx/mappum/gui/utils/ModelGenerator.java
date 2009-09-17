@@ -260,7 +260,8 @@ public class ModelGenerator {
 		if (assignNode.getReceiverNode() instanceof VCallNode) {
 			pair = new Pair(parents.getLeftShape(), createRightShape(
 					assignNode, parents));
-		} else if (assignNode.getArgsNode().childNodes().get(0) instanceof VCallNode) {
+		} else {
+			assert assignNode.getArgsNode().childNodes().get(0) instanceof VCallNode;
 			pair = new Pair(createLeftShape(assignNode, parents), parents
 					.getRightShape());
 		}
@@ -311,7 +312,8 @@ public class ModelGenerator {
 			pair = new Pair(parents.getLeftShape(), createRightShape(mapnode,
 					parents));
 			constantName = ((StrNode) mapnode.getReceiverNode()).getValue();
-		} else if (mapnode.getArgsNode().childNodes().get(0) instanceof StrNode) {
+		} else {
+			assert mapnode.getArgsNode().childNodes().get(0) instanceof StrNode;
 			pair = new Pair(createLeftShape(mapnode, parents), parents
 					.getRightShape());
 			constantName = ((StrNode) mapnode.getArgsNode().childNodes().get(0))
@@ -471,6 +473,9 @@ public class ModelGenerator {
 														.getArrayCounters()
 														.size() - 1));
 						}
+						if (comment != null) {
+							connection.setComment(comment.getValue());
+						}
 					}
 				}
 
@@ -544,6 +549,9 @@ public class ModelGenerator {
 												mainPair.getRightShape()
 														.getArrayCounters()
 														.size() - 1));
+						}
+						if (comment != null) {
+							connection.setComment(comment.getValue());
 						}
 					}
 
