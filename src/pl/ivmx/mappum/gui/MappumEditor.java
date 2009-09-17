@@ -35,8 +35,8 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.util.TransferDropTargetListener;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -169,7 +169,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		viewer.setEditPartFactory(new ShapesEditPartFactory(this));
 		viewer.setRootEditPart(new ScalableFreeformRootEditPart());
 		viewer.setKeyHandler(new GraphicalViewerKeyHandler(viewer));
-		viewer.getControl().addMouseListener(new MouseListener() {
+		viewer.getControl().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if ((e.stateMask & SWT.ALT) == SWT.ALT) {
@@ -184,18 +184,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 								.setActiveTool(MappumEditorPaletteFactory.CONNECTION_TOOL);
 					}
 				}
-			}
-
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseUp(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 		});
 
