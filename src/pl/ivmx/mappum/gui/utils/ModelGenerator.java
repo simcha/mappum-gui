@@ -391,37 +391,6 @@ public class ModelGenerator {
 
 	}
 
-	/*
-	 * private Connection operateOnMapWithSelf(FCallNode fcallnode, Pair
-	 * parents, XStrNode comment) { Connection connection = null; CallNode
-	 * parentCallNode = (CallNode) fcallnode.childNodes().get(0)
-	 * .childNodes().get(0); Pair mainPair = createShapesPair(parentCallNode,
-	 * parents); IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
-	 * CallNode callnode = null; XStrNode childComment = null; for (Node node :
-	 * iterNode.getBodyNode().childNodes()) { if (node instanceof NewlineNode) {
-	 * 
-	 * for (Node child : node.childNodes()) { if (child instanceof FCallNode) {
-	 * for (Node preChild : child.childNodes().get(0) .childNodes()) { if
-	 * (preChild instanceof CallNode) { callnode = (CallNode) preChild; } } }
-	 * else if (child instanceof XStrNode) { childComment = (XStrNode) child; }
-	 * 
-	 * } }
-	 * 
-	 * 
-	 * if (callnode != null) { int side = Connection
-	 * .translateSideFromStringToInt((callnode).getName()); if
-	 * (checkLeftSideMappingName(callnode).equals("self")) { connection = new
-	 * Connection(mainPair.getLeftShape(), createRightShape(callnode, mainPair),
-	 * side); } else { connection = new Connection(createLeftShape(callnode,
-	 * mainPair), mainPair.getRightShape(), side);
-	 * 
-	 * } if (childComment != null) {
-	 * connection.setComment(childComment.getValue()); } childComment = null; }
-	 * } return connection;
-	 * 
-	 * }
-	 */
-
 	private Connection operateOnMapWithSubobject(FCallNode subobjectFcallnode,
 			Pair parents, XStrNode comment) {
 		Connection connection = null;
