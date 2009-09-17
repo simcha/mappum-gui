@@ -237,12 +237,12 @@ public class RootNodeHolder {
 												if (leftVariable
 														.equals(connection
 																.getSource()
-																.getShapeNode()
+																//.getShapeNode()
 																.getName())
 														&& rightVariable
 																.equals(connection
 																		.getTarget()
-																		.getShapeNode()
+																		//.getShapeNode()
 																		.getName())) {
 													return (NewlineNode) newline;
 												}
@@ -279,7 +279,7 @@ public class RootNodeHolder {
 															&& rightVariable
 																	.equals(connection
 																			.getTarget()
-																			.getShapeNode()
+																			//.getShapeNode()
 																			.getName())) {
 														return (NewlineNode) newline;
 													}
@@ -312,7 +312,7 @@ public class RootNodeHolder {
 													if (leftVariable
 															.equals(connection
 																	.getSource()
-																	.getShapeNode()
+																	//.getShapeNode()
 																	.getName())
 															&& rightVariable
 																	.equals(connection
@@ -433,20 +433,20 @@ public class RootNodeHolder {
 													if ((leftChildVariable
 															.equals(connection
 																	.getSource()
-																	.getShapeNode()
+																	//.getShapeNode()
 																	.getName()) && lastNotSelfRightVariable
 															.equals(connection
 																	.getTarget()
-																	.getShapeNode()
+																	//.getShapeNode()
 																	.getName()))
 															|| (lastNotSelfLeftVariable
 																	.equals(connection
 																			.getSource()
-																			.getShapeNode()
+																			//.getShapeNode()
 																			.getName()) && rightChildVariable
 																	.equals(connection
 																			.getTarget()
-																			.getShapeNode()
+																			//.getShapeNode()
 																			.getName()))) {
 														return (NewlineNode) newlineChild;
 													}
