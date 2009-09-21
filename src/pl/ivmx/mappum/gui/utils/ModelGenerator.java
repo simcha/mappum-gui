@@ -45,6 +45,7 @@ public class ModelGenerator {
 	private Parser parser;
 	private Reader content;
 	private ParserConfiguration configuration;
+	private static int lastUsedElementNumberInArray = -1;
 
 	private static final ModelGenerator INSTANCE = new ModelGenerator();
 
@@ -582,6 +583,7 @@ public class ModelGenerator {
 	 * @return
 	 */
 	private Shape createLeftShape(CallNode callnode, Pair parents) {
+		
 		CallNode rootNode = null;
 		CallNode leftNode = null;
 		Shape leftShape = null;
@@ -606,6 +608,7 @@ public class ModelGenerator {
 								.childNodes().get(1).childNodes().get(0);
 						leftShape
 								.addArrayCounter(((int) numberNode.getValue()));
+						setLastUsedElementNumberInArray((int) numberNode.getValue());
 					}
 				}
 			}
@@ -650,6 +653,7 @@ public class ModelGenerator {
 								.childNodes().get(1).childNodes().get(0);
 						rightShape
 								.addArrayCounter(((int) numberNode.getValue()));
+						setLastUsedElementNumberInArray((int) numberNode.getValue());
 					}
 				}
 			}
@@ -814,5 +818,14 @@ public class ModelGenerator {
 	public String generateRubyCodeFromNode(Node node) {
 		// TODO: "" == 'lekkie' naduzycie
 		return ReWriteVisitor.createCodeFromNode(node, "");
+	}
+
+	public static void setLastUsedElementNumberInArray(
+			int lastUsedElementNumberInArray) {
+		ModelGenerator.lastUsedElementNumberInArray = lastUsedElementNumberInArray;
+	}
+
+	public static int getLastUsedElementNumberInArray() {
+		return lastUsedElementNumberInArray;
 	}
 }

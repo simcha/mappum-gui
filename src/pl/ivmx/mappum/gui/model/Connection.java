@@ -309,6 +309,8 @@ public class Connection extends ModelElement {
 	}
 
 	public static boolean connectionNotExists(Pair mapping) {
+		// ModelGenerator.setLastUsedElementNumberInArray(-1);
+		boolean result = true;
 		for (Connection tmpConnetion : Connection.getConnections()) {
 			if (tmpConnetion.getSource().getName().equals(
 					mapping.getLeftShape().getName())
@@ -319,15 +321,37 @@ public class Connection extends ModelElement {
 						.getLeftShape().getShapeStack().size()
 						&& tmpConnetion.getTarget().getShapeStack().size() == mapping
 								.getRightShape().getShapeStack().size()) {
-
+					boolean firstLeftArrayElementFinded = false;
+					boolean firstRightArrayElementFinded = false;
+					boolean leftMatch = false;
+					boolean rightMatch = false;
+					int elementNumber;
 					for (int i = 0; i < tmpConnetion.getSource()
 							.getShapeStack().size(); i++) {
 
-						if (!tmpConnetion.getSource().getShapeStack().get(i)
+						if (tmpConnetion.getSource().getShapeStack().get(i)
 								.getName().equals(
 										mapping.getLeftShape().getShapeStack()
 												.get(i).getName())) {
-							return true;
+							if (!firstLeftArrayElementFinded
+									&& (mapping.getLeftShape().getShapeStack()
+											.get(i).isArrayType() && mapping
+											.getLeftShape().getShapeStack()
+											.get(i).getArrayCounters().size() > 0)) {
+								elementNumber = mapping.getLeftShape()
+										.getShapeStack().get(i)
+										.getArrayCounters().get(mapping.getLeftShape()
+										.getShapeStack().get(i)
+										.getArrayCounters().size()-1);
+								if(elementNumber == tmpConnetion.getArrayNumber()){
+									leftMatch=true;
+								}
+								firstLeftArrayElementFinded=true;
+							}
+							result = false;
+						} else {
+							result = true;
+							break;
 						}
 
 					}
@@ -335,19 +359,47 @@ public class Connection extends ModelElement {
 					for (int i = 0; i < tmpConnetion.getTarget()
 							.getShapeStack().size(); i++) {
 
-						if (!tmpConnetion.getTarget().getShapeStack().get(i)
+						if (tmpConnetion.getTarget().getShapeStack().get(i)
 								.getName().equals(
 										mapping.getRightShape().getShapeStack()
 												.get(i).getName())) {
-							return true;
+							if (!firstRightArrayElementFinded
+									&& (mapping.getRightShape().getShapeStack()
+											.get(i).isArrayType() && mapping
+											.getRightShape().getShapeStack()
+											.get(i).getArrayCounters().size() > 0)) {
+								elementNumber = mapping.getRightShape()
+								.getShapeStack().get(i)
+								.getArrayCounters().get(mapping.getRightShape()
+								.getShapeStack().get(i)
+								.getArrayCounters().size()-1);
+								if(elementNumber == tmpConnetion.getArrayNumber()){
+									rightMatch=true;
+								}
+								firstRightArrayElementFinded=true;
+							}
+							result = false;
+						} else {
+							result = true;
+							break;
 						}
 
 					}
+					if (result == false) {
+						if(firstLeftArrayElementFinded!=firstRightArrayElementFinded){
+							if(leftMatch || rightMatch)
+								return false;
+							else
+								result = true;
+						}else{
+							return false;
+						}
+					}
 				}
-				return false;
+				result = true;
 			}
 		}
-		return true;
+		return result;
 	}
 
 	public String getComment() {
