@@ -36,7 +36,7 @@ public class ChangeConnectionPropsWizard extends Wizard {
 	 */
 	public boolean performFinish() {
 		final String rubyCode = mainPage.getRubyCode();
-		if (!rubyCode.equals(connection.getMappingCode())) {
+		if (hasChanged(rubyCode)) {
 			Node newNode = null;
 
 			try {
@@ -79,6 +79,12 @@ public class ChangeConnectionPropsWizard extends Wizard {
 			return false;
 		}
 		return false;
+	}
+
+	private boolean hasChanged(final String rubyCode) {
+		return !(rubyCode.equals(connection.getMappingCode())
+				&& connection.getMappingSide() == originalMappingSide && connection
+				.getComment().equals(mainPage.getRubyComment()));
 	}
 
 	private Node generateModelFromCode(String code) throws SyntaxException {
