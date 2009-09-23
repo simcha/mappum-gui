@@ -337,9 +337,12 @@ public class Shape extends ModelElement {
 	private int getChildrenDepth(Shape shape) {
 		int i = 0;
 		if (shape.getShapeChildren().size() != 0) {
+			int depth = 0;
 			for (Shape node : shape.getShapeChildren()) {
-				i = i + getChildrenDepth(node);
+				if(depth < getChildrenDepth(node))
+				depth = getChildrenDepth(node);
 			}
+			i = i + depth;
 			return ++i;
 		}
 		return 0;
