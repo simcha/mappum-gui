@@ -1,6 +1,5 @@
 package pl.ivmx.mappum.gui.wizzards;
 
-import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -13,62 +12,45 @@ import org.eclipse.swt.widgets.Listener;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 
-/**
- * Wizard page shown when the user has chosen plane as means of transport
- */
-
 public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		Listener {
 
 	// widgets on this page
 	private List leftMappingList;
 	private List rightMappingList;
-	private Label leftLabel;
-	private Label rightLabel;
 
-	final static float standardPrice = 100;
-	final static String[] seatChoices = { "Window", "Aisle", "Center" };
-	final static double discountRate = 0.9;
-
-	float price = standardPrice;
-
-	/**
-	 * Constructor for PlanePage.
-	 */
 	protected GenerateModelFromXsdWizardPage(String arg0) {
 		super(arg0);
 		setTitle("Generate model from XSD schema");
 		setDescription("Specify left and right side of mapping model");
 	}
 
-	/**
-	 * @see IDialogPage#createControl(Composite)
-	 */
+	private List createList(final Composite c) {
+
+		final List list = new List(c, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		final GridData gd_list = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd_list.heightHint = 188;
+		list.setLayoutData(gd_list);
+		list.addListener(SWT.Selection, this);
+
+		return list;
+	}
+
 	public void createControl(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout gl = new GridLayout();
 		gl.numColumns = 2;
 		composite.setLayout(gl);
 
-		leftLabel = new Label(composite, SWT.NONE);
+		final Label leftLabel = new Label(composite, SWT.NONE);
 		leftLabel.setText("Left mapping model side:");
 
-		rightLabel = new Label(composite, SWT.NONE);
+		final Label rightLabel = new Label(composite, SWT.NONE);
 		rightLabel.setText("Right mapping model side:");
 
-		leftMappingList = new List(composite, SWT.BORDER);
-		final GridData gd_leftList = new GridData(SWT.FILL, SWT.FILL, true,
-				false);
-		gd_leftList.heightHint = 188;
-		leftMappingList.setLayoutData(gd_leftList);
-		leftMappingList.addListener(SWT.Selection, this);
+		leftMappingList = createList(composite);
+		rightMappingList = createList(composite);
 
-		rightMappingList = new List(composite, SWT.BORDER);
-		final GridData gd_rightList = new GridData(SWT.FILL, SWT.FILL, true,
-				false);
-		gd_rightList.heightHint = 188;
-		rightMappingList.setLayoutData(gd_rightList);
-		rightMappingList.addListener(SWT.Selection, this);
 		setControl(composite);
 		onEnterPage();
 		setPageComplete(false);
@@ -84,15 +66,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	 * can be finished
 	 */
 	public void handleEvent(Event e) {
-		// if (e.widget == priceButton) {
-		// if (flightsList.getSelectionCount() >0) {
-		// if (((HolidayWizard)getWizard()).model.discounted)
-		// price *= discountRate;
-		// MessageDialog.openInformation(this.getShell(),"", "Flight price "+
-		// price);
-		// }
-		// }
-
 		setPageComplete(isPageComplete());
 		getWizard().getContainer().updateButtons();
 	}
@@ -123,19 +96,5 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 			leftMappingList.add(clazz.getName());
 			rightMappingList.add(clazz.getName());
 		}
-		// Gets the model
-		// HolidayWizard wizard = (HolidayWizard)getWizard();
-		// HolidayModel model = wizard.model;
-		//		
-		// String data = model.departure+" to "+model.destination+":";
-		// // arbitrary values
-		// String text1 = data +" price £400 - British Airways";
-		// String text2 = data +" price £500 - Air France";
-		// if (model.resetFlights) {
-		// wizard.planeCompleted = false;
-		// flightsList.removeAll();
-		// flightsList.add(text1);
-		// flightsList.add(text2);
-		// }
 	}
 }
