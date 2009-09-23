@@ -14,6 +14,7 @@ import org.jrubyparser.ast.ConstNode;
 import org.jrubyparser.ast.DAsgnNode;
 import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.FCallNode;
+import org.jrubyparser.ast.FixnumNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.ListNode;
 import org.jrubyparser.ast.MultipleAsgnNode;
@@ -237,14 +238,25 @@ public class RootNodeHolder {
 												if (leftVariable
 														.equals(connection
 																.getSource()
-																//.getShapeNode()
+																// .getShapeNode()
 																.getName())
 														&& rightVariable
 																.equals(connection
 																		.getTarget()
-																		//.getShapeNode()
+																		// .getShapeNode()
 																		.getName())) {
-													return (NewlineNode) newline;
+													if (connection
+															.getArrayNumber() > -1) {
+														if (checkFirstNodeArrayElementNumber(
+																(NewlineNode) newline,
+																connection
+																		.getArrayNumber())) {
+															return (NewlineNode) newline;
+														}
+													} else {
+														return (NewlineNode) newline;
+													}
+
 												}
 											}
 										}
@@ -279,9 +291,19 @@ public class RootNodeHolder {
 															&& rightVariable
 																	.equals(connection
 																			.getTarget()
-																			//.getShapeNode()
+																			// .getShapeNode()
 																			.getName())) {
-														return (NewlineNode) newline;
+														if (connection
+																.getArrayNumber() > -1) {
+															if (checkFirstNodeArrayElementNumber(
+																	(NewlineNode) newline,
+																	connection
+																			.getArrayNumber())) {
+																return (NewlineNode) newline;
+															}
+														} else {
+															return (NewlineNode) newline;
+														}
 													}
 												}
 											}
@@ -312,12 +334,22 @@ public class RootNodeHolder {
 													if (leftVariable
 															.equals(connection
 																	.getSource()
-																	//.getShapeNode()
+																	// .getShapeNode()
 																	.getName())
 															&& rightVariable
 																	.equals(connection
 																			.getConstantName())) {
-														return (NewlineNode) newline;
+														if (connection
+																.getArrayNumber() > -1) {
+															if (checkFirstNodeArrayElementNumber(
+																	(NewlineNode) newline,
+																	connection
+																			.getArrayNumber())) {
+																return (NewlineNode) newline;
+															}
+														} else {
+															return (NewlineNode) newline;
+														}
 													}
 												}
 											}
@@ -356,7 +388,17 @@ public class RootNodeHolder {
 																			.getTarget()
 																			.getShapeNode()
 																			.getName())) {
-														return (NewlineNode) newline;
+														if (connection
+																.getArrayNumber() > -1) {
+															if (checkFirstNodeArrayElementNumber(
+																	(NewlineNode) newline,
+																	connection
+																			.getArrayNumber())) {
+																return (NewlineNode) newline;
+															}
+														} else {
+															return (NewlineNode) newline;
+														}
 													}
 												}
 											}
@@ -391,7 +433,17 @@ public class RootNodeHolder {
 																	.getName())
 															&& rightVariable
 																	.equals("func")) {
-														return (NewlineNode) newline;
+														if (connection
+																.getArrayNumber() > -1) {
+															if (checkFirstNodeArrayElementNumber(
+																	(NewlineNode) newline,
+																	connection
+																			.getArrayNumber())) {
+																return (NewlineNode) newline;
+															}
+														} else {
+															return (NewlineNode) newline;
+														}
 													}
 												}
 											}
@@ -433,22 +485,32 @@ public class RootNodeHolder {
 													if ((leftChildVariable
 															.equals(connection
 																	.getSource()
-																	//.getShapeNode()
+																	// .getShapeNode()
 																	.getName()) && lastNotSelfRightVariable
 															.equals(connection
 																	.getTarget()
-																	//.getShapeNode()
+																	// .getShapeNode()
 																	.getName()))
 															|| (lastNotSelfLeftVariable
 																	.equals(connection
 																			.getSource()
-																			//.getShapeNode()
+																			// .getShapeNode()
 																			.getName()) && rightChildVariable
 																	.equals(connection
 																			.getTarget()
-																			//.getShapeNode()
+																			// .getShapeNode()
 																			.getName()))) {
-														return (NewlineNode) newlineChild;
+														if (connection
+																.getArrayNumber() > -1) {
+															if (checkFirstNodeArrayElementNumber(
+																	(NewlineNode) newlineChild,
+																	connection
+																			.getArrayNumber())) {
+																return (NewlineNode) newlineChild;
+															}
+														} else {
+															return (NewlineNode) newlineChild;
+														}
 													}
 												}
 											}
@@ -458,7 +520,6 @@ public class RootNodeHolder {
 								}
 							}
 						}
-						// TODO
 					} else if (child instanceof CallNode
 							&& connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
 						if (child.childNodes().size() > 0) {
@@ -487,7 +548,16 @@ public class RootNodeHolder {
 																.getTarget()
 																.getShapeNode()
 																.getName())) {
-											return (NewlineNode) newline;
+											if (connection.getArrayNumber() > -1) {
+												if (checkFirstNodeArrayElementNumber(
+														(NewlineNode) newline,
+														connection
+																.getArrayNumber())) {
+													return (NewlineNode) newline;
+												}
+											} else {
+												return (NewlineNode) newline;
+											}
 										}
 									}
 								}
@@ -514,7 +584,16 @@ public class RootNodeHolder {
 												&& rightVariable
 														.equals(connection
 																.getConstantName())) {
-											return (NewlineNode) newline;
+											if (connection.getArrayNumber() > -1) {
+												if (checkFirstNodeArrayElementNumber(
+														(NewlineNode) newline,
+														connection
+																.getArrayNumber())) {
+													return (NewlineNode) newline;
+												}
+											} else {
+												return (NewlineNode) newline;
+											}
 										}
 									}
 								}
@@ -535,6 +614,54 @@ public class RootNodeHolder {
 		return newlineNode;
 	}
 
+	private boolean checkFirstNodeArrayElementNumber(NewlineNode node,
+			int elementNum) {
+		if(node != null){
+			Node fCallNode = node.getNextNode();
+			if (fCallNode != null && fCallNode instanceof FCallNode
+					&& ((FCallNode) fCallNode).getName().equals("map")) {
+				Node callNode = fCallNode.childNodes().get(0).childNodes().get(0);
+				if (callNode != null && callNode instanceof CallNode) {
+					if (findFixNumNode(callNode.childNodes().get(0), null) != findFixNumNode(
+							callNode.childNodes().get(1), null)) {
+						if (findFixNumNode(callNode.childNodes().get(0), elementNum)) {
+							return true;
+						} else if (findFixNumNode(callNode.childNodes().get(1),
+								elementNum)) {
+							return true;
+						}
+					}
+				}
+			}
+			if (checkFirstNodeArrayElementNumber(getParentMappingNode(node),
+					elementNum)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean findFixNumNode(Node node, Integer fixNum) {
+		if (node instanceof FixnumNode) {
+			if (fixNum != null) {
+				if (((FixnumNode) node).getValue() == fixNum) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return true;
+			}
+		} else {
+			for (Node child : node.childNodes()) {
+				if (findFixNumNode(child, fixNum) == true) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private NewlineNode generateSimpleMapping(CallNode leftSide,
 			CallNode rightSide, String side, NewlineNode parentMapping) {
 		System.out.println("Mapping: " + leftSide.getName() + ", "
@@ -550,6 +677,24 @@ public class RootNodeHolder {
 		String[] s = findDVars(parentMapping);
 		changeMappingDVars(newlineNode, s[0], s[1]);
 		return newlineNode;
+	}
+
+	private NewlineNode getParentMappingNode(NewlineNode childMappingNode) {
+		Node blockNode = getParentNode(childMappingNode, rootNode);
+		if (blockNode != null && blockNode instanceof BlockNode) {
+			Node iterNode = getParentNode(blockNode, rootNode);
+			if (iterNode != null && iterNode instanceof IterNode) {
+				Node fcallNode = getParentNode(iterNode, rootNode);
+				if (fcallNode != null && fcallNode instanceof FCallNode) {
+					Node newlineNode = getParentNode(fcallNode, rootNode);
+					if (newlineNode != null
+							&& newlineNode instanceof NewlineNode) {
+						return (NewlineNode) newlineNode;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

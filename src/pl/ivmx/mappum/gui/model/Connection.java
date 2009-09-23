@@ -302,7 +302,6 @@ public class Connection extends ModelElement {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "|| Connection: left side = " + source.getName()
 				+ ", right side = " + target.getName() + ", side = "
 				+ mappingSide + " ||";

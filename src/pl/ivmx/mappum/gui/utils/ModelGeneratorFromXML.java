@@ -220,9 +220,12 @@ public class ModelGeneratorFromXML {
 										+ ", Field: " + childElement);
 								Shape child = checkAndAddShape(childElement,
 										parent, Shape.LEFT_SIDE);
-								getComplexField(((RubyClass) (preChildArray
-										.get(1))).getName(), child,
-										Shape.LEFT_SIDE);
+								if (preChildArray.get(1) != null) {
+									getComplexField(((RubyClass) (preChildArray
+											.get(1))).getName(), child,
+											Shape.LEFT_SIDE);
+								}
+
 							}
 						}
 					}
@@ -246,9 +249,12 @@ public class ModelGeneratorFromXML {
 										+ ", Field: " + childElement);
 								Shape child = checkAndAddShape(childElement,
 										parent, Shape.RIGHT_SIDE);
-								getComplexField(((RubyClass) (preChildArray
-										.get(1))).getName(), child,
-										Shape.RIGHT_SIDE);
+								if (preChildArray.get(1) != null) {
+									getComplexField(((RubyClass) (preChildArray
+											.get(1))).getName(), child,
+											Shape.RIGHT_SIDE);
+								}
+
 							}
 						}
 					}
@@ -276,8 +282,11 @@ public class ModelGeneratorFromXML {
 										+ ", Field: " + childElement);
 								Shape child = checkAndAddShape(childElement,
 										parent, side);
-								getComplexField(((RubyClass) (preChildArray
-										.get(1))).getName(), child, side);
+								if (preChildArray.get(1) != null) {
+									getComplexField(((RubyClass) (preChildArray
+											.get(1))).getName(), child, side);
+								}
+
 							}
 						}
 					}
