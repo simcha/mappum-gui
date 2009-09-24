@@ -71,7 +71,7 @@ public class ConnectionCreateCommand extends Command {
 
 	public void execute() {
 		// create a new connection between source and target
-		if (source.getSide() == Shape.RIGHT_SIDE) {
+		if (source.getSide() == Shape.Side.RIGHT) {
 			connection = new Connection(target, source, mappingSide,
 					Connection.VAR_TO_VAR_CONN);
 		}

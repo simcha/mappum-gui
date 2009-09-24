@@ -583,7 +583,7 @@ public class ModelGenerator {
 	 * @return
 	 */
 	private Shape createLeftShape(CallNode callnode, Pair parents) {
-		
+
 		CallNode rootNode = null;
 		CallNode leftNode = null;
 		Shape leftShape = null;
@@ -591,7 +591,7 @@ public class ModelGenerator {
 			rootNode = (CallNode) callnode.childNodes().get(0);
 			leftNode = findLastCallNodeInTree(callnode.childNodes().get(0));
 			leftShape = Shape.createShape(leftNode.getName(), null, parents
-					.getLeftShape(), Shape.LEFT_SIDE, rootNode);
+					.getLeftShape(), Shape.Side.LEFT, rootNode);
 			leftShape.addToParent();
 			if (rootNode != null) {
 
@@ -608,7 +608,8 @@ public class ModelGenerator {
 								.childNodes().get(1).childNodes().get(0);
 						leftShape
 								.addArrayCounter(((int) numberNode.getValue()));
-						setLastUsedElementNumberInArray((int) numberNode.getValue());
+						setLastUsedElementNumberInArray((int) numberNode
+								.getValue());
 					}
 				}
 			}
@@ -635,7 +636,7 @@ public class ModelGenerator {
 			rightNode = findLastCallNodeInTree(callnode.childNodes().get(1)
 					.childNodes().get(0));
 			rightShape = Shape.createShape(rightNode.getName(), null, parents
-					.getRightShape(), Shape.RIGHT_SIDE, (CallNode) callnode
+					.getRightShape(), Shape.Side.RIGHT, (CallNode) callnode
 					.childNodes().get(1).childNodes().get(0));
 			rightShape.addToParent();
 			if (rootNode != null) {
@@ -653,7 +654,8 @@ public class ModelGenerator {
 								.childNodes().get(1).childNodes().get(0);
 						rightShape
 								.addArrayCounter(((int) numberNode.getValue()));
-						setLastUsedElementNumberInArray((int) numberNode.getValue());
+						setLastUsedElementNumberInArray((int) numberNode
+								.getValue());
 					}
 				}
 			}
@@ -771,37 +773,37 @@ public class ModelGenerator {
 					leftElement = Shape.createShape(((Colon2Node) preChild)
 							.getName(), ((ConstNode) ((Colon2Node) preChild)
 							.getLeftNode()).getName(), parents.getLeftShape(),
-							Shape.LEFT_SIDE, null);
+							Shape.Side.LEFT, null);
 					left = false;
 				} else {
 					rightElement = Shape.createShape(((Colon2Node) preChild)
 							.getName(), ((ConstNode) ((Colon2Node) preChild)
 							.getLeftNode()).getName(), parents.getRightShape(),
-							Shape.RIGHT_SIDE, null);
+							Shape.Side.RIGHT, null);
 					left = true;
 				}
 			} else if (preChild instanceof SymbolNode) {
 				if (left) {
 					leftElement = Shape.createShape(((SymbolNode) preChild)
 							.getName(), null, parents.getLeftShape(),
-							Shape.LEFT_SIDE, null);
+							Shape.Side.LEFT, null);
 					left = false;
 				} else {
 					rightElement = Shape.createShape(((SymbolNode) preChild)
 							.getName(), null, parents.getRightShape(),
-							Shape.RIGHT_SIDE, null);
+							Shape.Side.RIGHT, null);
 					left = true;
 				}
 			} else if (preChild instanceof ConstNode) {
 				if (left) {
 					leftElement = Shape.createShape(((ConstNode) preChild)
 							.getName(), null, parents.getLeftShape(),
-							Shape.LEFT_SIDE, null);
+							Shape.Side.LEFT, null);
 					left = false;
 				} else {
 					rightElement = Shape.createShape(((ConstNode) preChild)
 							.getName(), null, parents.getRightShape(),
-							Shape.RIGHT_SIDE, null);
+							Shape.Side.RIGHT, null);
 					left = true;
 				}
 			}

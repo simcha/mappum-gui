@@ -1,34 +1,32 @@
 package pl.ivmx.mappum.gui.model;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.viewers.ICellEditorValidator;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.jrubyparser.ast.CallNode;
 
-import pl.ivmx.mappum.gui.MappumPlugin;
-
 public class Shape extends ModelElement {
 
+	public static enum Side {
+		LEFT, RIGHT;
+	}
+
 	private final Logger logger = Logger.getLogger(Shape.class);
-	private static final Image RECTANGLE_ICON = createImage("icons/rectangle16.gif");
 	private static IPropertyDescriptor[] descriptors;
 
 	private static final long serialVersionUID = 1;
 
 	public static final String LAYOUT_PROP = "Shape.Layout";
 
-	public static final String NAME_PROP = "Shape.Name";
+	private static final String NAME_PROP = "Shape.Name";
 
-	public static final String TYPE_PROP = "Shape.TYPE";
+	private static final String TYPE_PROP = "Shape.TYPE";
 
 	public static final String CHILD_ADDED_PROP = "Shape.ChildAdded";
 	public static final String CHILD_REMOVED_PROP = "Shape.ChildRemoved";
@@ -41,27 +39,15 @@ public class Shape extends ModelElement {
 
 	private List<Connection> targetConnections = new ArrayList<Connection>();
 
-	public static final int LEFT_SIDE = 1;
-	public static final int RIGHT_SIDE = 2;
-
-	public static final int SMALLER_ELEMENT_HEIGHT = 40;
-	public static final int SMALLER_ELEMENT_WIDTH = 200;
-	public static final int SPACE_BETWEEN_ELEMENTS = 10;
-	public static final int CEIL_SPACE = 30;
-
-	public int sizeHeight;
-	public int sizeWidth;
-
 	private String type;
 	private final Shape shapeParent;
 	private List<Shape> shapeChildren;
-	private int side;
+	private Side side;
 	private static List<Shape> shapes = new ArrayList<Shape>();
 
 	private boolean arrayType = false;
 	private List<Integer> arrayCounters = new ArrayList<Integer>();
 
-	private Rectangle layout;
 	private CallNode shapeNode;
 	static {
 		descriptors = new IPropertyDescriptor[] {
@@ -85,21 +71,10 @@ public class Shape extends ModelElement {
 		}
 	}
 
-	protected static Image createImage(String name) {
-		InputStream stream = MappumPlugin.class.getResourceAsStream(name);
-		Image image = new Image(null, stream);
-		try {
-			stream.close();
-		} catch (IOException ioe) {
-		}
-		return image;
-	}
-
-	public Shape(String name, String type, Shape shapeParent, int side,
-			CallNode shapeNode) {
+	private Shape(final String name, final String type,
+			final Shape shapeParent, final Side side, final CallNode shapeNode) {
 		this.shapeNode = shapeNode;
 		shapeChildren = new ArrayList<Shape>();
-		this.layout = new Rectangle();
 		if (shapeParent == null)
 			rootShapes.add(this);
 		shapes.add(this);
@@ -141,18 +116,7 @@ public class Shape extends ModelElement {
 	}
 
 	public static Shape createShape(String name, String type,
-			Shape shapeParent, int side, CallNode shapeNode) {
-		// for (int i = 0; i < Shape.getShapes().size(); i++) {
-		// if (Shape.getShapes().get(i).getName().equals(name)
-		// && Shape.getShapes().get(i).getSide() == side) {
-		// if (Shape.getShapes().get(i).getShapeParent() != null
-		// && Shape.getShapes().get(i).getShapeParent().equals(
-		// shapeParent)) {
-		// return Shape.getShapes().get(i);
-		// }
-		//
-		// }
-		// }
+			Shape shapeParent, Side side, CallNode shapeNode) {
 		if (shapeParent == null) {
 			for (Shape shape : Shape.getRootShapes()) {
 				if (shape.getName().equals(name) && shape.getSide() == side)
@@ -179,10 +143,6 @@ public class Shape extends ModelElement {
 			targetConnections.add(conn);
 			firePropertyChange(TARGET_CONNECTIONS_PROP, null, conn);
 		}
-	}
-
-	public Image getIcon() {
-		return RECTANGLE_ICON;
 	}
 
 	public IPropertyDescriptor[] getPropertyDescriptors() {
@@ -227,125 +187,20 @@ public class Shape extends ModelElement {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	public Shape getShapeParent() {
 		return shapeParent;
-	}
-
-	public void addShapeChild(Shape shape) {
-		if (shape != null && shapeChildren.add(shape)) {
-			firePropertyChange(CHILD_ADDED_PROP, null, shape);
-		}
 	}
 
 	public List<Shape> getShapeChildren() {
 		return shapeChildren;
 	}
 
-	public void setShapeChildren(List<Shape> shapeChildren) {
-		this.shapeChildren = shapeChildren;
-	}
-
-	public int getSide() {
+	public Side getSide() {
 		return side;
 	}
 
-	public void setSide(int side) {
-		this.side = side;
-	}
-
-	public Rectangle getLayout() {
-		setLayout();
-		return layout;
-	}
-
 	public void setLayout(Rectangle layout) {
-		this.layout = layout;
 		firePropertyChange(LAYOUT_PROP, null, layout);
-	}
-
-	public void setLayout() {
-
-		int x = 0;
-		int y = 0;
-
-		int tmpDepth = 0;
-		if (shapeParent != null) {
-			for (Shape node : shapeParent.getShapeChildren()) {
-				if (tmpDepth < getChildrenDepth(node)) {
-					tmpDepth = getChildrenDepth(node);
-				}
-			}
-		} else {
-			tmpDepth = getChildrenDepth(this);
-		}
-		sizeWidth = SMALLER_ELEMENT_WIDTH + 2 * SPACE_BETWEEN_ELEMENTS
-				* tmpDepth - SPACE_BETWEEN_ELEMENTS;
-		sizeHeight = getHeight(this);
-		if (shapeParent == null) {
-
-			if (side == Shape.LEFT_SIDE) {
-				x = 10;
-				y = 40;
-			} else {
-				x = 500;
-				y = 40;
-
-			}
-
-		} else {
-			x = SPACE_BETWEEN_ELEMENTS;
-			y = CEIL_SPACE;
-			for (Shape node : shapeParent.getShapeChildren()) {
-				if ((node).equals(this)) {
-					break;
-				} else {
-					y = y + getHeight(node) + SPACE_BETWEEN_ELEMENTS;
-				}
-			}
-
-		}
-		setLayout(new Rectangle(x, y, sizeWidth, sizeHeight));
-		logger.debug("Shape layout info: " + this.getName() + " height: "
-				+ sizeHeight + " width:" + sizeWidth + " y:" + y + " x:" + x);
-	}
-
-	private static int getHeight(Shape shape) {
-		int i = 0;
-		if (shape.getShapeChildren().size() != 0) {
-			for (Shape node : shape.getShapeChildren()) {
-				i = i + getHeight(node);
-			}
-			i = i + CEIL_SPACE + shape.getShapeChildren().size()
-					* SPACE_BETWEEN_ELEMENTS;
-			return i;
-		}
-		return SMALLER_ELEMENT_HEIGHT;
-	}
-
-	private int getChildrenDepth(Shape shape) {
-		int i = 0;
-		if (shape.getShapeChildren().size() != 0) {
-			int depth = 0;
-			for (Shape node : shape.getShapeChildren()) {
-				if(depth < getChildrenDepth(node))
-				depth = getChildrenDepth(node);
-			}
-			i = i + depth;
-			return ++i;
-		}
-		return 0;
 	}
 
 	public int getDepth() {
@@ -459,7 +314,7 @@ public class Shape extends ModelElement {
 		this.arrayCounters.add(arrayCounter);
 	}
 
-	public  List<Integer> getArrayCounters() {
+	public List<Integer> getArrayCounters() {
 		return arrayCounters;
 	}
 

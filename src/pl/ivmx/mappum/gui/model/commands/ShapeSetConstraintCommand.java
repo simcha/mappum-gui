@@ -11,7 +11,7 @@ public class ShapeSetConstraintCommand extends Command {
 	/** Stores the new size and location. */
 	private final Rectangle newBounds;
 	/** Stores the old size and location. */
-	private Rectangle oldBounds;
+	// private Rectangle oldBounds;
 	/** A request to move/resize an edit part. */
 	private final ChangeBoundsRequest request;
 
@@ -61,7 +61,6 @@ public class ShapeSetConstraintCommand extends Command {
 	 * @see org.eclipse.gef.commands.Command#execute()
 	 */
 	public void execute() {
-		oldBounds = new Rectangle(shape.getLayout());
 		redo();
 	}
 
@@ -72,14 +71,5 @@ public class ShapeSetConstraintCommand extends Command {
 	 */
 	public void redo() {
 		shape.setLayout(newBounds);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.gef.commands.Command#undo()
-	 */
-	public void undo() {
-		shape.setLayout(oldBounds);
 	}
 }

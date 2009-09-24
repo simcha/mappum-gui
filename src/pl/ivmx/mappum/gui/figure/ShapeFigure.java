@@ -1,10 +1,10 @@
 package pl.ivmx.mappum.gui.figure;
 
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.FlowLayout;
 import org.eclipse.draw2d.Label;
+import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.RoundedRectangle;
-import org.eclipse.draw2d.ToolbarLayout;
-import org.eclipse.draw2d.XYLayout;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.graphics.Color;
@@ -16,44 +16,25 @@ public class ShapeFigure extends RoundedRectangle {
 	private final static Color COLOR_DARK = new Color(null, 230, 230, 230);
 
 	private final Label labelName = new Label();
-	private final Label labelType = new Label();
 
 	public ShapeFigure(final boolean isDark) {
+		setBorder(new MarginBorder(5));
 		setCornerDimensions(new Dimension(20, 20));
-		XYLayout layout = new XYLayout();
+		final FlowLayout layout = new FlowLayout(false);
+		layout.setStretchMinorAxis(true);
 		setLayoutManager(layout);
-		labelName.setIcon(new Image(null, 16, 16));
-		labelName.setForegroundColor(ColorConstants.darkGray);
-		add(labelName, ToolbarLayout.ALIGN_CENTER);
-		setConstraint(labelName, new Rectangle(5, 3, -1, -1));
-		labelType.setForegroundColor(ColorConstants.black);
-		add(labelType, ToolbarLayout.ALIGN_CENTER);
-		setConstraint(labelType, new Rectangle(24, 16, -1, -1));
-
-		// setBorder(new LineBorder(1));
-
+		setSize(50,20); 
 		setBackgroundColor(isDark ? COLOR_DARK : COLOR_LIGHT);
 
-		// setForegroundColor(new Color(null, 0, 0, 0));
-
+		labelName.setForegroundColor(ColorConstants.darkGray);
 	}
 
 	public void setName(String text) {
-		if (text != null)
-			labelName.setText("Name: " + text);
-	}
-
-	public void setType(String text) {
-		if (text != null)
-			labelType.setText("Type: " + text);
+		labelName.setText("Name: " + text);
 	}
 
 	public String getName() {
 		return labelName.getText();
-	}
-
-	public String getType() {
-		return labelType.getText();
 	}
 
 	public void setLayout(Rectangle rect) {
@@ -63,5 +44,12 @@ public class ShapeFigure extends RoundedRectangle {
 	public void setImage(Image image) {
 		labelName.setIcon(image);
 
+	}
+
+	public void recreateLabel() {
+		if (getChildren().contains(labelName)) {
+			remove(labelName);
+		}
+		add(labelName, 0);
 	}
 }

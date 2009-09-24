@@ -2,7 +2,6 @@ package pl.ivmx.mappum.gui.parts;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.draw2d.ChopboxAnchor;
@@ -28,14 +27,11 @@ import pl.ivmx.mappum.gui.model.commands.ConnectionReconnectCommand;
 
 public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		PropertyChangeListener, NodeEditPart {
-	private static List<ShapeEditPart> shapeEditParts = new ArrayList<ShapeEditPart>();
 	private ConnectionAnchor anchor;
 
 	@Override
 	protected IFigure createFigure() {
-		IFigure figure = new ShapeFigure(getCastedModel().getDepth() % 2 == 0);
-		shapeEditParts.add(this);
-		return figure;
+		return new ShapeFigure(getCastedModel().getDepth() % 2 == 0);
 	}
 
 	/**
@@ -238,10 +234,6 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		return getConnectionAnchor();
 	}
 
-	public static List<ShapeEditPart> getShapeEditParts() {
-		return shapeEditParts;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -263,22 +255,34 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		}
 	}
 
+	@Override
+	public ShapeFigure getFigure() {
+		return (ShapeFigure) super.getFigure();
+	}
+
 	protected void refreshVisuals() {
 
-		ShapeFigure figure = (ShapeFigure) getFigure();
+		final ShapeFigure figure = getFigure();
 		Shape model = (Shape) getModel();
-		if(model.isArrayType()){
+		if (model.isArrayType()) {
 			figure.setName(model.getName() + "[]");
-		}else{
+		} else {
 			figure.setName(model.getName());
 		}
-		figure.setType(model.getType());
-		figure.setLayout(model.getLayout());
+//		figure.setLayout(model.getLayout());
 
 		if (model.getShapeParent() == null) {
-			figure.setImage(ImageFactory.getImage(ImageFactory.CLASS_IMAGE));
+			figure.setImage(ImageFactory
+					.getImage(ImageFactory.ImageType.CLASS_IMAGE));
 		} else {
-			figure.setImage(ImageFactory.getImage(ImageFactory.FIELD_IMAGE));
+			figure.setImage(ImageFactory
+					.getImage(ImageFactory.ImageType.FIELD_IMAGE));
 		}
+	}
+
+	@Override
+	protected void refreshChildren() {
+		super.refreshChildren();
+		getFigure().recreateLabel();
 	}
 }

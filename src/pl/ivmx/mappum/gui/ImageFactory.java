@@ -9,13 +9,12 @@ import java.io.InputStream;
 import org.eclipse.swt.graphics.Image;
 
 public class ImageFactory {
-	public static final int CLASS_IMAGE = 1;
-	public static final int FIELD_IMAGE = 2;
-	public static final int METHOD_IMAGE = 3;
-	public static final int CONNECTION_SMALL_IMAGE = 4;
-	public static final int CONNECTION_LARGE_IMAGE = 5;
 
-	public static Image getImage(int imageType) {
+	public static enum ImageType {
+		CLASS_IMAGE, FIELD_IMAGE, METHOD_IMAGE, CONNECTION_SMALL_IMAGE, CONNECTION_LARGE_IMAGE
+	}
+
+	public static Image getImage(final ImageType imageType) {
 		String path = "/icons/";
 		String filename = null;
 		try {
@@ -36,21 +35,20 @@ public class ImageFactory {
 		}
 	}
 
-	private static String getFilename(int imageType) {
+	private static String getFilename(final ImageType imageType) {
 		switch (imageType) {
-		case ImageFactory.CLASS_IMAGE:
+		case CLASS_IMAGE:
 			return "class_obj.gif";
-		case ImageFactory.FIELD_IMAGE:
+		case FIELD_IMAGE:
 			return "field_private_obj.gif";
-		case ImageFactory.METHOD_IMAGE:
+		case METHOD_IMAGE:
 			return "methpub_obj.gif";
-		case ImageFactory.CONNECTION_SMALL_IMAGE:
+		case CONNECTION_SMALL_IMAGE:
 			return "connection_s16.gif";
-		case ImageFactory.CONNECTION_LARGE_IMAGE:
+		case CONNECTION_LARGE_IMAGE:
 			return "connection_s24.gif";
 		default:
 			return null;
 		}
-
 	}
 }

@@ -17,6 +17,7 @@ import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.ListNode;
 
 import pl.ivmx.mappum.gui.model.Shape;
+import pl.ivmx.mappum.gui.model.Shape.Side;
 
 import com.sun.script.jruby.JRubyScriptEngineFactory;
 
@@ -159,9 +160,9 @@ public class ModelGeneratorFromXML {
 		return getModelArray();
 	}
 
-	private Shape checkAndAddShape(String name, Shape parent, int side) {
+	private Shape checkAndAddShape(String name, Shape parent, Side side) {
 		if (parent == null) {
-			if (side == Shape.LEFT_SIDE) {
+			if (side == Shape.Side.LEFT) {
 				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
 					// }
@@ -206,7 +207,7 @@ public class ModelGeneratorFromXML {
 			if (((RubyClass) (rubyArray.get(0))).getName().equals(leftElement)) {
 				System.out.println("Field: " + leftElement);
 				Shape parent = checkAndAddShape(leftElement, null,
-						Shape.LEFT_SIDE);
+						Shape.Side.LEFT);
 				for (int j = 0; j < rubyArray.size(); j++) {
 					if (rubyArray.get(j) instanceof RubyArray) {
 						RubyArray childArray = (RubyArray) rubyArray.get(j);
@@ -219,11 +220,11 @@ public class ModelGeneratorFromXML {
 								System.out.println("Parent: " + leftElement
 										+ ", Field: " + childElement);
 								Shape child = checkAndAddShape(childElement,
-										parent, Shape.LEFT_SIDE);
+										parent, Shape.Side.LEFT);
 								if (preChildArray.get(1) != null) {
 									getComplexField(((RubyClass) (preChildArray
 											.get(1))).getName(), child,
-											Shape.LEFT_SIDE);
+											Shape.Side.LEFT);
 								}
 
 							}
@@ -235,7 +236,7 @@ public class ModelGeneratorFromXML {
 			if (((RubyClass) (rubyArray.get(0))).getName().equals(rightElement)) {
 				System.out.println("Field: " + rightElement);
 				Shape parent = checkAndAddShape(rightElement, null,
-						Shape.RIGHT_SIDE);
+						Shape.Side.RIGHT);
 				for (int j = 0; j < rubyArray.size(); j++) {
 					if (rubyArray.get(j) instanceof RubyArray) {
 						RubyArray childArray = (RubyArray) rubyArray.get(j);
@@ -248,11 +249,11 @@ public class ModelGeneratorFromXML {
 								System.out.println("Parent: " + rightElement
 										+ ", Field: " + childElement);
 								Shape child = checkAndAddShape(childElement,
-										parent, Shape.RIGHT_SIDE);
+										parent, Shape.Side.RIGHT);
 								if (preChildArray.get(1) != null) {
 									getComplexField(((RubyClass) (preChildArray
 											.get(1))).getName(), child,
-											Shape.RIGHT_SIDE);
+											Shape.Side.RIGHT);
 								}
 
 							}
@@ -264,7 +265,8 @@ public class ModelGeneratorFromXML {
 		}
 	}
 
-	private void getComplexField(String searchElement, Shape parent, int side) {
+	private void getComplexField(String searchElement, Shape parent,
+			Shape.Side side) {
 		for (int i = 0; i < modelArray.size(); i++) {
 			RubyArray rubyArray = (RubyArray) modelArray.get(i);
 			if (((RubyClass) (rubyArray.get(0))).getName()
@@ -296,10 +298,10 @@ public class ModelGeneratorFromXML {
 		}
 	}
 
-	public CallNode generateRubyModelForField(String name, int side) {
+	public CallNode generateRubyModelForField(String name, final Shape.Side side) {
 		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
 		// RootNodeHolder.IDENT_LENGTH);
-		if (side == Shape.LEFT_SIDE) {
+		if (side == Shape.Side.LEFT) {
 			ListNode listNode = new ListNode(new SourcePosition());
 			DVarNode dVarNode = new DVarNode(new SourcePosition(), 0,
 					"changeMe");
