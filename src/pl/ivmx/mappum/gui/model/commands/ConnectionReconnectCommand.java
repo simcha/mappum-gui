@@ -51,7 +51,7 @@ public class ConnectionReconnectCommand extends Command {
 	 * @see org.eclipse.gef.commands.Command#canExecute()
 	 */
 	public boolean canExecute() {
-		if(connection.getConnectionType() == Connection.CONST_TO_VAR_CONN){
+		if (connection.getConnectionType() == Connection.Type.CONST_TO_VAR_CONN) {
 			return false;
 		}
 		if (newSource != null) {
@@ -77,15 +77,14 @@ public class ConnectionReconnectCommand extends Command {
 				return false;
 			}
 			// they are classes
-			if (newSource.getParent() == null
-					|| oldTarget.getParent() == null) {
+			if (newSource.getParent() == null || oldTarget.getParent() == null) {
 				return false;
 			}
 		}
 
 		// return false, if the connection exists already
-		for (final Iterator<Connection> iter = newSource.getSourceConnections().iterator(); iter
-				.hasNext();) {
+		for (final Iterator<Connection> iter = newSource.getSourceConnections()
+				.iterator(); iter.hasNext();) {
 			final Connection conn = iter.next();
 			// return false if a newSource -> oldTarget connection exists
 			// already
@@ -118,8 +117,8 @@ public class ConnectionReconnectCommand extends Command {
 			}
 		}
 		// return false, if the connection exists already
-		for (final Iterator<Connection> iter = newTarget.getTargetConnections().iterator(); iter
-				.hasNext();) {
+		for (final Iterator<Connection> iter = newTarget.getTargetConnections()
+				.iterator(); iter.hasNext();) {
 			final Connection conn = iter.next();
 			// return false if a oldSource -> newTarget connection exists
 			// already

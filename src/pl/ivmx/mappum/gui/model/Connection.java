@@ -16,6 +16,10 @@ import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class Connection extends ModelElement {
 
+	public static enum Type {
+		CONST_TO_VAR_CONN, VAR_TO_VAR_CONN, FUN_TO_VAR_CONN
+	}
+
 	/** Property ID to use when the line style of this connection is modified. */
 	public static final String MAPPING_PROP = "Connection.Mapping";
 	private static final IPropertyDescriptor[] descriptors = new IPropertyDescriptor[3];
@@ -28,10 +32,8 @@ public class Connection extends ModelElement {
 	public static final int FROM_RIGHT_TO_LEFT = 1;
 	public static final int DUAL_SIDE = 2;
 	private static final long serialVersionUID = 1;
-	public static final int CONST_TO_VAR_CONN = 1;
-	public static final int VAR_TO_VAR_CONN = 2;
-	public static final int FUN_TO_VAR_CONN = 3;
-	private int connectionType;
+
+	private Type connectionType;
 	private String constantName;
 	private ArrayList<String> functions = new ArrayList<String>();
 
@@ -60,7 +62,7 @@ public class Connection extends ModelElement {
 	/**
 	 * Create a (solid) connection between two distinct shapes.
 	 */
-	public Connection(Shape source, Shape target, int side, int type) {
+	public Connection(Shape source, Shape target, int side, final Type type) {
 		connectionType = type;
 		connections.add(this);
 		source.addToParent();
@@ -339,13 +341,16 @@ public class Connection extends ModelElement {
 											.get(i).getArrayCounters().size() > 0)) {
 								elementNumber = mapping.getLeftShape()
 										.getShapeStack().get(i)
-										.getArrayCounters().get(mapping.getLeftShape()
-										.getShapeStack().get(i)
-										.getArrayCounters().size()-1);
-								if(elementNumber == tmpConnetion.getArrayNumber()){
-									leftMatch=true;
+										.getArrayCounters().get(
+												mapping.getLeftShape()
+														.getShapeStack().get(i)
+														.getArrayCounters()
+														.size() - 1);
+								if (elementNumber == tmpConnetion
+										.getArrayNumber()) {
+									leftMatch = true;
 								}
-								firstLeftArrayElementFinded=true;
+								firstLeftArrayElementFinded = true;
 							}
 							result = false;
 						} else {
@@ -368,14 +373,17 @@ public class Connection extends ModelElement {
 											.getRightShape().getShapeStack()
 											.get(i).getArrayCounters().size() > 0)) {
 								elementNumber = mapping.getRightShape()
-								.getShapeStack().get(i)
-								.getArrayCounters().get(mapping.getRightShape()
-								.getShapeStack().get(i)
-								.getArrayCounters().size()-1);
-								if(elementNumber == tmpConnetion.getArrayNumber()){
-									rightMatch=true;
+										.getShapeStack().get(i)
+										.getArrayCounters().get(
+												mapping.getRightShape()
+														.getShapeStack().get(i)
+														.getArrayCounters()
+														.size() - 1);
+								if (elementNumber == tmpConnetion
+										.getArrayNumber()) {
+									rightMatch = true;
 								}
-								firstRightArrayElementFinded=true;
+								firstRightArrayElementFinded = true;
 							}
 							result = false;
 						} else {
@@ -385,12 +393,12 @@ public class Connection extends ModelElement {
 
 					}
 					if (result == false) {
-						if(firstLeftArrayElementFinded!=firstRightArrayElementFinded){
-							if(leftMatch || rightMatch)
+						if (firstLeftArrayElementFinded != firstRightArrayElementFinded) {
+							if (leftMatch || rightMatch)
 								return false;
 							else
 								result = true;
-						}else{
+						} else {
 							return false;
 						}
 					}
@@ -417,11 +425,11 @@ public class Connection extends ModelElement {
 		return constantName;
 	}
 
-	public void setConnectionType(int connectionType) {
+	public void setConnectionType(final Type connectionType) {
 		this.connectionType = connectionType;
 	}
 
-	public int getConnectionType() {
+	public Type getConnectionType() {
 		return connectionType;
 	}
 

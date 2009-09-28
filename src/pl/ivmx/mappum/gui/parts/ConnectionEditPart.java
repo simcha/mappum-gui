@@ -91,11 +91,11 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 				.createFigure();
 		final Connection connection = getCastedModel();
 
-		if (connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+		if (connection.getConnectionType() == Connection.Type.CONST_TO_VAR_CONN) {
 			Label label = new Label("CONSTANT: " + connection.getConstantName());
 			figure.add(label, new MidpointLocator(figure, 0));
 			figure.setLineStyle(Graphics.LINE_DOT);
-		} else if (connection.getConnectionType() == Connection.FUN_TO_VAR_CONN) {
+		} else if (connection.getConnectionType() == Connection.Type.FUN_TO_VAR_CONN) {
 			String functions = "FUNCTIONS: ";
 			for (String function : connection.getFunctions()) {
 				functions = functions + function + ", ";
@@ -104,7 +104,7 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 			Label label = new Label(substring);
 			figure.add(label, new MidpointLocator(figure, 0));
 			figure.setLineStyle(Graphics.LINE_DASH);
-		} else if (connection.getConnectionType() == Connection.VAR_TO_VAR_CONN
+		} else if (connection.getConnectionType() == Connection.Type.VAR_TO_VAR_CONN
 				&& connection.getArrayNumber() > -1) {
 			Label label = new Label("[" + connection.getArrayNumber() + "]");
 			figure.add(label, new MidpointLocator(figure, 0));
@@ -120,7 +120,7 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 			figure.setSourceDecoration(new PolygonDecoration());
 		}
 		figure.setToolTip(new Label(connection.getMappingCode()));
-		
+
 		return figure;
 	}
 

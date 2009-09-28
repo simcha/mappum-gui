@@ -209,7 +209,7 @@ public class RootNodeHolder {
 									// .translateSideFromIntToString(
 									// connection.getMappingSide())
 									// .equals(callnode.getName())) {
-									if (connection.getConnectionType() == Connection.VAR_TO_VAR_CONN) {
+									if (connection.getConnectionType() == Connection.Type.VAR_TO_VAR_CONN) {
 										CallNode leftNode = ModelGenerator
 												.findLastCallNodeInTree((callnode
 														.getReceiverNode()));
@@ -260,7 +260,7 @@ public class RootNodeHolder {
 												}
 											}
 										}
-									} else if (connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+									} else if (connection.getConnectionType() == Connection.Type.CONST_TO_VAR_CONN) {
 										if (callnode.getReceiverNode() instanceof StrNode) {
 											StrNode leftNode = ((StrNode) callnode
 													.getReceiverNode());
@@ -356,7 +356,7 @@ public class RootNodeHolder {
 										}
 									}
 									//
-									else if (connection.getConnectionType() == Connection.FUN_TO_VAR_CONN) {
+									else if (connection.getConnectionType() == Connection.Type.FUN_TO_VAR_CONN) {
 										if (callnode.getReceiverNode() instanceof VCallNode) {
 											VCallNode leftNode = ((VCallNode) callnode
 													.getReceiverNode());
@@ -521,7 +521,7 @@ public class RootNodeHolder {
 							}
 						}
 					} else if (child instanceof CallNode
-							&& connection.getConnectionType() == Connection.CONST_TO_VAR_CONN) {
+							&& connection.getConnectionType() == Connection.Type.CONST_TO_VAR_CONN) {
 						if (child.childNodes().size() > 0) {
 							CallNode callnode = (CallNode) child;
 							if (callnode.getReceiverNode() instanceof StrNode) {
@@ -616,15 +616,17 @@ public class RootNodeHolder {
 
 	private boolean checkFirstNodeArrayElementNumber(NewlineNode node,
 			int elementNum) {
-		if(node != null){
+		if (node != null) {
 			Node fCallNode = node.getNextNode();
 			if (fCallNode != null && fCallNode instanceof FCallNode
 					&& ((FCallNode) fCallNode).getName().equals("map")) {
-				Node callNode = fCallNode.childNodes().get(0).childNodes().get(0);
+				Node callNode = fCallNode.childNodes().get(0).childNodes().get(
+						0);
 				if (callNode != null && callNode instanceof CallNode) {
 					if (findFixNumNode(callNode.childNodes().get(0), null) != findFixNumNode(
 							callNode.childNodes().get(1), null)) {
-						if (findFixNumNode(callNode.childNodes().get(0), elementNum)) {
+						if (findFixNumNode(callNode.childNodes().get(0),
+								elementNum)) {
 							return true;
 						} else if (findFixNumNode(callNode.childNodes().get(1),
 								elementNum)) {

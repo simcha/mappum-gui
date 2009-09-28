@@ -274,7 +274,7 @@ public class ModelGenerator {
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
-					.getRightShape(), side, Connection.FUN_TO_VAR_CONN);
+					.getRightShape(), side, Connection.Type.FUN_TO_VAR_CONN);
 			if (comment != null) {
 				connection.setComment(comment.getValue());
 			}
@@ -326,7 +326,7 @@ public class ModelGenerator {
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
-					.getRightShape(), side, Connection.CONST_TO_VAR_CONN);
+					.getRightShape(), side, Connection.Type.CONST_TO_VAR_CONN);
 			connection.setConstantName(constantName);
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
@@ -367,7 +367,7 @@ public class ModelGenerator {
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
-					.getRightShape(), side, Connection.VAR_TO_VAR_CONN);
+					.getRightShape(), side, Connection.Type.VAR_TO_VAR_CONN);
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
 				if (connection.getSource().getArrayCounters().size() > 0)
@@ -543,7 +543,7 @@ public class ModelGenerator {
 		Connection connection = null;
 		if (canCreate) {
 			connection = new Connection(pair.getLeftShape(), pair
-					.getRightShape(), side, Connection.VAR_TO_VAR_CONN);
+					.getRightShape(), side, Connection.Type.VAR_TO_VAR_CONN);
 
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {

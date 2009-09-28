@@ -65,8 +65,7 @@ public class ConnectionCreateCommand extends Command {
 	private boolean connected0(final Shape a, final Shape b,
 			final boolean checkParents) {
 		if (connected1(b, a.getSourceConnections(), true, checkParents)
-				|| connected1(b, a.getTargetConnections(), false,
-						checkParents)) {
+				|| connected1(b, a.getTargetConnections(), false, checkParents)) {
 			return true;
 		}
 		return false;
@@ -113,29 +112,31 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	public void execute() {
-		
-		if(source.getSide() == Shape.Side.RIGHT && mappingSide == Connection.FROM_LEFT_TO_RIGHT){
-			mappingSide =  Connection.FROM_RIGHT_TO_LEFT;
+
+		if (source.getSide() == Shape.Side.RIGHT
+				&& mappingSide == Connection.FROM_LEFT_TO_RIGHT) {
+			mappingSide = Connection.FROM_RIGHT_TO_LEFT;
 		}
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
-			createRubyMapping(target,source, mappingSide, null);
+			createRubyMapping(target, source, mappingSide, null);
 			connection = new Connection(target, source, mappingSide,
-					Connection.VAR_TO_VAR_CONN);
+					Connection.Type.VAR_TO_VAR_CONN);
 		}
 
 		else {
 			createRubyMapping(source, target, mappingSide, null);
 			connection = new Connection(source, target, mappingSide,
-					Connection.VAR_TO_VAR_CONN);
+					Connection.Type.VAR_TO_VAR_CONN);
 		}
-		
+
 	}
 
 	public void redo() {
-		createRubyMapping(connection.getSource(), connection.getTarget(), connection.getMappingSide(), connection.getComment());
+		createRubyMapping(connection.getSource(), connection.getTarget(),
+				connection.getMappingSide(), connection.getComment());
 		connection.reconnect();
-		
+
 	}
 
 	public void setTarget(Shape target) {
@@ -150,10 +151,9 @@ public class ConnectionCreateCommand extends Command {
 		connection.disconnect();
 	}
 
-	private void createRubyMapping(Shape source, Shape target, int mappingSide, String comment) {
-		RootNodeHolder.getInstance().addMapping(
-				source,
-				target,
+	private void createRubyMapping(Shape source, Shape target, int mappingSide,
+			String comment) {
+		RootNodeHolder.getInstance().addMapping(source, target,
 				Connection.translateSideFromIntToString(mappingSide), comment);
 
 		String viewId = "org.eclipse.ui.views.PropertySheet";
