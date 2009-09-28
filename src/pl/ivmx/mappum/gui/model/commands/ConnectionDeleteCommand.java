@@ -46,8 +46,9 @@ public class ConnectionDeleteCommand extends Command {
 	 * @see org.eclipse.gef.commands.Command#undo()
 	 */
 	public void undo() {
-		connection.reconnect();
 		createRubyMapping();
+		connection.reconnect();
+		
 	}
 
 	private void createRubyMapping() {

@@ -113,25 +113,29 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	public void execute() {
+		
 		if(source.getSide() == Shape.Side.RIGHT && mappingSide == Connection.FROM_LEFT_TO_RIGHT){
 			mappingSide =  Connection.FROM_RIGHT_TO_LEFT;
 		}
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
+			createRubyMapping(target,source, mappingSide, null);
 			connection = new Connection(target, source, mappingSide,
 					Connection.VAR_TO_VAR_CONN);
 		}
 
 		else {
+			createRubyMapping(source, target, mappingSide, null);
 			connection = new Connection(source, target, mappingSide,
 					Connection.VAR_TO_VAR_CONN);
 		}
-		createRubyMapping();
+		
 	}
 
 	public void redo() {
+		createRubyMapping(connection.getSource(), connection.getTarget(), connection.getMappingSide(), connection.getComment());
 		connection.reconnect();
-		createRubyMapping();
+		
 	}
 
 	public void setTarget(Shape target) {
@@ -146,12 +150,11 @@ public class ConnectionCreateCommand extends Command {
 		connection.disconnect();
 	}
 
-	private void createRubyMapping() {
+	private void createRubyMapping(Shape source, Shape target, int mappingSide, String comment) {
 		RootNodeHolder.getInstance().addMapping(
-				connection.getSource(),
-				connection.getTarget(),
-				Connection.translateSideFromIntToString(connection
-						.getMappingSide()), connection.getComment());
+				source,
+				target,
+				Connection.translateSideFromIntToString(mappingSide), comment);
 
 		String viewId = "org.eclipse.ui.views.PropertySheet";
 

@@ -137,13 +137,14 @@ public class ConnectionReconnectCommand extends Command {
 	 */
 	public void execute() {
 		if (newSource != null) {
-			connection.reconnect(newSource, oldTarget, oldSide);
 			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment);
 			createRubyMapping(newSource, oldTarget, oldSide, oldComment);
+			connection.reconnect(newSource, oldTarget, oldSide);
+
 		} else if (newTarget != null) {
-			connection.reconnect(oldSource, newTarget, oldSide);
 			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment);
 			createRubyMapping(oldSource, newTarget, oldSide, oldComment);
+			connection.reconnect(oldSource, newTarget, oldSide);
 		} else {
 			throw new IllegalStateException("Should not happen");
 		}
