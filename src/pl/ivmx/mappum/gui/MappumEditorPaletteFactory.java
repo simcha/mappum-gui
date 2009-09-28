@@ -14,8 +14,8 @@ import pl.ivmx.mappum.gui.model.Connection;
 final class MappumEditorPaletteFactory {
 
 	public static final ToolEntry SELECTION_TOOL = new PanningSelectionToolEntry();
-	public static final ToolEntry CONNECTION_TOOL = new ConnectionCreationToolEntry(
-			"Connection", "Create a connection", new CreationFactory() {
+	public static final ToolEntry CONNECTION_DUAL_TOOL = new ConnectionCreationToolEntry(
+			"Connection", "Create a dual side connection", new CreationFactory() {
 				public Object getNewObject() {
 					return null;
 				}
@@ -23,6 +23,20 @@ final class MappumEditorPaletteFactory {
 				public Object getObjectType() {
 					// return null;
 					return Connection.DUAL_SIDE;
+				}
+			}, ImageDescriptor.createFromFile(MappumPlugin.class,
+					"icons/connection_d16.gif"), ImageDescriptor
+					.createFromFile(MappumPlugin.class,
+							"icons/connection_d24.gif"));
+	public static final ToolEntry CONNECTION_SIMPLE_TOOL = new ConnectionCreationToolEntry(
+			"Connection", "Create a one side connection", new CreationFactory() {
+				public Object getNewObject() {
+					return null;
+				}
+
+				public Object getObjectType() {
+					// return null;
+					return Connection.FROM_LEFT_TO_RIGHT;
 				}
 			}, ImageDescriptor.createFromFile(MappumPlugin.class,
 					"icons/connection_s16.gif"), ImageDescriptor
@@ -42,7 +56,8 @@ final class MappumEditorPaletteFactory {
 	private static PaletteContainer createToolsGroup(PaletteRoot palette) {
 		PaletteToolbar toolbar = new PaletteToolbar("Tools");
 		toolbar.add(SELECTION_TOOL);
-		toolbar.add(CONNECTION_TOOL);
+		toolbar.add(CONNECTION_DUAL_TOOL);
+		toolbar.add(CONNECTION_SIMPLE_TOOL);
 		palette.setDefaultEntry(SELECTION_TOOL);
 
 		return toolbar;

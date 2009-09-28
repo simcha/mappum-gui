@@ -17,7 +17,7 @@ public class ConnectionCreateCommand extends Command {
 	/** The connection instance. */
 	private Connection connection;
 	/** The desired line style for the connection (dashed or solid). */
-	private final int mappingSide;
+	private int mappingSide;
 
 	/** Start endpoint for the connection. */
 	private final Shape source;
@@ -70,6 +70,9 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	public void execute() {
+		if(source.getSide() == Shape.Side.RIGHT && mappingSide == Connection.FROM_LEFT_TO_RIGHT){
+			mappingSide =  Connection.FROM_RIGHT_TO_LEFT;
+		}
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
 			connection = new Connection(target, source, mappingSide,

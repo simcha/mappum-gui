@@ -176,12 +176,16 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 					final PaletteViewer pv = getPaletteViewerProvider()
 							.getEditDomain().getPaletteViewer();
 					if (pv.getActiveTool().equals(
-							MappumEditorPaletteFactory.CONNECTION_TOOL)) {
+							MappumEditorPaletteFactory.CONNECTION_SIMPLE_TOOL)) {
 						pv
 								.setActiveTool(MappumEditorPaletteFactory.SELECTION_TOOL);
-					} else {
+					} else if (pv.getActiveTool().equals(
+							MappumEditorPaletteFactory.SELECTION_TOOL)) {
 						pv
-								.setActiveTool(MappumEditorPaletteFactory.CONNECTION_TOOL);
+								.setActiveTool(MappumEditorPaletteFactory.CONNECTION_DUAL_TOOL);
+					}else {
+						pv
+								.setActiveTool(MappumEditorPaletteFactory.CONNECTION_SIMPLE_TOOL);
 					}
 				}
 			}
