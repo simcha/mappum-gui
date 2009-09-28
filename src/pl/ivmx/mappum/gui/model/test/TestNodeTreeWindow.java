@@ -1,4 +1,4 @@
-package pl.ivmx.mappum.gui.utils;
+package pl.ivmx.mappum.gui.model.test;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -15,12 +15,20 @@ import org.jrubyparser.ast.Node;
 
 public class TestNodeTreeWindow extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
+	private static boolean DISPLAY = false;
 
-	public TestNodeTreeWindow(Node node) throws CoreException {
+	public static void show(final Node node) {
+		if (DISPLAY) {
+			try {
+				new TestNodeTreeWindow(node);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private TestNodeTreeWindow(Node node) throws CoreException {
 		super("TEST");
 		setSize(150, 150);
 		addWindowListener(new WindowAdapter() {

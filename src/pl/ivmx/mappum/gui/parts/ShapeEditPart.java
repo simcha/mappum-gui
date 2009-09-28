@@ -152,7 +152,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	}
 
 	public List<Shape> getModelChildren() {
-		return ((Shape) getModel()).getShapeChildren();
+		return ((Shape) getModel()).getChildren();
 	}
 
 	protected ConnectionAnchor getConnectionAnchor() {
@@ -271,7 +271,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		}
 //		figure.setLayout(model.getLayout());
 
-		if (model.getShapeParent() == null) {
+		if (model.getParent() == null) {
 			figure.setImage(ImageFactory
 					.getImage(ImageFactory.ImageType.CLASS_IMAGE));
 		} else {

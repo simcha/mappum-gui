@@ -89,7 +89,7 @@ public class Shape extends ModelElement {
 
 	public boolean addToParent() {
 		if (shapeParent != null) {
-			if (shapeParent.getShapeChildren().contains(this)) {
+			if (shapeParent.getChildren().contains(this)) {
 				return false;
 			} else {
 				return shapeParent.addChild(this);
@@ -123,7 +123,7 @@ public class Shape extends ModelElement {
 					return shape;
 			}
 		} else {
-			for (Shape child : shapeParent.getShapeChildren()) {
+			for (Shape child : shapeParent.getChildren()) {
 				if (child.getName().equals(name) && child.getSide() == side)
 					return child;
 			}
@@ -187,11 +187,11 @@ public class Shape extends ModelElement {
 		return name;
 	}
 
-	public Shape getShapeParent() {
+	public Shape getParent() {
 		return shapeParent;
 	}
 
-	public List<Shape> getShapeChildren() {
+	public List<Shape> getChildren() {
 		return shapeChildren;
 	}
 
@@ -205,10 +205,10 @@ public class Shape extends ModelElement {
 
 	public int getDepth() {
 		int depth = 0;
-		Shape node = getShapeParent();
+		Shape node = getParent();
 		while (node != null) {
 			depth++;
-			node = node.getShapeParent();
+			node = node.getParent();
 		}
 		return depth;
 	}
@@ -233,10 +233,10 @@ public class Shape extends ModelElement {
 		} else {
 			for (int i = 0; i < shapes.size(); i++) {
 				if (shapes.get(i).equals(shape)) {
-					if (shapes.get(i).getShapeChildren().size() > 0) {
-						for (int j = 0; j < shapes.get(i).getShapeChildren()
+					if (shapes.get(i).getChildren().size() > 0) {
+						for (int j = 0; j < shapes.get(i).getChildren()
 								.size(); j++) {
-							removeShape(shapes.get(i).getShapeChildren().get(j));
+							removeShape(shapes.get(i).getChildren().get(j));
 						}
 					}
 					for (int j = 0; j < shape.getSourceConnections().size(); j++) {
@@ -248,7 +248,7 @@ public class Shape extends ModelElement {
 								.getTargetConnections().get(j));
 					}
 					Shape.getShapes().remove(shape);
-					shape.getShapeParent().removeChild(shape);
+					shape.getParent().removeChild(shape);
 					shape = null;
 					return true;
 				}
@@ -291,12 +291,12 @@ public class Shape extends ModelElement {
 		if (initialShapeList == null) {
 			initialShapeList = new ArrayList<Shape>();
 		}
-		if (shape.getShapeParent() != null) {
+		if (shape.getParent() != null) {
 			initialShapeList.add(shape);
-			if (!shape.getShapeParent().equals(Shape.getRootShapes().get(0))
-					&& !shape.getShapeParent().equals(
+			if (!shape.getParent().equals(Shape.getRootShapes().get(0))
+					&& !shape.getParent().equals(
 							Shape.getRootShapes().get(1))) {
-				checkShapeStack(shape.getShapeParent(), initialShapeList);
+				checkShapeStack(shape.getParent(), initialShapeList);
 			}
 		}
 		return initialShapeList;

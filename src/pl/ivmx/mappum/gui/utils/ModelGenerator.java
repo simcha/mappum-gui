@@ -28,6 +28,7 @@ import org.jrubyparser.rewriter.ReWriteVisitor;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
+import pl.ivmx.mappum.gui.model.test.TestNodeTreeWindow;
 
 public class ModelGenerator {
 	private static final int SIMPLE_MAP_OR_WITH_FUNCTION_CALL = 1;
@@ -93,7 +94,7 @@ public class ModelGenerator {
 				.setRootNode(
 						RootNodeHolder
 								.correctNodeIterationBlocks(parseRubbyFile(file)));
-		new TestNodeTreeWindow(RootNodeHolder.getInstance().getRootNode());
+		TestNodeTreeWindow.show(RootNodeHolder.getInstance().getRootNode());
 		createRootMapElements(RootNodeHolder.getInstance().getRootNode());
 	}
 

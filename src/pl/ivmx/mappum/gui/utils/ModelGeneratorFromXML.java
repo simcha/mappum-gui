@@ -188,7 +188,7 @@ public class ModelGeneratorFromXML {
 				}
 			}
 		} else {
-			for (Shape shape : parent.getShapeChildren()) {
+			for (Shape shape : parent.getChildren()) {
 				if (shape.getName().equals(name)) {
 					return shape;
 				}

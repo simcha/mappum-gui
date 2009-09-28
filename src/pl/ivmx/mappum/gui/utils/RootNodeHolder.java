@@ -1260,16 +1260,16 @@ public class RootNodeHolder {
 			leftPrefix = s[0];
 		}
 		DAsgnNode leftAsgnNode = new DAsgnNode(new SourcePosition(),
-				leftPrefix, 0, null);
+				leftPrefix, 0, NilImplicitNode.NIL);
 		DAsgnNode rightAsgnNode = new DAsgnNode(new SourcePosition(),
-				rightPrefix, 1, null);
+				rightPrefix, 1, NilImplicitNode.NIL);
 		ArrayNode dasgnArrayNode = new ArrayNode(new SourcePosition());
 		dasgnArrayNode.add(leftAsgnNode);
 		dasgnArrayNode.add(rightAsgnNode);
 		MultipleAsgnNode multipleAsgnNode = new MultipleAsgnNode(
 				new SourcePosition(), dasgnArrayNode, null);
 		StaticScope scope = new BlockStaticScope(getNodeScope(parentMapping),
-				new String[] { leftPrefix, rightPrefix });
+				new String[] { leftPrefix.intern(), rightPrefix.intern() });
 		BlockNode blockNode = new BlockNode(new SourcePosition());
 		IterNode iterNode = new IterNode(new SourcePosition(),
 				multipleAsgnNode, scope, blockNode);

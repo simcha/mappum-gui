@@ -1,8 +1,7 @@
 package pl.ivmx.mappum.gui.model.commands;
 
-import java.util.Iterator;
+import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -12,7 +11,7 @@ import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class ConnectionCreateCommand extends Command {
-	private Logger logger = Logger.getLogger(ConnectionCreateCommand.class);
+	// private Logger logger = Logger.getLogger(ConnectionCreateCommand.class);
 
 	/** The connection instance. */
 	private Connection connection;
@@ -33,38 +32,82 @@ public class ConnectionCreateCommand extends Command {
 		this.mappingSide = mappingSide;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.gef.commands.Command#canExecute()
-	 */
+	private boolean connected(final Shape a, final Shape b) {
+		return connectedChildren(a, b) || connectedParents(a, b);
+	}
+
+	private boolean connectedChildren(final Shape a, final Shape b) {
+		if (connected0(a, b, false)) {
+			return true;
+		}
+		for (final Shape s : a.getChildren()) {
+			if (connectedChildren(b, s)) {
+				return true;
+			}
+			if (connectedChildren(s, b)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean connectedParents(final Shape a, final Shape b) {
+		Shape aParent = a;
+		while (aParent != null) {
+			if (connected0(aParent, b, true)) {
+				return true;
+			}
+			aParent = aParent.getParent();
+		}
+		return false;
+	}
+
+	private boolean connected0(final Shape a, final Shape b,
+			final boolean checkParents) {
+		if (connected1(b, a.getSourceConnections(), true, checkParents)
+				|| connected1(b, a.getTargetConnections(), false,
+						checkParents)) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean connected1(final Shape b,
+			final List<Connection> connections, final boolean sourceSide,
+			final boolean checkParents) {
+		Shape bParent = b;
+		for (final Connection c : connections) {
+			while (bParent != null) {
+				if ((sourceSide && c.getTarget().equals(bParent))
+						|| c.getSource().equals(bParent)) {
+					return true;
+				}
+				if (checkParents) {
+					bParent = bParent.getParent();
+				} else {
+					bParent = null;
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean canExecute() {
+
+		assert source != null;
 
 		// the same connection
 		if (source.equals(target)) {
 			return false;
 		}
 
-		if (source != null && target != null) {
-
+		if (target != null) {
 			// the same side
 			if (source.getSide() == target.getSide()) {
-
-				return false;
-
-			}
-			// they are complex elements
-			if (source.getShapeChildren().size() != 0
-					|| target.getShapeChildren().size() != 0) {
 				return false;
 			}
-		}
-		// connection already exists
-		for (Iterator<Connection> iter = source.getSourceConnections()
-				.iterator(); iter.hasNext();) {
-			if (iter.next().getTarget().equals(target)) {
-				return false;
-			}
+			return !connected(source, target);
 		}
 		return true;
 	}
@@ -84,7 +127,6 @@ public class ConnectionCreateCommand extends Command {
 					Connection.VAR_TO_VAR_CONN);
 		}
 		createRubyMapping();
-
 	}
 
 	public void redo() {

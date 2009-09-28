@@ -77,8 +77,8 @@ public class ConnectionReconnectCommand extends Command {
 				return false;
 			}
 			// they are classes
-			if (newSource.getShapeParent() == null
-					|| oldTarget.getShapeParent() == null) {
+			if (newSource.getParent() == null
+					|| oldTarget.getParent() == null) {
 				return false;
 			}
 		}
@@ -112,8 +112,8 @@ public class ConnectionReconnectCommand extends Command {
 				return false;
 			}
 			// they are complex elements
-			if (newTarget.getShapeChildren().size() != 0
-					|| oldSource.getShapeChildren().size() != 0) {
+			if (newTarget.getChildren().size() != 0
+					|| oldSource.getChildren().size() != 0) {
 				return false;
 			}
 		}
