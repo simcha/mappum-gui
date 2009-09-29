@@ -2,11 +2,14 @@ package pl.ivmx.mappum.gui.parts;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.draw2d.ChopboxAnchor;
 import org.eclipse.draw2d.ConnectionAnchor;
 import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.MouseEvent;
+import org.eclipse.draw2d.MouseListener;
 import org.eclipse.gef.ConnectionEditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.NodeEditPart;
@@ -17,7 +20,9 @@ import org.eclipse.gef.editpolicies.GraphicalNodeEditPolicy;
 import org.eclipse.gef.requests.CreateConnectionRequest;
 import org.eclipse.gef.requests.ReconnectRequest;
 
+import pl.ivmx.mappum.gui.IMappumEditor;
 import pl.ivmx.mappum.gui.ImageFactory;
+import pl.ivmx.mappum.gui.MappumEditorPaletteFactory;
 import pl.ivmx.mappum.gui.figure.ShapeFigure;
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.ModelElement;
@@ -26,12 +31,18 @@ import pl.ivmx.mappum.gui.model.commands.ConnectionCreateCommand;
 import pl.ivmx.mappum.gui.model.commands.ConnectionReconnectCommand;
 
 public class ShapeEditPart extends AbstractGraphicalEditPart implements
-		PropertyChangeListener, NodeEditPart {
+		PropertyChangeListener, NodeEditPart, MouseListener {
 	private ConnectionAnchor anchor;
+	private volatile boolean collapsed = false;
+	private final IMappumEditor editor;
+
+	public ShapeEditPart(final IMappumEditor editor) {
+		this.editor = editor;
+	}
 
 	@Override
 	protected IFigure createFigure() {
-		return new ShapeFigure(getCastedModel().getDepth() % 2 == 0);
+		return new ShapeFigure(this, getCastedModel().getDepth() % 2 == 0);
 	}
 
 	/**
@@ -152,6 +163,9 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	}
 
 	public List<Shape> getModelChildren() {
+		if (collapsed) {
+			return Collections.emptyList();
+		}
 		return ((Shape) getModel()).getChildren();
 	}
 
@@ -269,7 +283,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		} else {
 			figure.setName(model.getName());
 		}
-//		figure.setLayout(model.getLayout());
+		// figure.setLayout(model.getLayout());
 
 		if (model.getParent() == null) {
 			figure.setImage(ImageFactory
@@ -284,5 +298,50 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	protected void refreshChildren() {
 		super.refreshChildren();
 		getFigure().recreateLabel();
+	}
+
+	@Override
+	public void mouseDoubleClicked(MouseEvent me) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent me) {
+		if (hasModelChildren()
+				&& editor.getCurrentPaletteTool().equals(
+						MappumEditorPaletteFactory.SELECTION_TOOL)) {
+			if (collapsed == false && childrenConnected()) {
+				return;
+			}
+			collapsed = !collapsed;
+			if (collapsed) {
+				getFigure().setStyleCollapsed();
+			} else {
+				getFigure().setStyleRegular();
+			}
+			refreshChildren();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<ShapeEditPart> getChildren() {
+		return super.getChildren();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent me) {
+	}
+
+	private boolean hasModelChildren() {
+		return ((Shape) getModel()).getChildren().size() > 0;
+	}
+
+	private boolean childrenConnected() {
+		for (final ShapeEditPart p : getChildren()) {
+			if (p.childrenConnected()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

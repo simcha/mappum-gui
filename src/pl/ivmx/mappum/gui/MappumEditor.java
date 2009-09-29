@@ -24,6 +24,7 @@ import org.eclipse.gef.dnd.TemplateTransferDragSourceListener;
 import org.eclipse.gef.dnd.TemplateTransferDropTargetListener;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.palette.PaletteRoot;
+import org.eclipse.gef.palette.ToolEntry;
 import org.eclipse.gef.requests.CreationFactory;
 import org.eclipse.gef.requests.SimpleFactory;
 import org.eclipse.gef.ui.palette.PaletteViewer;
@@ -183,7 +184,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 							MappumEditorPaletteFactory.SELECTION_TOOL)) {
 						pv
 								.setActiveTool(MappumEditorPaletteFactory.CONNECTION_DUAL_TOOL);
-					}else {
+					} else {
 						pv
 								.setActiveTool(MappumEditorPaletteFactory.CONNECTION_SIMPLE_TOOL);
 					}
@@ -424,5 +425,11 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public ToolEntry getCurrentPaletteTool() {
+		return getPaletteViewerProvider().getEditDomain().getPaletteViewer()
+				.getActiveTool();
 	}
 }

@@ -425,10 +425,6 @@ public class Connection extends ModelElement {
 		return constantName;
 	}
 
-	public void setConnectionType(final Type connectionType) {
-		this.connectionType = connectionType;
-	}
-
 	public Type getConnectionType() {
 		return connectionType;
 	}

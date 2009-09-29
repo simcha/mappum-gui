@@ -42,7 +42,7 @@ public class ShapesEditPartFactory implements EditPartFactory {
 			return new DiagramEditPart();
 		}
 		if (modelElement instanceof Shape) {
-			return new ShapeEditPart();
+			return new ShapeEditPart(editor);
 		}
 		if (modelElement instanceof Connection) {
 			return new ConnectionEditPart(editor);

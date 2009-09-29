@@ -11,7 +11,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 
 import pl.ivmx.mappum.gui.model.Connection;
 
-final class MappumEditorPaletteFactory {
+public final class MappumEditorPaletteFactory {
 
 	public static final ToolEntry SELECTION_TOOL = new PanningSelectionToolEntry();
 	public static final ToolEntry CONNECTION_DUAL_TOOL = new ConnectionCreationToolEntry(

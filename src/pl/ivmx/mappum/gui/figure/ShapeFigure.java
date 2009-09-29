@@ -4,11 +4,16 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FlowLayout;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MarginBorder;
+import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.RoundedRectangle;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 
 public class ShapeFigure extends RoundedRectangle {
 
@@ -17,16 +22,32 @@ public class ShapeFigure extends RoundedRectangle {
 
 	private final Label labelName = new Label();
 
-	public ShapeFigure(final boolean isDark) {
+	public ShapeFigure(final MouseListener ml, final boolean isDark) {
 		setBorder(new MarginBorder(5));
 		setCornerDimensions(new Dimension(20, 20));
 		final FlowLayout layout = new FlowLayout(false);
 		layout.setStretchMinorAxis(true);
 		setLayoutManager(layout);
-		setSize(50,20); 
+		setSize(50, 20);
 		setBackgroundColor(isDark ? COLOR_DARK : COLOR_LIGHT);
 
 		labelName.setForegroundColor(ColorConstants.darkGray);
+		final FontData fd = Display.getDefault().getSystemFont().getFontData()[0];
+		labelName.setFont(new Font(null, fd.getName(), fd.getHeight(),
+				SWT.NORMAL));
+		addMouseListener(ml);
+	}
+
+	public void setStyleCollapsed() {
+		final FontData fd = Display.getDefault().getSystemFont().getFontData()[0];
+		labelName
+				.setFont(new Font(null, fd.getName(), fd.getHeight(), SWT.BOLD));
+	}
+
+	public void setStyleRegular() {
+		final FontData fd = Display.getDefault().getSystemFont().getFontData()[0];
+		labelName.setFont(new Font(null, fd.getName(), fd.getHeight(),
+				SWT.NORMAL));
 	}
 
 	public void setName(String text) {
