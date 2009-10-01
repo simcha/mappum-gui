@@ -2,6 +2,7 @@ package pl.ivmx.mappum.gui.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
@@ -11,6 +12,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyStruct;
+import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.runtime.builtin.Variable;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.DVarNode;
@@ -201,16 +205,21 @@ public class ModelGeneratorFromXML {
 		}
 	}
 
-	public void addFieldsFromRubyArray(String leftElement, String rightElement) {
-		for (int i = 0; i < modelArray.size(); i++) {
-			RubyArray rubyArray = (RubyArray) modelArray.get(i);
-			if (((RubyClass) (rubyArray.get(0))).getName().equals(leftElement)) {
+	public void addFieldsFromRubyArray(final String leftElement,
+			final String rightElement) {
+
+		for (final RubyStruct rubyStruct : (List<RubyStruct>) modelArray) {
+			if (((RubyClass) (rubyStruct.get(0))).getName().equals(leftElement)) {
 				System.out.println("Field: " + leftElement);
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT);
-				for (int j = 0; j < rubyArray.size(); j++) {
-					if (rubyArray.get(j) instanceof RubyArray) {
-						RubyArray childArray = (RubyArray) rubyArray.get(j);
+				for (final Variable<IRubyObject> ir : rubyStruct
+						.getVariableList()) {
+					System.out.println(ir);
+				}
+				for (int j = 0; j < rubyStruct.size().getLongValue(); j++) {
+					if (rubyStruct.get(j) instanceof RubyArray) {
+						RubyArray childArray = (RubyArray) rubyStruct.get(j);
 						for (int n = 0; n < childArray.size(); n++) {
 							if (childArray.get(n) instanceof RubyArray) {
 								RubyArray preChildArray = (RubyArray) childArray
@@ -233,13 +242,14 @@ public class ModelGeneratorFromXML {
 				}
 
 			}
-			if (((RubyClass) (rubyArray.get(0))).getName().equals(rightElement)) {
+			if (((RubyClass) (rubyStruct.get(0))).getName()
+					.equals(rightElement)) {
 				System.out.println("Field: " + rightElement);
 				Shape parent = checkAndAddShape(rightElement, null,
 						Shape.Side.RIGHT);
-				for (int j = 0; j < rubyArray.size(); j++) {
-					if (rubyArray.get(j) instanceof RubyArray) {
-						RubyArray childArray = (RubyArray) rubyArray.get(j);
+				for (int j = 0; j < rubyStruct.size().getLongValue(); j++) {
+					if (rubyStruct.get(j) instanceof RubyArray) {
+						RubyArray childArray = (RubyArray) rubyStruct.get(j);
 						for (int n = 0; n < childArray.size(); n++) {
 							if (childArray.get(n) instanceof RubyArray) {
 								RubyArray preChildArray = (RubyArray) childArray

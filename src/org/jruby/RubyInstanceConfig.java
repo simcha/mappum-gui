@@ -592,11 +592,11 @@ public class RubyInstanceConfig {
 		switch (compatVersion) {
 		case RUBY1_8:
 			ver = Constants.RUBY_VERSION;
-			patchlevel = Constants.RUBY_PATCHLEVEL;
+			patchlevel = String.valueOf(Constants.RUBY_PATCHLEVEL);
 			break;
 		case RUBY1_9:
 			ver = Constants.RUBY1_9_VERSION;
-			patchlevel = Constants.RUBY1_9_PATCHLEVEL;
+			patchlevel = String.valueOf(Constants.RUBY1_9_PATCHLEVEL);
 			break;
 		}
 

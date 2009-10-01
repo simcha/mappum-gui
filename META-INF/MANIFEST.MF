@@ -266,9 +266,9 @@ Export-Package: bigdecimal,
  xsd.xmlparser
 Bundle-ClassPath: .,
  lib/yydebug.jar,
- lib/jruby-engine-20080611.jar,
- lib/mappum-core.jar,
- lib/log4j-1.2.15.jar,
  lib/jruby-complete-1.2.0.jar,
+ lib/jruby-engine-20080611.jar,
+ lib/mappum-core-0.2.0-SNAPSHOT.jar,
+ lib/log4j-1.2.15.jar,
  lib/asm-2.2.jar
 
