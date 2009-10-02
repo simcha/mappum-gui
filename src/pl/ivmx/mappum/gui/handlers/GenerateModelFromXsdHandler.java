@@ -1,6 +1,7 @@
 package pl.ivmx.mappum.gui.handlers;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.script.ScriptException;
 
@@ -18,9 +19,9 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.jruby.RubyArray;
 import org.jruby.exceptions.RaiseException;
 
+import pl.ivmx.mappum.TreeElement;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.wizzards.GenerateModelFromXsdWizard;
 
@@ -47,7 +48,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		if (firstElement instanceof IProject
 				&& validateProject((IProject) firstElement)) {
 			if (checkIfProjectSchemasExists((IProject) firstElement)) {
-				RubyArray model = generateModel((IProject) firstElement);
+				final List<TreeElement> model = generateModel((IProject) firstElement);
 				if (model != null) {
 					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(
 							model);
@@ -77,11 +78,13 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		// "Hello, Eclipse world");
 		return null;
 	}
-/**
- * Validates if project is proper mappum project
- * @param project
- * @return
- */
+
+	/**
+	 * Validates if project is proper mappum project
+	 * 
+	 * @param project
+	 * @return
+	 */
 	private boolean validateProject(IProject project) {
 		if (project.getFolder(ModelGeneratorFromXML.DEFAULT_MAP_FOLDER) != null
 				&& project
@@ -96,11 +99,13 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 		return false;
 	}
-/**
- * Checks if schema folder is not empty
- * @param project
- * @return
- */
+
+	/**
+	 * Checks if schema folder is not empty
+	 * 
+	 * @param project
+	 * @return
+	 */
 	private boolean checkIfProjectSchemasExists(IProject project) {
 		try {
 			if (project.getFolder("schema").members().length > 0) {
@@ -111,13 +116,14 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 		return false;
 	}
-	
-/**
- * Generates model from XSD Schemas
- * @param project
- * @return
- */
-	private RubyArray generateModel(IProject project) {
+
+	/**
+	 * Generates model from XSD Schemas
+	 * 
+	 * @param project
+	 * @return
+	 */
+	private List<TreeElement> generateModel(IProject project) {
 		final IProject finalProject = project;
 
 		try {

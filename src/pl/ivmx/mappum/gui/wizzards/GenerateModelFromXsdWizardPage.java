@@ -1,7 +1,5 @@
 package pl.ivmx.mappum.gui.wizzards;
 
-import java.util.ArrayList;
-
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -11,9 +9,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
-import org.jruby.RubyArray;
-import org.jruby.RubyClass;
-import org.jruby.RubyStruct;
+
+import pl.ivmx.mappum.TreeElement;
 
 public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		Listener {
@@ -90,14 +87,10 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 
 	void onEnterPage() {
 
-		final RubyArray model = ((GenerateModelFromXsdWizard) getWizard())
-				.getModel();
-
-		for (final RubyStruct rs : new ArrayList<RubyStruct>(model)) {
-			final RubyClass clazz = (RubyClass) rs.get(0);
-
-			leftMappingList.add(clazz.getName());
-			rightMappingList.add(clazz.getName());
+		for (final TreeElement te : ((GenerateModelFromXsdWizard) getWizard())
+				.getModel()) {
+			leftMappingList.add(te.getName());
+			rightMappingList.add(te.getName());
 		}
 	}
 }

@@ -2,6 +2,7 @@ package pl.ivmx.mappum.gui.wizzards;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
@@ -14,20 +15,20 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.jruby.RubyArray;
 
+import pl.ivmx.mappum.TreeElement;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
 public class GenerateModelFromXsdWizard extends Wizard {
 	private GenerateModelFromXsdWizardPage page;
 	private Logger logger = Logger.getLogger(GenerateModelFromXsdWizard.class);
-	private RubyArray model;
+	private List<TreeElement> model;
 	private String leftChosenElement = null;
 	private String rightChosenElement = null;
 	private IProject project;
 
-	public GenerateModelFromXsdWizard(RubyArray model) {
+	public GenerateModelFromXsdWizard(final List<TreeElement> model) {
 		super();
 		setModel(model);
 	}
@@ -69,11 +70,11 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		addPage(page);
 	}
 
-	private void setModel(RubyArray model) {
+	private void setModel(final List<TreeElement> model) {
 		this.model = model;
 	}
 
-	public RubyArray getModel() {
+	public List<TreeElement> getModel() {
 		return model;
 	}
 

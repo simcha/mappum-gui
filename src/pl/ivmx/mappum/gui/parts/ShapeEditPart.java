@@ -322,7 +322,6 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<ShapeEditPart> getChildren() {
 		return super.getChildren();
