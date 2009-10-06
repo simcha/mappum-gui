@@ -48,15 +48,16 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		if (firstElement instanceof IProject
 				&& validateProject((IProject) firstElement)) {
 			if (checkIfProjectSchemasExists((IProject) firstElement)) {
-				final List<TreeElement> model = generateModel((IProject) firstElement);
+				List<TreeElement> model = generateModel((IProject) firstElement);
 				if (model != null) {
-					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(
-							model);
-					wizard.init(selection);
-					WizardDialog dialog = new WizardDialog(window
-							.getWorkbench().getActiveWorkbenchWindow()
-							.getShell(), wizard);
-					dialog.open();
+					//TODO
+//					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(
+//							model);
+//					wizard.init(selection);
+//					WizardDialog dialog = new WizardDialog(window
+//							.getWorkbench().getActiveWorkbenchWindow()
+//							.getShell(), wizard);
+//					dialog.open();
 				}
 			} else {
 				MessageDialog.openError(window.getShell(),
@@ -116,13 +117,12 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 		return false;
 	}
-
-	/**
-	 * Generates model from XSD Schemas
-	 * 
-	 * @param project
-	 * @return
-	 */
+	
+/**
+ * Generates model from XSD Schemas
+ * @param project
+ * @return
+ */
 	private List<TreeElement> generateModel(IProject project) {
 		final IProject finalProject = project;
 
@@ -137,6 +137,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 							try {
 								ModelGeneratorFromXML generator = ModelGeneratorFromXML
 										.getInstance();
+								generator.setModel(null);
 								generator.generateModel(finalProject);
 								monitor.done();
 							} catch (ScriptException e) {
@@ -168,7 +169,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 
 		try {
-			return ModelGeneratorFromXML.getInstance().getModelArray();
+			return ModelGeneratorFromXML.getInstance().getModel();
 		} catch (ScriptException e) {
 			e.printStackTrace();
 			if (e.getCause() != null) {

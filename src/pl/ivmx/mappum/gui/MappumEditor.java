@@ -80,7 +80,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		Connection.getConnections().clear();
 		Shape.getRootShapes().clear();
 		Shape.getShapes().clear();
-		ModelGeneratorFromXML.getInstance().setModelArray(null);
+		ModelGeneratorFromXML.getInstance().setModel(null);
 	}
 
 	protected void setInput(IEditorInput input) {
@@ -107,7 +107,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 								file.getProject());
 						monitor.worked(35);
 						ModelGeneratorFromXML.getInstance()
-								.addFieldsFromRubyArray(
+								.addFieldsFromRubyModel(
 										Shape.getRootShapes().get(0),
 										Shape.getRootShapes().get(1));
 						monitor.worked(75);
@@ -388,7 +388,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		Connection.getConnections().clear();
 		Shape.getRootShapes().clear();
 		Shape.getShapes().clear();
-		ModelGeneratorFromXML.getInstance().setModelArray(null);
+		ModelGeneratorFromXML.getInstance().setModel(null);
 		super.dispose();
 	}
 

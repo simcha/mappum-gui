@@ -165,7 +165,6 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 		}
 	}
 
-	// TODO dostawienie wygenerowanego kodu
 	private int openChangeConnectionPropsWizard() {
 
 		Connection connection = getCastedModel();
