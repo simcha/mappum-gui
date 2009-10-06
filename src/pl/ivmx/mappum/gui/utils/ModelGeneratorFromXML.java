@@ -1,14 +1,11 @@
 package pl.ivmx.mappum.gui.utils;
 
-import java.io.InputStreamReader;
 import java.util.List;
 
 import javax.script.ScriptException;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
-import org.jruby.RubyArray;
-import org.jruby.RubyClass;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.DVarNode;
@@ -32,11 +29,6 @@ public class ModelGeneratorFromXML {
 	private String mapFolder;
 	private String schemaFolder;
 	private String generatedClassesFolder;
-
-	private String xsd2rubyScriptCode;
-	private InputStreamReader xsd2rubyScript;
-
-	private List<TreeElement> modelArray;
 	
 	private List<TreeElement> model;
 
@@ -120,7 +112,6 @@ public class ModelGeneratorFromXML {
 	private Shape checkAndAddShape(String name, Shape parent, Side side) {
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
-				String fullName = Shape.getRootShapes().get(0).getFullName();
 				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
 					// }
@@ -151,128 +142,51 @@ public class ModelGeneratorFromXML {
 					return shape;
 				}
 			}
-			// TODO create ruby node for Shape
 			Shape shape = Shape.createShape(name, null, parent, side,
 					generateRubyModelForField(name, side));
 			shape.addToParent();
 			return shape;
 		}
 	}
-	//TODO
+	
 	public void addFieldsFromRubyModel(String leftElement, String rightElement){
 		for(TreeElement element:model){
 			if(element.getName().equals(leftElement)){
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT);
 				for(TreeElement childElement: element.getElements()){
-					childElement.getElements();
+					Shape child = checkAndAddShape(childElement.getName(), parent, Shape.Side.LEFT);
+					if(childElement.getClazz() != null){
+						getComplexField(childElement.getClazz(), child, Shape.Side.LEFT);
+					}
 				}
 			}
 			if(element.getName().equals(rightElement)){
-				
-			}
-		}
-	}
-	
-
-	public void addFieldsFromRubyArray(String leftElement, String rightElement) {
-		for (int i = 0; i < modelArray.size(); i++) {
-			RubyArray rubyArray = (RubyArray) modelArray.get(i);
-			if (((RubyClass) (rubyArray.get(0))).getName().equals(leftElement)) {
-				System.out.println("Field: " + leftElement);
-				Shape parent = checkAndAddShape(leftElement, null,
-						Shape.Side.LEFT);
-				for (int j = 0; j < rubyArray.size(); j++) {
-					if (rubyArray.get(j) instanceof RubyArray) {
-						RubyArray childArray = (RubyArray) rubyArray.get(j);
-						for (int n = 0; n < childArray.size(); n++) {
-							if (childArray.get(n) instanceof RubyArray) {
-								RubyArray preChildArray = (RubyArray) childArray
-										.get(n);
-								String childElement = (String) preChildArray
-										.get(0);
-								System.out.println("Parent: " + leftElement
-										+ ", Field: " + childElement);
-								Shape child = checkAndAddShape(childElement,
-										parent, Shape.Side.LEFT);
-								if (preChildArray.get(1) != null) {
-									getComplexField(((RubyClass) (preChildArray
-											.get(1))).getName(), child,
-											Shape.Side.LEFT);
-								}
-
-							}
-						}
-					}
-				}
-
-			}
-			if (((RubyClass) (rubyArray.get(0))).getName().equals(rightElement)) {
-				System.out.println("Field: " + rightElement);
 				Shape parent = checkAndAddShape(rightElement, null,
 						Shape.Side.RIGHT);
-				for (int j = 0; j < rubyArray.size(); j++) {
-					if (rubyArray.get(j) instanceof RubyArray) {
-						RubyArray childArray = (RubyArray) rubyArray.get(j);
-						for (int n = 0; n < childArray.size(); n++) {
-							if (childArray.get(n) instanceof RubyArray) {
-								RubyArray preChildArray = (RubyArray) childArray
-										.get(n);
-								String childElement = (String) preChildArray
-										.get(0);
-								System.out.println("Parent: " + rightElement
-										+ ", Field: " + childElement);
-								Shape child = checkAndAddShape(childElement,
-										parent, Shape.Side.RIGHT);
-								if (preChildArray.get(1) != null) {
-									getComplexField(((RubyClass) (preChildArray
-											.get(1))).getName(), child,
-											Shape.Side.RIGHT);
-								}
-
-							}
-						}
+				for(TreeElement childElement: element.getElements()){
+					Shape child = checkAndAddShape(childElement.getName(), parent, Shape.Side.RIGHT);
+					if(childElement.getClazz() != null){
+						getComplexField(childElement.getClazz(), child, Shape.Side.RIGHT);
 					}
 				}
-
 			}
 		}
 	}
 
 	private void getComplexField(String searchElement, Shape parent, final Shape.Side side) {
-		for (int i = 0; i < modelArray.size(); i++) {
-			RubyArray rubyArray = (RubyArray) modelArray.get(i);
-			if (((RubyClass) (rubyArray.get(0))).getName()
-					.equals(searchElement)) {
-				for (int j = 0; j < rubyArray.size(); j++) {
-					if (rubyArray.get(j) instanceof RubyArray) {
-						RubyArray childArray = (RubyArray) rubyArray.get(j);
-						for (int n = 0; n < childArray.size(); n++) {
-							if (childArray.get(n) instanceof RubyArray) {
-								RubyArray preChildArray = (RubyArray) childArray
-										.get(n);
-								String childElement = (String) preChildArray
-										.get(0);
-								System.out.println("Parent: " + parent
-										+ ", Field: " + childElement);
-								Shape child = checkAndAddShape(childElement,
-										parent, side);
-								if (preChildArray.get(1) != null) {
-									getComplexField(((RubyClass) (preChildArray
-											.get(1))).getName(), child, side);
-								}
-
-							}
-						}
+		for(TreeElement element:model){
+			if(element.getName().equals(searchElement)){
+				for(TreeElement childElement: element.getElements()){
+					Shape child = checkAndAddShape(childElement.getName(), parent, side);
+					if(childElement.getClazz() != null){
+						getComplexField(childElement.getClazz(), child, side);
 					}
 				}
-
 			}
 		}
 	}
-
 	
-
 	public CallNode generateRubyModelForField(String name, final Shape.Side side) {
 		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
 		// RootNodeHolder.IDENT_LENGTH);
@@ -288,54 +202,5 @@ public class ModelGeneratorFromXML {
 			return new CallNode(new SourcePosition(), dVarNode, name, listNode);
 		}
 
-	}
-
-	private static class NamedElement implements TreeElement {
-
-		private final String name;
-
-		public NamedElement(final String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String getName() {
-			return name;
-		}
-
-		@Override
-		public String getClazz() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public List<TreeElement> getElements() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean getIsArray() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setClazz(String arg0) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setElements(List<TreeElement> arg0) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setIsArray(boolean arg0) {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public void setName(String arg0) {
-			throw new UnsupportedOperationException();
-		}
 	}
 }
