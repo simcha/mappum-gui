@@ -48,6 +48,7 @@
          <wizard
                category="pl.ivmx.mappum.gui.wizzards.mappumNewCategory"
                class="pl.ivmx.mappum.gui.wizzards.NewProjectWizard"
+               finalPerspective="pl.ivmx.mappum.gui.perspectives.MappumPerspective"
                icon="icons/rubby.gif"
                id="pl.ivmx.mappum.gui.wizzards.NewProjectWizard"
                name="Mappum New Project"
@@ -60,6 +61,7 @@
                locationURI="popup:org.eclipse.jdt.ui.PackageExplorer">
             <command
                   commandId="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD"
+                  icon="icons/rubby.gif"
                   label="Generate model from XSD schema"
                   style="push">
                <visibleWhen>
@@ -88,5 +90,23 @@
                id="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD"
                name="Generate model from XSD schema">
          </command>
+      </extension>
+      <extension
+            point="org.eclipse.ui.perspectives">
+         <perspective
+               class="pl.ivmx.mappum.gui.MappumPerspective"
+               icon="icons/rubby.gif"
+               id="pl.ivmx.mappum.gui.perspectives.MappumPerspective"
+               name="Mappum">
+         </perspective>
+      </extension>
+      <extension
+            id="mappumDotfiles"
+            name="dotfiles"
+            point="org.eclipse.ui.ide.resourceFilters">
+         <filter
+               pattern=".*"
+               selected="true">
+         </filter>
       </extension>
 </plugin>

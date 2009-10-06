@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -23,7 +22,6 @@ import org.jruby.exceptions.RaiseException;
 
 import pl.ivmx.mappum.TreeElement;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
-import pl.ivmx.mappum.gui.wizzards.GenerateModelFromXsdWizard;
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
@@ -50,14 +48,15 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 			if (checkIfProjectSchemasExists((IProject) firstElement)) {
 				List<TreeElement> model = generateModel((IProject) firstElement);
 				if (model != null) {
-					//TODO
-//					GenerateModelFromXsdWizard wizard = new GenerateModelFromXsdWizard(
-//							model);
-//					wizard.init(selection);
-//					WizardDialog dialog = new WizardDialog(window
-//							.getWorkbench().getActiveWorkbenchWindow()
-//							.getShell(), wizard);
-//					dialog.open();
+					// TODO
+					// GenerateModelFromXsdWizard wizard = new
+					// GenerateModelFromXsdWizard(
+					// model);
+					// wizard.init(selection);
+					// WizardDialog dialog = new WizardDialog(window
+					// .getWorkbench().getActiveWorkbenchWindow()
+					// .getShell(), wizard);
+					// dialog.open();
 				}
 			} else {
 				MessageDialog.openError(window.getShell(),
@@ -117,12 +116,13 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 		}
 		return false;
 	}
-	
-/**
- * Generates model from XSD Schemas
- * @param project
- * @return
- */
+
+	/**
+	 * Generates model from XSD Schemas
+	 * 
+	 * @param project
+	 * @return
+	 */
 	private List<TreeElement> generateModel(IProject project) {
 		final IProject finalProject = project;
 

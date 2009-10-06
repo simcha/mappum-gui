@@ -5,18 +5,22 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.ProjectProperties;
 
-public class NewProjectWizard extends Wizard implements INewWizard {
+public class NewProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
 	private NewProjectWizardPage page;
 	private Logger logger = Logger.getLogger(NewProjectWizard.class);
+	private IConfigurationElement configElement;
 
 	public NewProjectWizard() {
 		super();
@@ -26,7 +30,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
 		return ResourcesPlugin.getWorkspace().getRoot().getFolder(folderPath);
 	}
-
+	
 	@Override
 	public boolean performFinish() {
 		IProject projectHandle = page.getProjectHandle();
@@ -78,33 +82,9 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 						ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER)
 						.toPortableString());
 
-		/*
-		 * ModelGeneratorFromXML model = ModelGeneratorFromXML.getInstance();
-		 * model
-		 * .setGeneratedClassesFolder(projectHandle.getLocation().append("classes"
-		 * ).toPortableString());
-		 * model.setMapFolder(projectHandle.getLocation().
-		 * append("map").toPortableString());
-		 * model.setSchemaFolder(projectHandle
-		 * .getLocation().append("schema").toPortableString());
-		 */
-		// System.out.println("Paths: " + "classes="
-		// + model.getGeneratedClassesFolder() + ", map="
-		// + model.getMapFolder() + ", schema=" + model.getSchemaFolder());
-		/*
-		 * IRunnableWithProgress runnable = new IRunnableWithProgress() {
-		 * 
-		 * @Override public void run(IProgressMonitor monitor) throws
-		 * InvocationTargetException, InterruptedException { try {
-		 * projectHandle.create(null); projectHandle.open(null); } catch
-		 * (CoreException e1) { // TODO Auto-generated catch block
-		 * e1.printStackTrace(); }
-		 * 
-		 * } };
-		 */
-
 		logger.debug("New Project wizzard ended. Created new mappum project: "
 				+ projectHandle.getName());
+		BasicNewProjectResourceWizard.updatePerspective(configElement);
 		return true;
 	}
 
@@ -119,6 +99,13 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 	public void addPages() {
 		super.addPages();
 		addPage(page);
+	}
+
+	@Override
+	public void setInitializationData(IConfigurationElement config,
+			String propertyName, Object data) throws CoreException {
+		this.configElement = config;
+		
 	}
 
 }
