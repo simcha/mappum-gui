@@ -11,6 +11,7 @@ import org.eclipse.draw2d.FreeformLayer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.ShortestPathConnectionRouter;
+import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.LayerConstants;
 import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
@@ -51,10 +52,10 @@ class DiagramEditPart extends AbstractGraphicalEditPart implements
 	 * @see org.eclipse.gef.editparts.AbstractGraphicalEditPart#createFigure()
 	 */
 	protected IFigure createFigure() {
-		Figure f = new FreeformLayer();
+		final Figure f = new FreeformLayer();
 		f.setBorder(new MarginBorder(30));
-		FlowLayout fl = new FlowLayout(false);
-		fl.setMajorSpacing(300);
+		final ToolbarLayout fl = new ToolbarLayout(true);
+		fl.setSpacing(300);
 		f.setLayoutManager(fl);
 
 		// Create the static router for the connection layer
