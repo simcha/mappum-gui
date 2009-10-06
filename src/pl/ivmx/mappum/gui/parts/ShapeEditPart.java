@@ -309,7 +309,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		if (hasModelChildren()
 				&& editor.getCurrentPaletteTool().equals(
 						MappumEditorPaletteFactory.SELECTION_TOOL)) {
-			if (collapsed == false && childrenConnected()) {
+			if (collapsed == false && childrenConnected(true)) {
 				return;
 			}
 			collapsed = !collapsed;
@@ -335,12 +335,13 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		return ((Shape) getModel()).getChildren().size() > 0;
 	}
 
-	private boolean childrenConnected() {
+	private boolean childrenConnected(final boolean allowConnections) {
 		for (final ShapeEditPart p : getChildren()) {
-			if (p.childrenConnected()) {
+			if (p.childrenConnected(false)) {
 				return true;
 			}
 		}
-		return false;
+		return allowConnections ? false : getSourceConnections().size()
+				+ getTargetConnections().size() > 0;
 	}
 }
