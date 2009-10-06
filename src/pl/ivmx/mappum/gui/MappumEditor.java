@@ -108,8 +108,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						monitor.worked(35);
 						ModelGeneratorFromXML.getInstance()
 								.addFieldsFromRubyModel(
-										Shape.getRootShapes().get(0),
-										Shape.getRootShapes().get(1));
+										Shape.getRootShapes().get(0).getFullName(),
+										Shape.getRootShapes().get(1).getFullName());
 						monitor.worked(75);
 						ModelGenerator.getInstance()
 								.generateModelChildElements();

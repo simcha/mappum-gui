@@ -8,6 +8,7 @@ import javax.script.ScriptException;
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.jruby.RubyArray;
+import org.jruby.RubyClass;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.DVarNode;
@@ -80,60 +81,7 @@ public class ModelGeneratorFromXML {
 		wl.generateAndRequire();
 		return wl.definedElementTrees();
 	}
-	public void generateAndRequire() throws ScriptException {
-		// ScriptEngineFactory factory = (ScriptEngineFactory) new
-		// com.sun.script.jruby.JRubyScriptEngineFactory();
-		// ScriptEngine engine = factory.getScriptEngine();
-		// if (manager == null)
-		// manager = new ScriptEngineManager();
-		// if (engine == null)
-		// engine = manager.getEngineByName(language);
-		ScriptEngineFactory factory = new JRubyScriptEngineFactory();
-		System.out.println("Getting engine");
-		final ClassLoader oldClassLoader = Thread.currentThread()
-				.getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(null);
-		ScriptEngine engine = factory.getScriptEngine();
-		Thread.currentThread().setContextClassLoader(oldClassLoader);
-
-		StringBuffer params = new StringBuffer();
-		params.append("\n");
-		params.append("require 'mappum/xml_transform'");
-		params.append("\n\n");
-		params.append("begin");
-		params.append("\n");
-		params.append("wl = Mappum::WorkdirLoader.new(\"");
-		params.append(getSchemaFolder());
-		params.append("\", \"");
-		params.append(getMapFolder());
-		params.append("\", \"");
-		params.append(getGeneratedClassesFolder());
-		params.append("\")");
-		params.append("\n");
-		params.append("wl.generate_and_require");
-		params.append("\n");
-		params.append("wl.defined_element_trees(nil)");
-		params.append("\n");
-		params.append("rescue => e");
-		params.append("\n");
-		params.append("puts e.backtrace");
-		params.append("\n");
-		params.append("raise e");
-		params.append("\n");
-		params.append("end");
-
-		xsd2rubyScriptCode = params.toString();
-		logger.debug("Generated ruby code for ruby script engine:"
-				+ xsd2rubyScriptCode);
-		xsd2rubyScript = new InputStreamReader(new ByteArrayInputStream(
-				xsd2rubyScriptCode.getBytes()));
-
-		// execute the script (non-compiled!)
-
-		logger.debug("Starting generating classes...");
-		modelArray = (RubyArray) engine.eval(xsd2rubyScript);
-		logger.debug("Classes generated");
-	}
+	
 
 	public List<TreeElement> getModel() throws ScriptException {
 		if (model == null) {
@@ -225,42 +173,105 @@ public class ModelGeneratorFromXML {
 			}
 		}
 	}
+	
 
-	private void addFieldsFromRubyArray0(final List<TreeElement> elementList,
-			final Shape parent, final Shape.Side side) {
-		if (elementList != null) {
+	public void addFieldsFromRubyArray(String leftElement, String rightElement) {
+		for (int i = 0; i < modelArray.size(); i++) {
+			RubyArray rubyArray = (RubyArray) modelArray.get(i);
+			if (((RubyClass) (rubyArray.get(0))).getName().equals(leftElement)) {
+				System.out.println("Field: " + leftElement);
+				Shape parent = checkAndAddShape(leftElement, null,
+						Shape.Side.LEFT);
+				for (int j = 0; j < rubyArray.size(); j++) {
+					if (rubyArray.get(j) instanceof RubyArray) {
+						RubyArray childArray = (RubyArray) rubyArray.get(j);
+						for (int n = 0; n < childArray.size(); n++) {
+							if (childArray.get(n) instanceof RubyArray) {
+								RubyArray preChildArray = (RubyArray) childArray
+										.get(n);
+								String childElement = (String) preChildArray
+										.get(0);
+								System.out.println("Parent: " + leftElement
+										+ ", Field: " + childElement);
+								Shape child = checkAndAddShape(childElement,
+										parent, Shape.Side.LEFT);
+								if (preChildArray.get(1) != null) {
+									getComplexField(((RubyClass) (preChildArray
+											.get(1))).getName(), child,
+											Shape.Side.LEFT);
+								}
 
-			for (final TreeElement te : elementList) {
-				final Shape newShape = addShape(te.getName(), parent, side);
-				addFieldsFromRubyArray0(te.getElements(), newShape, side);
+							}
+						}
+					}
+				}
+
+			}
+			if (((RubyClass) (rubyArray.get(0))).getName().equals(rightElement)) {
+				System.out.println("Field: " + rightElement);
+				Shape parent = checkAndAddShape(rightElement, null,
+						Shape.Side.RIGHT);
+				for (int j = 0; j < rubyArray.size(); j++) {
+					if (rubyArray.get(j) instanceof RubyArray) {
+						RubyArray childArray = (RubyArray) rubyArray.get(j);
+						for (int n = 0; n < childArray.size(); n++) {
+							if (childArray.get(n) instanceof RubyArray) {
+								RubyArray preChildArray = (RubyArray) childArray
+										.get(n);
+								String childElement = (String) preChildArray
+										.get(0);
+								System.out.println("Parent: " + rightElement
+										+ ", Field: " + childElement);
+								Shape child = checkAndAddShape(childElement,
+										parent, Shape.Side.RIGHT);
+								if (preChildArray.get(1) != null) {
+									getComplexField(((RubyClass) (preChildArray
+											.get(1))).getName(), child,
+											Shape.Side.RIGHT);
+								}
+
+							}
+						}
+					}
+				}
+
 			}
 		}
 	}
 
-	private static class ElementNameComparator implements
-			Comparator<TreeElement> {
+	private void getComplexField(String searchElement, Shape parent, final Shape.Side side) {
+		for (int i = 0; i < modelArray.size(); i++) {
+			RubyArray rubyArray = (RubyArray) modelArray.get(i);
+			if (((RubyClass) (rubyArray.get(0))).getName()
+					.equals(searchElement)) {
+				for (int j = 0; j < rubyArray.size(); j++) {
+					if (rubyArray.get(j) instanceof RubyArray) {
+						RubyArray childArray = (RubyArray) rubyArray.get(j);
+						for (int n = 0; n < childArray.size(); n++) {
+							if (childArray.get(n) instanceof RubyArray) {
+								RubyArray preChildArray = (RubyArray) childArray
+										.get(n);
+								String childElement = (String) preChildArray
+										.get(0);
+								System.out.println("Parent: " + parent
+										+ ", Field: " + childElement);
+								Shape child = checkAndAddShape(childElement,
+										parent, side);
+								if (preChildArray.get(1) != null) {
+									getComplexField(((RubyClass) (preChildArray
+											.get(1))).getName(), child, side);
+								}
 
-		@Override
-		public int compare(final TreeElement o1, final TreeElement o2) {
-			return o1.getName().compareTo(o2.getName());
+							}
+						}
+					}
+				}
+
+			}
 		}
 	}
 
-	public void addFieldsFromRubyArray(final Shape leftShape,
-			final Shape rightShape) {
-
-		Collections.sort(modelArray, new ElementNameComparator());
-
-		addFieldsFromRubyArray0(modelArray.get(
-				Collections.binarySearch(modelArray, new NamedElement(leftShape
-						.getFullName()), new ElementNameComparator()))
-				.getElements(), leftShape, Shape.Side.LEFT);
-
-		addFieldsFromRubyArray0(modelArray.get(
-				Collections.binarySearch(modelArray, new NamedElement(
-						rightShape.getFullName()), new ElementNameComparator()))
-				.getElements(), rightShape, Shape.Side.RIGHT);
-	}
+	
 
 	public CallNode generateRubyModelForField(String name, final Shape.Side side) {
 		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
