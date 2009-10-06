@@ -29,7 +29,7 @@ public class ModelGeneratorFromXML {
 	private String mapFolder;
 	private String schemaFolder;
 	private String generatedClassesFolder;
-	
+
 	private List<TreeElement> model;
 
 	private Logger logger = Logger.getLogger(ModelGeneratorFromXML.class);
@@ -67,19 +67,19 @@ public class ModelGeneratorFromXML {
 		this.generatedClassesFolder = generatedClassesFolder;
 	}
 
-	private  List<TreeElement> evalMappumApi(){
+	private List<TreeElement> evalMappumApi() {
 		MappumApi mp = new MappumApi();
-		WorkdirLoader wl = mp.getWorkdirLoader(getSchemaFolder(),getMapFolder(),getGeneratedClassesFolder());
+		WorkdirLoader wl = mp.getWorkdirLoader(getSchemaFolder(),
+				getMapFolder(), getGeneratedClassesFolder());
 		wl.generateAndRequire();
 		return wl.definedElementTrees();
 	}
-	
 
 	public List<TreeElement> getModel() throws ScriptException {
 		if (model == null) {
-			if((model = evalMappumApi()) == null)
-			throw new ScriptException(
-					"Error while returning model. Model is null. Check logs for more details.");
+			if ((model = evalMappumApi()) == null)
+				throw new ScriptException(
+						"Error while returning model. Model is null. Check logs for more details.");
 		}
 		return model;
 	}
@@ -88,7 +88,8 @@ public class ModelGeneratorFromXML {
 		this.model = model;
 	}
 
-	public List<TreeElement> generateModel(IProject project) throws ScriptException {
+	public List<TreeElement> generateModel(IProject project)
+			throws ScriptException {
 		final String classesFolder = project.getFolder(
 				ModelGeneratorFromXML.DEFAULT_GENERATED_CLASSES_FOLDER)
 				.getLocation().toPortableString();
@@ -103,21 +104,18 @@ public class ModelGeneratorFromXML {
 		setMapFolder(mapFolder);
 		setSchemaFolder(schemaFolder);
 		getModel();
-		for(TreeElement element: model){
+		for (TreeElement element : model) {
 			System.out.println(element.getName());
 		}
 		return getModel();
 	}
 
-	private Shape checkAndAddShape(String name, Shape parent, Side side) {
+	private Shape checkAndAddShape(String name, Shape parent, Side side,
+			boolean isArray) {
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
 				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
-					// }
-					// Shape shape = Shape.createShape(name, null, null, side,
-					// generateRubyModelForField(name, side));
-					// return shape;
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
@@ -126,10 +124,6 @@ public class ModelGeneratorFromXML {
 			} else {
 				if (name.equals(Shape.getRootShapes().get(1).getFullName())) {
 					return Shape.getRootShapes().get(1);
-					// }
-					// Shape shape = Shape.createShape(name, null, null, side,
-					// generateRubyModelForField(name, side));
-					// return shape;
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
@@ -144,49 +138,56 @@ public class ModelGeneratorFromXML {
 			}
 			Shape shape = Shape.createShape(name, null, parent, side,
 					generateRubyModelForField(name, side));
+			shape.setArrayType(isArray);
 			shape.addToParent();
 			return shape;
 		}
 	}
-	
-	public void addFieldsFromRubyModel(String leftElement, String rightElement){
-		for(TreeElement element:model){
-			if(element.getName().equals(leftElement)){
+
+	public void addFieldsFromRubyModel(String leftElement, String rightElement) {
+		for (TreeElement element : model) {
+			if (element.getName().equals(leftElement)) {
 				Shape parent = checkAndAddShape(leftElement, null,
-						Shape.Side.LEFT);
-				for(TreeElement childElement: element.getElements()){
-					Shape child = checkAndAddShape(childElement.getName(), parent, Shape.Side.LEFT);
-					if(childElement.getClazz() != null){
-						getComplexField(childElement.getClazz(), child, Shape.Side.LEFT);
+						Shape.Side.LEFT, false);
+				for (TreeElement childElement : element.getElements()) {
+					Shape child = checkAndAddShape(childElement.getName(),
+							parent, Shape.Side.LEFT, childElement.getIsArray());
+					if (childElement.getClazz() != null) {
+						getComplexField(childElement.getClazz(), child,
+								Shape.Side.LEFT);
 					}
 				}
 			}
-			if(element.getName().equals(rightElement)){
+			if (element.getName().equals(rightElement)) {
 				Shape parent = checkAndAddShape(rightElement, null,
-						Shape.Side.RIGHT);
-				for(TreeElement childElement: element.getElements()){
-					Shape child = checkAndAddShape(childElement.getName(), parent, Shape.Side.RIGHT);
-					if(childElement.getClazz() != null){
-						getComplexField(childElement.getClazz(), child, Shape.Side.RIGHT);
+						Shape.Side.RIGHT, false);
+				for (TreeElement childElement : element.getElements()) {
+					Shape child = checkAndAddShape(childElement.getName(),
+							parent, Shape.Side.RIGHT, childElement.getIsArray());
+					if (childElement.getClazz() != null) {
+						getComplexField(childElement.getClazz(), child,
+								Shape.Side.RIGHT);
 					}
 				}
 			}
 		}
 	}
 
-	private void getComplexField(String searchElement, Shape parent, final Shape.Side side) {
-		for(TreeElement element:model){
-			if(element.getName().equals(searchElement)){
-				for(TreeElement childElement: element.getElements()){
-					Shape child = checkAndAddShape(childElement.getName(), parent, side);
-					if(childElement.getClazz() != null){
+	private void getComplexField(String searchElement, Shape parent,
+			final Shape.Side side) {
+		for (TreeElement element : model) {
+			if (element.getName().equals(searchElement)) {
+				for (TreeElement childElement : element.getElements()) {
+					Shape child = checkAndAddShape(childElement.getName(),
+							parent, side, childElement.getIsArray());
+					if (childElement.getClazz() != null) {
 						getComplexField(childElement.getClazz(), child, side);
 					}
 				}
 			}
 		}
 	}
-	
+
 	public CallNode generateRubyModelForField(String name, final Shape.Side side) {
 		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
 		// RootNodeHolder.IDENT_LENGTH);
