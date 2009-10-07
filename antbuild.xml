@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+<project name="mappum-gui" default="MakeJar" basedir=".">
+	<tstamp>
+	  <format property="TODAY_PL"
+	          pattern="yyyyMMdd"
+	          locale="pl,PL"/>
+	</tstamp>
+
+	
+	<property name="Built-Date" value="${TODAY_PL}"/>
+	<property name="majorversion" value="0.2.0" />
+	<property name="fullpluginname" value="pl.ivmx.mappum.gui" />
+	<property name="finalJarName" value="pl.ivmx.mappum.gui_${Built-Date}.jar" />
+	<property name="maindir" value="./" />
+	<property name="src" value="./src" />
+	<property name="build" value="./bin" />
+	<!-- 
+ ! Important - A working eclipse plugins install dir (where the other plugins live) 
+    this is cheating a bit. When compiling an eclipse there are many jars
+    involved. You can either figure out which ones you need and add them one by
+    one, or shotgun it and include all the jars in a working eclipse
+    plugin dir. I went with option #2 (it's easier to maintain).
+    This could just be a copy of the plugins folder as well (if you want to run
+    this on a server)
+    
+
+  -->
+	<property name="plugin_offset" value="/Applications/eclipse/plugins" />
+
+	<target name="Compile">
+
+		<javac srcdir="${src}" destdir="${build}" debug="on" source="1.6">
+			<classpath>
+				<fileset dir="${plugin_offset}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="MakeJar" depends="Compile">
+		<mkdir dir="plugins" />
+		<mkdir dir="plugins/${fullpluginname}" />
+		<copy file="${maindir}/plugin.xml" tofile="${build}/plugin.xml" />
+
+		<copy todir="${build}/icons">
+			<fileset dir="${maindir}/icons">
+				<exclude name="**/CVS" />
+			</fileset>
+		</copy>
+
+		<copy todir="${build}/lib">
+			<fileset dir="${maindir}/lib">
+				<exclude name="**/\.svn" />
+			</fileset>
+		</copy>
+		<copy file="${maindir}/plugin.properties" tofile="${build}/plugin.properties" />
+		<jar manifest="${maindir}/META-INF/MANIFEST.MF" destfile="plugins/${fullpluginname}/${finalJarName}" basedir="${build}"/>
+	</target>
+
+	<target name="ZipUpPlugin" depends="MakeJar">
+		<zip destfile="${finalZipName}" basedir="./" includes="plugins/**" />
+	</target>
+
+</project>
