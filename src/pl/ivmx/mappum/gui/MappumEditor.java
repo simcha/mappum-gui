@@ -84,6 +84,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	}
 
 	protected void setInput(IEditorInput input) {
+		setPartName(input.getName());
 		System.out.println("SET INPUT");
 		super.setInput(input);
 
