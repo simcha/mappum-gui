@@ -1,7 +1,5 @@
 package pl.ivmx.mappum.gui.model.commands;
 
-import java.util.List;
-
 import org.eclipse.gef.commands.Command;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -32,65 +30,6 @@ public class ConnectionCreateCommand extends Command {
 		this.mappingSide = mappingSide;
 	}
 
-	private boolean connected(final Shape a, final Shape b) {
-		return connectedChildren(a, b) || connectedParents(a, b);
-	}
-
-	private boolean connectedChildren(final Shape a, final Shape b) {
-		if (connected0(a, b, false)) {
-			return true;
-		}
-		for (final Shape s : a.getChildren()) {
-			if (connectedChildren(b, s)) {
-				return true;
-			}
-			if (connectedChildren(s, b)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean connectedParents(final Shape a, final Shape b) {
-		Shape aParent = a;
-		while (aParent != null) {
-			if (connected0(aParent, b, true)) {
-				return true;
-			}
-			aParent = aParent.getParent();
-		}
-		return false;
-	}
-
-	private boolean connected0(final Shape a, final Shape b,
-			final boolean checkParents) {
-		if (connected1(b, a.getSourceConnections(), true, checkParents)
-				|| connected1(b, a.getTargetConnections(), false, checkParents)) {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean connected1(final Shape b,
-			final List<Connection> connections, final boolean sourceSide,
-			final boolean checkParents) {
-		Shape bParent = b;
-		for (final Connection c : connections) {
-			while (bParent != null) {
-				if ((sourceSide && c.getTarget().equals(bParent))
-						|| c.getSource().equals(bParent)) {
-					return true;
-				}
-				if (checkParents) {
-					bParent = bParent.getParent();
-				} else {
-					bParent = null;
-				}
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public boolean canExecute() {
 
@@ -106,7 +45,6 @@ public class ConnectionCreateCommand extends Command {
 			if (source.getSide() == target.getSide()) {
 				return false;
 			}
-			return !connected(source, target);
 		}
 		return true;
 	}
