@@ -1,7 +1,10 @@
 package pl.ivmx.mappum.gui.model;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
@@ -20,17 +23,38 @@ public class Connection extends ModelElement {
 		CONST_TO_VAR_CONN, VAR_TO_VAR_CONN, FUN_TO_VAR_CONN
 	}
 
+	public static enum Side {
+		LEFT_TO_RIGHT("From left variable to right variable mapping"), RIGHT_TO_LEFT(
+				"From right variable to left variable mapping"), DUAL(
+				"Dual side mapping");
+
+		private final static Map<Integer, Side> lookup = new HashMap<Integer, Side>();
+		private final String desc;
+
+		private Side(final String desc) {
+			this.desc = desc;
+		}
+
+		static {
+			for (final Side s : EnumSet.allOf(Side.class)) {
+				lookup.put(s.ordinal(), s);
+			}
+		}
+
+		public static Side forOrdinal(final int ordinal) {
+			return lookup.get(ordinal);
+		}
+
+		public String getDesc() {
+			return desc;
+		}
+	}
+
 	/** Property ID to use when the line style of this connection is modified. */
 	public static final String MAPPING_PROP = "Connection.Mapping";
 	private static final IPropertyDescriptor[] descriptors = new IPropertyDescriptor[3];
-	public static final String FROM_LEFT_TO_RIGHT_STR = "From left variable to right variable mapping";
-	public static final String FROM_RIGHT_TO_LEFT_STR = "From right variable to left variable mapping";
-	public static final String DUAL_SIDE_STR = "Dual side mapping";
 	private static final String COMMENT_PROP = "Connection.Comment";
 	private static final String CODE_PROP = "Connection.code";
-	public static final int FROM_LEFT_TO_RIGHT = 0;
-	public static final int FROM_RIGHT_TO_LEFT = 1;
-	public static final int DUAL_SIDE = 2;
 	private static final long serialVersionUID = 1;
 
 	private Type connectionType;
@@ -40,7 +64,7 @@ public class Connection extends ModelElement {
 	private boolean isConnected;
 	private Shape source;
 	private Shape target;
-	private int mappingSide;
+	private Side mappingSide;
 	private String comment;
 
 	private CallNode rubyCodeNode;
@@ -53,8 +77,8 @@ public class Connection extends ModelElement {
 
 	static {
 		descriptors[0] = new ComboBoxPropertyDescriptor(MAPPING_PROP,
-				"Mapping side", new String[] { FROM_LEFT_TO_RIGHT_STR,
-						FROM_RIGHT_TO_LEFT_STR, DUAL_SIDE_STR });
+				"Mapping side", new String[] { Side.LEFT_TO_RIGHT.getDesc(),
+						Side.RIGHT_TO_LEFT.getDesc(), Side.DUAL.getDesc() });
 		descriptors[1] = new TextPropertyDescriptor(COMMENT_PROP, "Comment");
 		descriptors[2] = new TextPropertyDescriptor(CODE_PROP, "Code");
 	}
@@ -62,7 +86,8 @@ public class Connection extends ModelElement {
 	/**
 	 * Create a (solid) connection between two distinct shapes.
 	 */
-	public Connection(Shape source, Shape target, int side, final Type type) {
+	public Connection(Shape source, Shape target, final Side side,
+			final Type type) {
 		connectionType = type;
 		connections.add(this);
 		source.addToParent();
@@ -87,7 +112,7 @@ public class Connection extends ModelElement {
 	 * 
 	 * @return an int value (Graphics.LINE_DASH or Graphics.LINE_SOLID)
 	 */
-	public int getMappingSide() {
+	public Side getMappingSide() {
 		return mappingSide;
 	}
 
@@ -118,12 +143,12 @@ public class Connection extends ModelElement {
 	public Object getPropertyValue(Object id) {
 		if (id.equals(MAPPING_PROP)) {
 			// DUAL_SIDE is the third value in the combo dropdown
-			if (getMappingSide() == DUAL_SIDE)
+			if (getMappingSide() == Side.DUAL)
 				return 2;
 			// FROM_RIGHT_TO_LEFT is the second value in the combo dropdown
-			else if (getMappingSide() == FROM_RIGHT_TO_LEFT)
+			else if (getMappingSide() == Side.RIGHT_TO_LEFT)
 				return 1;
-			else if (getMappingSide() == FROM_LEFT_TO_RIGHT)
+			else if (getMappingSide() == Side.LEFT_TO_RIGHT)
 				return 0;
 			// Solid is the first value in the combo dropdown
 			else
@@ -180,7 +205,7 @@ public class Connection extends ModelElement {
 	 * @throws IllegalArgumentException
 	 *             if any of the paramers are null or newSource == newTarget
 	 */
-	public void reconnect(Shape newSource, Shape newTarget, int side) {
+	public void reconnect(Shape newSource, Shape newTarget, final Side side) {
 		if (newSource == null || newTarget == null || newSource == newTarget) {
 			throw new IllegalArgumentException();
 		}
@@ -191,14 +216,13 @@ public class Connection extends ModelElement {
 		reconnect();
 	}
 
-	public void setMappingSide(int mappingSide) {
-		if (mappingSide != Connection.DUAL_SIDE
-				&& mappingSide != Connection.FROM_LEFT_TO_RIGHT
-				&& mappingSide != Connection.FROM_RIGHT_TO_LEFT) {
+	public void setMappingSide(final Side mappingSide) {
+		if (mappingSide != Side.DUAL && mappingSide != Side.LEFT_TO_RIGHT
+				&& mappingSide != Side.RIGHT_TO_LEFT) {
 			throw new IllegalArgumentException();
 		}
 		this.mappingSide = mappingSide;
-		firePropertyChange(MAPPING_PROP, null, new Integer(this.mappingSide));
+		firePropertyChange(MAPPING_PROP, null, this.mappingSide);
 	}
 
 	/**
@@ -207,17 +231,12 @@ public class Connection extends ModelElement {
 	 * @see org.eclipse.ui.views.properties.IPropertySource#setPropertyValue(java.lang.Object,
 	 *      java.lang.Object)
 	 */
-	public void setPropertyValue(Object id, Object value) {
+	public void setPropertyValue(final Object id, final Object value) {
 		if (id.equals(MAPPING_PROP)) {
+			final Side side = Side.forOrdinal((Integer) value);
 			RootNodeHolder.getInstance().changeMappingAtributes(this,
-					translateSideFromIntToString((Integer) value), null);
-			if (value.equals(new Integer(2))) {
-				setMappingSide(DUAL_SIDE);
-			} else if (value.equals(new Integer(1))) {
-				setMappingSide(FROM_RIGHT_TO_LEFT);
-			} else if (value.equals(new Integer(0))) {
-				setMappingSide(FROM_LEFT_TO_RIGHT);
-			}
+					translateSideFromIntToString(side), null);
+			setMappingSide(side);
 		} else if (id.equals(COMMENT_PROP)) {
 			if (value instanceof String) {
 				RootNodeHolder.getInstance().changeMappingAtributes(this, null,
@@ -229,24 +248,24 @@ public class Connection extends ModelElement {
 
 	}
 
-	public static int translateSideFromStringToInt(String side) {
+	public static Side translateSideFromStringToInt(String side) {
 		if (side.equals("<=>")) {
-			return Connection.DUAL_SIDE;
+			return Side.DUAL;
 		} else if (side.equals("<<")) {
-			return Connection.FROM_RIGHT_TO_LEFT;
+			return Side.RIGHT_TO_LEFT;
 		} else if (side.equals(">>")) {
-			return Connection.FROM_LEFT_TO_RIGHT;
+			return Side.LEFT_TO_RIGHT;
 		} else {
-			return -1;
+			return null;
 		}
 	}
 
-	public static String translateSideFromIntToString(int side) {
-		if (side == Connection.DUAL_SIDE) {
+	public static String translateSideFromIntToString(final Side side) {
+		if (side == Side.DUAL) {
 			return "<=>";
-		} else if (side == Connection.FROM_RIGHT_TO_LEFT) {
+		} else if (side == Side.RIGHT_TO_LEFT) {
 			return "<<";
-		} else if (side == Connection.FROM_LEFT_TO_RIGHT) {
+		} else if (side == Side.LEFT_TO_RIGHT) {
 			return ">>";
 		} else {
 			return "WRONG MAPPING";

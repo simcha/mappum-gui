@@ -13,35 +13,52 @@ import pl.ivmx.mappum.gui.model.Connection;
 
 public final class MappumEditorPaletteFactory {
 
+	private static final String ICON_CONN_S16 = "icons/connection_s16.gif";
+	private static final String ICON_CONN_S24 = "icons/connection_s24.gif";
+	private static final String ICON_CONN_D16 = "icons/connection_d16.gif";
+	private static final String ICON_CONN_D24 = "icons/connection_d24.gif";
+
 	public static final ToolEntry SELECTION_TOOL = new PanningSelectionToolEntry();
 	public static final ToolEntry CONNECTION_DUAL_TOOL = new ConnectionCreationToolEntry(
-			"Connection", "Create a dual side connection", new CreationFactory() {
+			"Connection", "Creates dual side connection",
+			new CreationFactory() {
 				public Object getNewObject() {
 					return null;
 				}
 
 				public Object getObjectType() {
-					// return null;
-					return Connection.DUAL_SIDE;
+					return Connection.Side.DUAL;
 				}
-			}, ImageDescriptor.createFromFile(MappumPlugin.class,
-					"icons/connection_d16.gif"), ImageDescriptor
-					.createFromFile(MappumPlugin.class,
-							"icons/connection_d24.gif"));
+			}, createImage(ICON_CONN_D16), createImage(ICON_CONN_D24));
 	public static final ToolEntry CONNECTION_SIMPLE_TOOL = new ConnectionCreationToolEntry(
-			"Connection", "Create a one side connection", new CreationFactory() {
+			"Connection", "Creates single side connection",
+			new CreationFactory() {
 				public Object getNewObject() {
 					return null;
 				}
 
 				public Object getObjectType() {
-					// return null;
-					return Connection.FROM_LEFT_TO_RIGHT;
+					return Connection.Side.LEFT_TO_RIGHT;
 				}
-			}, ImageDescriptor.createFromFile(MappumPlugin.class,
-					"icons/connection_s16.gif"), ImageDescriptor
-					.createFromFile(MappumPlugin.class,
-							"icons/connection_s24.gif"));
+			}, createImage(ICON_CONN_S16), createImage(ICON_CONN_S24));
+
+	public static final ToolEntry CONNECTION_CONSTANT_TOOL = new ConnectionCreationToolEntry(
+			"Constant", "Creates constant", new CreationFactory() {
+
+				@Override
+				public Object getNewObject() {
+					return null;
+				}
+
+				@Override
+				public Object getObjectType() {
+					return null;
+				}
+			}, createImage(ICON_CONN_S16), createImage(ICON_CONN_S24));
+
+	private static ImageDescriptor createImage(final String fileName) {
+		return ImageDescriptor.createFromFile(MappumPlugin.class, fileName);
+	}
 
 	/**
 	 * Creates the PaletteRoot and adds all palette elements.

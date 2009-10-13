@@ -770,7 +770,7 @@ public class RootNodeHolder {
 						leftShapeList.get(0).getShapeNode(),
 						rightShapeList.get(0).getShapeNode(),
 						Connection
-								.translateSideFromIntToString(Connection.DUAL_SIDE),
+								.translateSideFromIntToString(Connection.Side.DUAL),
 						node, BOTH_DASGN_CHANGE);
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
@@ -790,7 +790,7 @@ public class RootNodeHolder {
 
 				tmpNode = generateComplexMapping(leftShapeList.get(0)
 						.getShapeNode(), selfNode, Connection
-						.translateSideFromIntToString(Connection.DUAL_SIDE),
+						.translateSideFromIntToString(Connection.Side.DUAL),
 						node, BOTH_DASGN_CHANGE);
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
@@ -809,7 +809,7 @@ public class RootNodeHolder {
 
 				tmpNode = generateComplexMapping(selfNode, rightShapeList
 						.get(0).getShapeNode(), Connection
-						.translateSideFromIntToString(Connection.DUAL_SIDE),
+						.translateSideFromIntToString(Connection.Side.DUAL),
 						node, BOTH_DASGN_CHANGE);
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {

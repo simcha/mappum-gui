@@ -31,10 +31,11 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 	private Text codeText;
 
 	private final static String[] mappingSides = {
-			Connection.FROM_LEFT_TO_RIGHT_STR,
-			Connection.FROM_RIGHT_TO_LEFT_STR, Connection.DUAL_SIDE_STR };
+			Connection.Side.LEFT_TO_RIGHT.getDesc(),
+			Connection.Side.RIGHT_TO_LEFT.getDesc(),
+			Connection.Side.DUAL.getDesc() };
 
-	private int getSide() {
+	private Connection.Side getSide() {
 		return getWizard().getConnection().getMappingSide();
 	}
 
@@ -68,7 +69,7 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 		final GridData gd_combo = new GridData(352, SWT.DEFAULT);
 		sideCombo.setLayoutData(gd_combo);
 		sideCombo.setItems(mappingSides);
-		sideCombo.setText(sideCombo.getItem(getSide()));
+		sideCombo.setText(sideCombo.getItem(getSide().ordinal()));
 		commentLabel = new Label(composite, SWT.NONE);
 		commentLabel.setLayoutData(new GridData());
 		commentLabel.setText("Comment:");
@@ -115,15 +116,8 @@ public class ChangeConnectionPropsWizardPage extends WizardPage implements
 	public void handleEvent(Event event) {
 		if (event.widget == sideCombo) {
 			sideCombo.setEnabled(false);
-			String choosenSideStr = sideCombo.getText();
-			int newSide;
-			if (choosenSideStr.equals(Connection.FROM_LEFT_TO_RIGHT_STR)) {
-				newSide = Connection.FROM_LEFT_TO_RIGHT;
-			} else if (choosenSideStr.equals(Connection.FROM_RIGHT_TO_LEFT_STR)) {
-				newSide = Connection.FROM_RIGHT_TO_LEFT;
-			} else {
-				newSide = Connection.DUAL_SIDE;
-			}
+			final Connection.Side newSide = Connection.Side
+					.forOrdinal(sideCombo.getSelectionIndex());
 			RootNodeHolder.getInstance().changeMappingAtributes(
 					getWizard().getConnection(),
 					Connection.translateSideFromIntToString(newSide), null);

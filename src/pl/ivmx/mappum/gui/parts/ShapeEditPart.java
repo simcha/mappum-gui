@@ -93,8 +93,8 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 					protected Command getConnectionCreateCommand(
 							CreateConnectionRequest request) {
 						Shape source = (Shape) getHost().getModel();
-						int style = ((Integer) request.getNewObjectType())
-								.intValue();
+						final Connection.Side style = (Connection.Side) request
+								.getNewObjectType();
 						ConnectionCreateCommand cmd = new ConnectionCreateCommand(
 								source, style);
 						request.setStartCommand(cmd);

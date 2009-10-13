@@ -267,8 +267,8 @@ public class ModelGenerator {
 			pair = new Pair(createLeftShape(assignNode, parents), parents
 					.getRightShape());
 		}
-		int side = Connection.translateSideFromStringToInt((assignNode)
-				.getName());
+		final Connection.Side side = Connection
+				.translateSideFromStringToInt((assignNode).getName());
 
 		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;
@@ -321,7 +321,8 @@ public class ModelGenerator {
 			constantName = ((StrNode) mapnode.getArgsNode().childNodes().get(0))
 					.getValue();
 		}
-		int side = Connection.translateSideFromStringToInt((mapnode).getName());
+		final Connection.Side side = Connection
+				.translateSideFromStringToInt((mapnode).getName());
 		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;
 		if (canCreate) {
@@ -353,7 +354,7 @@ public class ModelGenerator {
 
 	private Connection operateOnMapWithSelf(CallNode callnode, Pair parents,
 			XStrNode comment) {
-		int side = Connection
+		final Connection.Side side = Connection
 				.translateSideFromStringToInt((callnode).getName());
 		Pair pair;
 		if (RootNodeHolder.checkLeftSideMappingName(callnode).equals("self")) {
@@ -537,7 +538,7 @@ public class ModelGenerator {
 	private Connection operateOnSimpleMapOrWithFunctionCall(CallNode callnode,
 			Pair parents, XStrNode comment) {
 		Pair pair = createShapesPair(callnode, parents);
-		int side = Connection
+		final Connection.Side side = Connection
 				.translateSideFromStringToInt((callnode).getName());
 		boolean canCreate = Connection.connectionNotExists(pair);
 		Connection connection = null;

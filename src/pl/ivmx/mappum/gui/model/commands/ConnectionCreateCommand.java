@@ -14,14 +14,15 @@ public class ConnectionCreateCommand extends Command {
 	/** The connection instance. */
 	private Connection connection;
 	/** The desired line style for the connection (dashed or solid). */
-	private int mappingSide;
+	private Connection.Side mappingSide;
 
 	/** Start endpoint for the connection. */
 	private final Shape source;
 	/** Target endpoint for the connection. */
 	private Shape target;
 
-	public ConnectionCreateCommand(Shape source, int mappingSide) {
+	public ConnectionCreateCommand(Shape source,
+			final Connection.Side mappingSide) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
@@ -52,8 +53,8 @@ public class ConnectionCreateCommand extends Command {
 	public void execute() {
 
 		if (source.getSide() == Shape.Side.RIGHT
-				&& mappingSide == Connection.FROM_LEFT_TO_RIGHT) {
-			mappingSide = Connection.FROM_RIGHT_TO_LEFT;
+				&& mappingSide == Connection.Side.LEFT_TO_RIGHT) {
+			mappingSide = Connection.Side.RIGHT_TO_LEFT;
 		}
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
@@ -89,8 +90,8 @@ public class ConnectionCreateCommand extends Command {
 		connection.disconnect();
 	}
 
-	private void createRubyMapping(Shape source, Shape target, int mappingSide,
-			String comment) {
+	private void createRubyMapping(Shape source, Shape target,
+			final Connection.Side mappingSide, String comment) {
 		RootNodeHolder.getInstance().addMapping(source, target,
 				Connection.translateSideFromIntToString(mappingSide), comment);
 

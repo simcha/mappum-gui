@@ -23,7 +23,7 @@ public class ConnectionReconnectCommand extends Command {
 	/** The original target endpoint. */
 	private final Shape oldTarget;
 	private final String oldComment;
-	private final int oldSide;
+	private final Connection.Side oldSide;
 
 	/**
 	 * Instantiate a command that can reconnect a Connection instance to a
@@ -208,8 +208,8 @@ public class ConnectionReconnectCommand extends Command {
 		createRubyMapping(oldSource, oldTarget, oldSide, oldComment);
 	}
 
-	private void createRubyMapping(Shape source, Shape target, int side,
-			String comment) {
+	private void createRubyMapping(Shape source, Shape target,
+			final Connection.Side side, String comment) {
 		RootNodeHolder.getInstance().addMapping(source, target,
 				Connection.translateSideFromIntToString(side), comment);
 
@@ -224,8 +224,8 @@ public class ConnectionReconnectCommand extends Command {
 		}
 	}
 
-	private void removeRubbyMapping(Shape source, Shape target, int side,
-			String comment) {
+	private void removeRubbyMapping(Shape source, Shape target,
+			final Connection.Side side, String comment) {
 		RootNodeHolder.getInstance().removeMapping(source, target,
 				Connection.translateSideFromIntToString(side), comment);
 	}

@@ -17,7 +17,7 @@ public class ChangeConnectionPropsWizard extends Wizard {
 
 	private final Connection connection;
 	private final IMappumEditor editor;
-	private final int originalMappingSide;
+	private final Connection.Side originalMappingSide;
 
 	private Logger logger = Logger.getLogger(ChangeConnectionPropsWizard.class);
 	ChangeConnectionPropsWizardPage mainPage;

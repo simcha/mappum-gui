@@ -109,12 +109,12 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 			Label label = new Label("[" + connection.getArrayNumber() + "]");
 			figure.add(label, new MidpointLocator(figure, 0));
 		}
-		if (connection.getMappingSide() == Connection.DUAL_SIDE) {
+		if (connection.getMappingSide() == Connection.Side.DUAL) {
 			figure.setTargetDecoration(new PolygonDecoration()); // arrow at
 			// target
 			// endpoint
 			figure.setSourceDecoration(new PolygonDecoration());
-		} else if (connection.getMappingSide() == Connection.FROM_LEFT_TO_RIGHT) {
+		} else if (connection.getMappingSide() == Connection.Side.LEFT_TO_RIGHT) {
 			figure.setTargetDecoration(new PolygonDecoration());
 		} else {
 			figure.setSourceDecoration(new PolygonDecoration());
@@ -148,12 +148,12 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	public void propertyChange(PropertyChangeEvent event) {
 		String property = event.getPropertyName();
 		if (Connection.MAPPING_PROP.equals(property)) {
-			if (getCastedModel().getMappingSide() == Connection.DUAL_SIDE) {
+			if (getCastedModel().getMappingSide() == Connection.Side.DUAL) {
 				((PolylineConnection) getFigure())
 						.setTargetDecoration(new PolygonDecoration());
 				((PolylineConnection) getFigure())
 						.setSourceDecoration(new PolygonDecoration());
-			} else if (getCastedModel().getMappingSide() == Connection.FROM_LEFT_TO_RIGHT) {
+			} else if (getCastedModel().getMappingSide() == Connection.Side.LEFT_TO_RIGHT) {
 				((PolylineConnection) getFigure())
 						.setTargetDecoration(new PolygonDecoration());
 				((PolylineConnection) getFigure()).setSourceDecoration(null);

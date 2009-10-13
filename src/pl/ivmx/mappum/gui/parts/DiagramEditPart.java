@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.eclipse.draw2d.ConnectionLayer;
 import org.eclipse.draw2d.Figure;
-import org.eclipse.draw2d.FlowLayout;
 import org.eclipse.draw2d.FreeformLayer;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MarginBorder;
