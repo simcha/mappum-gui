@@ -91,12 +91,12 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 					 * (org.eclipse.gef.requests.CreateConnectionRequest)
 					 */
 					protected Command getConnectionCreateCommand(
-							CreateConnectionRequest request) {
+							final CreateConnectionRequest request) {
 						Shape source = (Shape) getHost().getModel();
-						final Connection.Side style = (Connection.Side) request
+						final Connection.Info info = (Connection.Info) request
 								.getNewObjectType();
 						ConnectionCreateCommand cmd = new ConnectionCreateCommand(
-								source, style);
+								source, info);
 						request.setStartCommand(cmd);
 						return cmd;
 					}

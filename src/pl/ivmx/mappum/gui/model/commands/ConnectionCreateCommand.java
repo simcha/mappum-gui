@@ -14,21 +14,21 @@ public class ConnectionCreateCommand extends Command {
 	/** The connection instance. */
 	private Connection connection;
 	/** The desired line style for the connection (dashed or solid). */
-	private Connection.Side mappingSide;
+	private final Connection.Info connectionInfo;
 
 	/** Start endpoint for the connection. */
 	private final Shape source;
 	/** Target endpoint for the connection. */
 	private Shape target;
 
-	public ConnectionCreateCommand(Shape source,
-			final Connection.Side mappingSide) {
+	public ConnectionCreateCommand(final Shape source,
+			final Connection.Info info) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
 		setLabel("connection creation");
 		this.source = source;
-		this.mappingSide = mappingSide;
+		this.connectionInfo = info;
 	}
 
 	@Override
@@ -52,20 +52,22 @@ public class ConnectionCreateCommand extends Command {
 
 	public void execute() {
 
+		Connection.Side mappingSide = connectionInfo.getSide();
+
 		if (source.getSide() == Shape.Side.RIGHT
 				&& mappingSide == Connection.Side.LEFT_TO_RIGHT) {
 			mappingSide = Connection.Side.RIGHT_TO_LEFT;
 		}
+
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
 			createRubyMapping(target, source, mappingSide, null);
-
 			if (source.isArrayType() != target.isArrayType()) {
 				connection = new Connection(target, source, mappingSide,
-						Connection.Type.VAR_TO_VAR_CONN, 0);
+						connectionInfo.getType(), 0);
 			} else {
 				connection = new Connection(target, source, mappingSide,
-						Connection.Type.VAR_TO_VAR_CONN);
+						connectionInfo.getType());
 			}
 		}
 
@@ -73,20 +75,18 @@ public class ConnectionCreateCommand extends Command {
 			createRubyMapping(source, target, mappingSide, null);
 			if (source.isArrayType() != target.isArrayType()) {
 				connection = new Connection(source, target, mappingSide,
-						Connection.Type.VAR_TO_VAR_CONN, 0);
+						connectionInfo.getType(), 0);
 			} else {
 				connection = new Connection(source, target, mappingSide,
-						Connection.Type.VAR_TO_VAR_CONN);
+						connectionInfo.getType());
 			}
 		}
-
 	}
 
 	public void redo() {
 		createRubyMapping(connection.getSource(), connection.getTarget(),
 				connection.getMappingSide(), connection.getComment());
 		connection.reconnect();
-
 	}
 
 	public void setTarget(Shape target) {

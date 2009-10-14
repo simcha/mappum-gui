@@ -50,6 +50,25 @@ public class Connection extends ModelElement {
 		}
 	}
 
+	public static class Info {
+
+		private final Connection.Side side;
+		private final Connection.Type type;
+
+		public Info(Side side, Type type) {
+			this.side = side;
+			this.type = type;
+		}
+
+		public Side getSide() {
+			return side;
+		}
+
+		public Type getType() {
+			return type;
+		}
+	}
+
 	/** Property ID to use when the line style of this connection is modified. */
 	public static final String MAPPING_PROP = "Connection.Mapping";
 	private static final IPropertyDescriptor[] descriptors = new IPropertyDescriptor[3];
