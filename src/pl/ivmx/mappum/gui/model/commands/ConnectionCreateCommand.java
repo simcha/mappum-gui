@@ -59,14 +59,25 @@ public class ConnectionCreateCommand extends Command {
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
 			createRubyMapping(target, source, mappingSide, null);
-			connection = new Connection(target, source, mappingSide,
-					Connection.Type.VAR_TO_VAR_CONN);
+
+			if (source.isArrayType() != target.isArrayType()) {
+				connection = new Connection(target, source, mappingSide,
+						Connection.Type.VAR_TO_VAR_CONN, 0);
+			} else {
+				connection = new Connection(target, source, mappingSide,
+						Connection.Type.VAR_TO_VAR_CONN);
+			}
 		}
 
 		else {
 			createRubyMapping(source, target, mappingSide, null);
-			connection = new Connection(source, target, mappingSide,
-					Connection.Type.VAR_TO_VAR_CONN);
+			if (source.isArrayType() != target.isArrayType()) {
+				connection = new Connection(source, target, mappingSide,
+						Connection.Type.VAR_TO_VAR_CONN, 0);
+			} else {
+				connection = new Connection(source, target, mappingSide,
+						Connection.Type.VAR_TO_VAR_CONN);
+			}
 		}
 
 	}

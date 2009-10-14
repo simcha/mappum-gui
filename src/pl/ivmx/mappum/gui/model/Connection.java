@@ -95,6 +95,19 @@ public class Connection extends ModelElement {
 		this.comment = "";
 		reconnect(source, target, side);
 	}
+	/**
+	 * Create a (solid) connection between two distinct shapes.
+	 */
+	public Connection(Shape source, Shape target, final Side side,
+			final Type type, int arrayNumber) {
+		this.arrayNumber = arrayNumber;
+		connectionType = type;
+		connections.add(this);
+		source.addToParent();
+		target.addToParent();
+		this.comment = "";
+		reconnect(source, target, side);
+	}
 
 	/**
 	 * Disconnect this connection from the shapes it is attached to.
