@@ -61,22 +61,26 @@ public class ConnectionCreateCommand extends Command {
 
 		// create a new connection between source and target
 		if (source.getSide() == Shape.Side.RIGHT) {
-			createRubyMapping(target, source, mappingSide, null);
+			
 			if (source.isArrayType() != target.isArrayType()) {
+				createRubyMapping(target, source, mappingSide, null, 0);
 				connection = new Connection(target, source, mappingSide,
 						connectionInfo.getType(), 0);
 			} else {
+				createRubyMapping(target, source, mappingSide, null, null);
 				connection = new Connection(target, source, mappingSide,
 						connectionInfo.getType());
 			}
 		}
 
 		else {
-			createRubyMapping(source, target, mappingSide, null);
+			
 			if (source.isArrayType() != target.isArrayType()) {
+				createRubyMapping(source, target, mappingSide, null, 0);
 				connection = new Connection(source, target, mappingSide,
 						connectionInfo.getType(), 0);
 			} else {
+				createRubyMapping(source, target, mappingSide, null, null);
 				connection = new Connection(source, target, mappingSide,
 						connectionInfo.getType());
 			}
@@ -85,7 +89,7 @@ public class ConnectionCreateCommand extends Command {
 
 	public void redo() {
 		createRubyMapping(connection.getSource(), connection.getTarget(),
-				connection.getMappingSide(), connection.getComment());
+				connection.getMappingSide(), connection.getComment(), connection.getArrayNumber());
 		connection.reconnect();
 	}
 
@@ -102,9 +106,9 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	private void createRubyMapping(Shape source, Shape target,
-			final Connection.Side mappingSide, String comment) {
+			final Connection.Side mappingSide, String comment, Integer arrayNumber) {
 		RootNodeHolder.getInstance().addMapping(source, target,
-				Connection.translateSideFromIntToString(mappingSide), comment);
+				Connection.translateSideFromIntToString(mappingSide), comment, arrayNumber);
 
 		String viewId = "org.eclipse.ui.views.PropertySheet";
 
@@ -115,15 +119,22 @@ public class ConnectionCreateCommand extends Command {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		System.out.println(RootNodeHolder.getInstance().findMappingPath(source,
-				target));
 	}
 
 	private void removeRubbyMapping() {
-		RootNodeHolder.getInstance().removeMapping(
-				connection.getSource(),
-				connection.getTarget(),
-				Connection.translateSideFromIntToString(connection
-						.getMappingSide()), connection.getComment());
+		if(connection.getArrayNumber()>-1){
+			RootNodeHolder.getInstance().removeMapping(
+					connection.getSource(),
+					connection.getTarget(),
+					Connection.translateSideFromIntToString(connection
+							.getMappingSide()), connection.getComment(), connection.getArrayNumber());
+		}else{
+			RootNodeHolder.getInstance().removeMapping(
+					connection.getSource(),
+					connection.getTarget(),
+					Connection.translateSideFromIntToString(connection
+							.getMappingSide()), connection.getComment(), null);
+		}
+
 	}
 }

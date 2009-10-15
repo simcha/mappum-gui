@@ -614,6 +614,60 @@ public class RootNodeHolder {
 		return newlineNode;
 	}
 
+	private NewlineNode getFirstNodeArrayElementNumber(NewlineNode node,
+			int elementNum) {
+		if (node != null) {
+			Node fCallNode = node.getNextNode();
+			if (fCallNode != null && fCallNode instanceof FCallNode
+					&& ((FCallNode) fCallNode).getName().equals("map")) {
+				Node callNode = fCallNode.childNodes().get(0).childNodes().get(
+						0);
+				if (callNode != null && callNode instanceof CallNode) {
+					if (findFixNumNode(callNode.childNodes().get(0), null) != findFixNumNode(
+							callNode.childNodes().get(1), null)) {
+						if (findFixNumNode(callNode.childNodes().get(0),
+								elementNum)) {
+							return node;
+						} else if (findFixNumNode(callNode.childNodes().get(1),
+								elementNum)) {
+							return node;
+						}
+					}
+				}
+			}
+			NewlineNode returnNode;
+			if ((returnNode = getFirstNodeArrayElementNumber(
+					getParentMappingNode(node), elementNum)) != null) {
+				return returnNode;
+			}
+		}
+		return null;
+	}
+
+	private boolean checkIfMappingIsVarToArray(NewlineNode node, int elementNum) {
+		if (node != null) {
+			Node fCallNode = node.getNextNode();
+			if (fCallNode != null && fCallNode instanceof FCallNode
+					&& ((FCallNode) fCallNode).getName().equals("map")) {
+				Node callNode = fCallNode.childNodes().get(0).childNodes().get(
+						0);
+				if (callNode != null && callNode instanceof CallNode) {
+					if (findFixNumNode(callNode.childNodes().get(0), null) != findFixNumNode(
+							callNode.childNodes().get(1), null)) {
+						if (findFixNumNode(callNode.childNodes().get(0),
+								elementNum)) {
+							return true;
+						} else if (findFixNumNode(callNode.childNodes().get(1),
+								elementNum)) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	private boolean checkFirstNodeArrayElementNumber(NewlineNode node,
 			int elementNum) {
 		if (node != null) {
@@ -722,8 +776,13 @@ public class RootNodeHolder {
 	 * @param comment
 	 */
 	public void addMapping(Shape leftShape, Shape rightShape, String side,
-			String comment) {
-		List<Integer> path = findMappingPath(leftShape, rightShape);
+			String comment, Integer arrayNumber) {
+		List<Integer> path;
+		if(arrayNumber != null){
+			path = findMappingPath(leftShape, rightShape, arrayNumber);
+		}else{
+			path = findMappingPath(leftShape, rightShape);
+		}
 		NewlineNode node = findRootMappingNode(rootNode);
 		for (int i : path) {
 			node = (NewlineNode) getBlockNode(node).get(i);
@@ -888,8 +947,13 @@ public class RootNodeHolder {
 	 * @throws Exception
 	 */
 	public void removeMapping(Shape leftShape, Shape rightShape, String side,
-			String comment) {
-		List<Integer> path = findMappingPath(leftShape, rightShape);
+			String comment, Integer arrayNumber) {
+		List<Integer> path;
+		if(arrayNumber != null){
+			path = findMappingPath(leftShape, rightShape, arrayNumber);
+		}else{
+			path = findMappingPath(leftShape, rightShape);
+		}
 		NewlineNode node = findRootMappingNode(rootNode);
 		List<NewlineNode> mappingNodesStack = new ArrayList<NewlineNode>();
 		mappingNodesStack.add(node);
@@ -1004,11 +1068,54 @@ public class RootNodeHolder {
 	 */
 	public List<Integer> findMappingPath(Shape leftShape, Shape rightShape) {
 		return findMappingPath(leftShape, rightShape,
-				findRootBlockNode(rootNode), 0, 0);
+				findRootBlockNode(rootNode), 0, 0, null, null, -1);
+	}
+
+	/**
+	 * Finds longest path of mappings already created
+	 * 
+	 * @param leftShape
+	 * @param rightShape
+	 * @return
+	 */
+	public List<Integer> findMappingPath(Shape leftShape, Shape rightShape,
+			int arrayNumber) {
+		List<Shape> leftShapeList = leftShape.getShapeStack();
+		List<Shape> rightShapeList = rightShape.getShapeStack();
+		Collections.reverse(leftShapeList);
+		Collections.reverse(rightShapeList);
+		Shape lastLeftArrayShape = null;
+		Shape lastRightArrayShape = null;
+		int leftCounter = -1;
+		int righCounter = -1;
+		for (Shape tmpShape : leftShapeList) {
+			if (tmpShape.isArrayType()) {
+				lastLeftArrayShape = tmpShape;
+				leftCounter++;
+			}
+		}
+		for (Shape tmpShape : rightShapeList) {
+			if (tmpShape.isArrayType()) {
+				lastRightArrayShape = tmpShape;
+				righCounter++;
+			}
+		}
+		if (leftCounter > righCounter) {
+			lastRightArrayShape = null;
+		} else if (leftCounter < righCounter) {
+			lastLeftArrayShape = null;
+		} else {
+			lastLeftArrayShape = null;
+			lastRightArrayShape = null;
+		}
+		return findMappingPath(leftShape, rightShape,
+				findRootBlockNode(rootNode), 0, 0, lastLeftArrayShape,
+				lastRightArrayShape, arrayNumber);
 	}
 
 	private List<Integer> findMappingPath(Shape leftShape, Shape rightShape,
-			BlockNode rootNode, int leftLevel, int rightLevel) {
+			BlockNode rootNode, int leftLevel, int rightLevel,
+			Shape lastLeftArrayShape, Shape lastRightArrayShape, int arrayNumber) {
 		List<Integer> route = new ArrayList<Integer>();
 		List<Shape> leftShapeList = leftShape.getShapeStack();
 		List<Shape> rightShapeList = rightShape.getShapeStack();
@@ -1023,66 +1130,111 @@ public class RootNodeHolder {
 
 				if (mappingExists(leftShapeList.get(leftLevel).getName(),
 						"self", (NewlineNode) rootNode.childNodes().get(i))) {
-					List<Integer> tmpList = new ArrayList<Integer>();
-					tmpList.add(i);
-					if (getNextChildBlockNode((NewlineNode) rootNode
-							.childNodes().get(i)) != null) {
-						tmpList.addAll(findMappingPath(leftShape, rightShape,
-								getNextChildBlockNode((NewlineNode) rootNode
-										.childNodes().get(i)), leftLevel + 1,
-								rightLevel));
+					if ((lastLeftArrayShape == null)
+							|| (lastLeftArrayShape != null
+									&& lastLeftArrayShape == leftShapeList
+											.get(leftLevel) && checkIfMappingIsVarToArray(
+									(NewlineNode) rootNode.childNodes().get(i),
+									arrayNumber))) {
+						List<Integer> tmpList = new ArrayList<Integer>();
+						tmpList.add(i);
+						if (getNextChildBlockNode((NewlineNode) rootNode
+								.childNodes().get(i)) != null) {
+							tmpList
+									.addAll(findMappingPath(
+											leftShape,
+											rightShape,
+											getNextChildBlockNode((NewlineNode) rootNode
+													.childNodes().get(i)),
+											leftLevel + 1, rightLevel,
+											lastLeftArrayShape,
+											lastRightArrayShape, arrayNumber));
 
+						}
+						routeArray.add(tmpList);
 					}
-					routeArray.add(tmpList);
 				} else if (mappingExists("self", rightShapeList.get(rightLevel)
 						.getName(), (NewlineNode) rootNode.childNodes().get(i))) {
-					List<Integer> tmpList = new ArrayList<Integer>();
-					tmpList.add(i);
-					if (getNextChildBlockNode((NewlineNode) rootNode
-							.childNodes().get(i)) != null) {
-						tmpList.addAll(findMappingPath(leftShape, rightShape,
-								getNextChildBlockNode((NewlineNode) rootNode
-										.childNodes().get(i)), leftLevel,
-								rightLevel + 1));
+					if ((lastRightArrayShape == null)
+							|| (lastRightArrayShape != null
+									&& lastRightArrayShape == rightShapeList
+											.get(rightLevel) && checkIfMappingIsVarToArray(
+									(NewlineNode) rootNode.childNodes().get(i),
+									arrayNumber))) {
+						List<Integer> tmpList = new ArrayList<Integer>();
+						tmpList.add(i);
+						if (getNextChildBlockNode((NewlineNode) rootNode
+								.childNodes().get(i)) != null) {
+							tmpList
+									.addAll(findMappingPath(
+											leftShape,
+											rightShape,
+											getNextChildBlockNode((NewlineNode) rootNode
+													.childNodes().get(i)),
+											leftLevel, rightLevel + 1,
+											lastLeftArrayShape,
+											lastRightArrayShape, arrayNumber));
 
+						}
+						routeArray.add(tmpList);
 					}
-					routeArray.add(tmpList);
 				} else if (mappingExists(
 						leftShapeList.get(leftLevel).getName(), rightShapeList
 								.get(rightLevel).getName(),
 						(NewlineNode) rootNode.childNodes().get(i))) {
-					List<Integer> tmpList = new ArrayList<Integer>();
-					tmpList.add(i);
-					if (getNextChildBlockNode((NewlineNode) rootNode
-							.childNodes().get(i)) != null) {
-						if (leftElements == 1 && rightElements > 1) {
-							tmpList
-									.addAll(findMappingPath(
-											leftShape,
-											rightShape,
-											getNextChildBlockNode((NewlineNode) rootNode
-													.childNodes().get(i)),
-											leftLevel, rightLevel + 1));
-						} else if (leftElements > 1 && rightElements == 1) {
-							tmpList
-									.addAll(findMappingPath(
-											leftShape,
-											rightShape,
-											getNextChildBlockNode((NewlineNode) rootNode
-													.childNodes().get(i)),
-											leftLevel + 1, rightLevel));
-						} else {
-							tmpList
-									.addAll(findMappingPath(
-											leftShape,
-											rightShape,
-											getNextChildBlockNode((NewlineNode) rootNode
-													.childNodes().get(i)),
-											leftLevel + 1, rightLevel + 1));
-						}
+					if ((lastLeftArrayShape == null && lastRightArrayShape == null)
+							|| (lastLeftArrayShape != null
+									&& lastLeftArrayShape == rightShapeList
+											.get(leftLevel) && checkIfMappingIsVarToArray(
+									(NewlineNode) rootNode.childNodes().get(i),
+									arrayNumber))
+							|| (lastRightArrayShape != null
+									&& lastRightArrayShape == rightShapeList
+											.get(rightLevel) && checkIfMappingIsVarToArray(
+									(NewlineNode) rootNode.childNodes().get(i),
+									arrayNumber))) {
+						List<Integer> tmpList = new ArrayList<Integer>();
+						tmpList.add(i);
+						if (getNextChildBlockNode((NewlineNode) rootNode
+								.childNodes().get(i)) != null) {
+							if (leftElements == 1 && rightElements > 1) {
+								tmpList
+										.addAll(findMappingPath(
+												leftShape,
+												rightShape,
+												getNextChildBlockNode((NewlineNode) rootNode
+														.childNodes().get(i)),
+												leftLevel, rightLevel + 1,
+												lastLeftArrayShape,
+												lastRightArrayShape,
+												arrayNumber));
+							} else if (leftElements > 1 && rightElements == 1) {
+								tmpList
+										.addAll(findMappingPath(
+												leftShape,
+												rightShape,
+												getNextChildBlockNode((NewlineNode) rootNode
+														.childNodes().get(i)),
+												leftLevel + 1, rightLevel,
+												lastLeftArrayShape,
+												lastRightArrayShape,
+												arrayNumber));
+							} else {
+								tmpList
+										.addAll(findMappingPath(
+												leftShape,
+												rightShape,
+												getNextChildBlockNode((NewlineNode) rootNode
+														.childNodes().get(i)),
+												leftLevel + 1, rightLevel + 1,
+												lastLeftArrayShape,
+												lastRightArrayShape,
+												arrayNumber));
+							}
 
+						}
+						routeArray.add(tmpList);
 					}
-					routeArray.add(tmpList);
 				}
 			}
 

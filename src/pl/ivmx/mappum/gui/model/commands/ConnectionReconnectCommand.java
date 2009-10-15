@@ -24,6 +24,7 @@ public class ConnectionReconnectCommand extends Command {
 	private final Shape oldTarget;
 	private final String oldComment;
 	private final Connection.Side oldSide;
+	private Integer oldArrayNumber;
 
 	/**
 	 * Instantiate a command that can reconnect a Connection instance to a
@@ -43,6 +44,8 @@ public class ConnectionReconnectCommand extends Command {
 		this.oldTarget = conn.getTarget();
 		this.oldComment = conn.getComment();
 		this.oldSide = conn.getMappingSide();
+		if (conn.getArrayNumber() > -1)
+			this.oldArrayNumber = conn.getArrayNumber();
 	}
 
 	/*
@@ -136,13 +139,21 @@ public class ConnectionReconnectCommand extends Command {
 	 */
 	public void execute() {
 		if (newSource != null) {
-			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment);
-			createRubyMapping(newSource, oldTarget, oldSide, oldComment);
+			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment, oldArrayNumber);
+			if (newSource.isArrayType() && !oldTarget.isArrayType()){
+				createRubyMapping(newSource, oldTarget, oldSide, oldComment, 0);
+			}else{
+				createRubyMapping(newSource, oldTarget, oldSide, oldComment, null);
+			}
 			connection.reconnect(newSource, oldTarget, oldSide);
 
 		} else if (newTarget != null) {
-			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment);
-			createRubyMapping(oldSource, newTarget, oldSide, oldComment);
+			removeRubbyMapping(oldSource, oldTarget, oldSide, oldComment, oldArrayNumber);
+			if(newTarget.isArrayType() && !oldSource.isArrayType()){
+				createRubyMapping(oldSource, newTarget, oldSide, oldComment, 0);
+			}else{
+				createRubyMapping(oldSource, newTarget, oldSide, oldComment, null);
+			}
 			connection.reconnect(oldSource, newTarget, oldSide);
 		} else {
 			throw new IllegalStateException("Should not happen");
@@ -201,17 +212,24 @@ public class ConnectionReconnectCommand extends Command {
 	 * Reconnect the connection to its original source and target endpoints.
 	 */
 	public void undo() {
-		removeRubbyMapping(connection.getSource(), connection.getTarget(),
-				connection.getMappingSide(), connection.getComment());
+		if (connection.getArrayNumber() > -1)
+			removeRubbyMapping(connection.getSource(), connection.getTarget(),
+					connection.getMappingSide(), connection.getComment(),
+					connection.getArrayNumber());
+		else
+			removeRubbyMapping(connection.getSource(), connection.getTarget(),
+					connection.getMappingSide(), connection.getComment(), null);
 		connection.reconnect(oldSource, oldTarget, oldSide);
 		connection.setComment(oldComment);
-		createRubyMapping(oldSource, oldTarget, oldSide, oldComment);
+		createRubyMapping(oldSource, oldTarget, oldSide, oldComment,
+				oldArrayNumber);
 	}
 
 	private void createRubyMapping(Shape source, Shape target,
-			final Connection.Side side, String comment) {
+			final Connection.Side side, String comment, Integer arrayNumber) {
 		RootNodeHolder.getInstance().addMapping(source, target,
-				Connection.translateSideFromIntToString(side), comment);
+				Connection.translateSideFromIntToString(side), comment,
+				arrayNumber);
 
 		String viewId = "org.eclipse.ui.views.PropertySheet";
 
@@ -225,9 +243,10 @@ public class ConnectionReconnectCommand extends Command {
 	}
 
 	private void removeRubbyMapping(Shape source, Shape target,
-			final Connection.Side side, String comment) {
+			final Connection.Side side, String comment, Integer arrayNumber) {
 		RootNodeHolder.getInstance().removeMapping(source, target,
-				Connection.translateSideFromIntToString(side), comment);
+				Connection.translateSideFromIntToString(side), comment,
+				arrayNumber);
 	}
 
 }

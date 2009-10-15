@@ -48,15 +48,24 @@ public class ConnectionDeleteCommand extends Command {
 	public void undo() {
 		createRubyMapping();
 		connection.reconnect();
-		
+
 	}
 
 	private void createRubyMapping() {
-		RootNodeHolder.getInstance().addMapping(
-				connection.getSource(),
-				connection.getTarget(),
-				Connection.translateSideFromIntToString(connection
-						.getMappingSide()), connection.getComment());
+		if (connection.getArrayNumber() > -1) {
+			RootNodeHolder.getInstance().addMapping(
+					connection.getSource(),
+					connection.getTarget(),
+					Connection.translateSideFromIntToString(connection
+							.getMappingSide()), connection.getComment(),
+					connection.getArrayNumber());
+		} else {
+			RootNodeHolder.getInstance().addMapping(
+					connection.getSource(),
+					connection.getTarget(),
+					Connection.translateSideFromIntToString(connection
+							.getMappingSide()), connection.getComment(), 0);
+		}
 
 		String viewId = "org.eclipse.ui.views.PropertySheet";
 
@@ -70,10 +79,19 @@ public class ConnectionDeleteCommand extends Command {
 	}
 
 	private void removeRubbyMapping() {
-		RootNodeHolder.getInstance().removeMapping(
-				connection.getSource(),
-				connection.getTarget(),
-				Connection.translateSideFromIntToString(connection
-						.getMappingSide()), connection.getComment());
+		if (connection.getArrayNumber() > -1) {
+			RootNodeHolder.getInstance().removeMapping(
+					connection.getSource(),
+					connection.getTarget(),
+					Connection.translateSideFromIntToString(connection
+							.getMappingSide()), connection.getComment(),
+					connection.getArrayNumber());
+		} else {
+			RootNodeHolder.getInstance().removeMapping(
+					connection.getSource(),
+					connection.getTarget(),
+					Connection.translateSideFromIntToString(connection
+							.getMappingSide()), connection.getComment(), null);
+		}
 	}
 }
