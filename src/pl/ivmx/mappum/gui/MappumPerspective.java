@@ -56,7 +56,7 @@ public class MappumPerspective implements IPerspectiveFactory {
 				IPageLayout.BOTTOM,
 				0.75f,
 				factory.getEditorArea());
-		bottom.addView(IPageLayout.ID_PROBLEM_VIEW);
+		bottom.addView(IPageLayout.ID_PROP_SHEET);
 		bottom.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
 	}
 
