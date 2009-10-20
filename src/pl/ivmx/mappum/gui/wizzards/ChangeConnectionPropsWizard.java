@@ -55,8 +55,6 @@ public class ChangeConnectionPropsWizard extends Wizard {
 							+ "Do you wish to continue?");
 			if (mb.open() == SWT.YES) {
 				final RootNodeHolder nodeHolder = RootNodeHolder.getInstance();
-				nodeHolder.changeMappingAtributes(connection, null, mainPage
-						.getRubyComment());
 				final Node parentNode = nodeHolder.getParentNode(connection
 						.getMappingNode(), nodeHolder.getRootNode());
 				int pointer = 0;
