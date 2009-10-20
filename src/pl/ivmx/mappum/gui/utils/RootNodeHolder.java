@@ -38,6 +38,8 @@ public class RootNodeHolder {
 	private static final String MAPPUM_STR = "mappum";
 	private static final String REQUIRE_STR = "require";
 	private static final String CATALOGUE_STR = "catalogue_add";
+	public static final int LEFT_ELEM_ARRAY_CHANGE = 1;
+	public static final int RIGHT_ELEM_ARRAY_CHANGE = 2;
 
 	private Node rootNode;
 	private List<String> usedIdent = new ArrayList<String>();
@@ -718,8 +720,61 @@ public class RootNodeHolder {
 		return false;
 	}
 
+	private CallNode[] addArrayElementDeclaration(CallNode leftSide,
+			CallNode rightSide, Integer arrayElementSide, Integer arrayNumber) {
+		if (arrayElementSide != null) {
+			CallNode arrayNode = null;
+			if (arrayElementSide.equals(LEFT_ELEM_ARRAY_CHANGE)) {
+				if (leftSide.getName().equals("[]")) {
+					arrayNode = leftSide;
+				}
+			} else if (arrayElementSide.equals(RIGHT_ELEM_ARRAY_CHANGE)) {
+				if (rightSide.getName().equals("[]")) {
+					arrayNode = rightSide;
+				}
+			}
+			if (arrayNode != null) {
+				Node parentNode = getParentNode(arrayNode, rootNode);
+
+				FixnumNode fixnumNode = new FixnumNode(new SourcePosition(),
+						arrayNumber.longValue());
+				ArrayNode node = new ArrayNode(new SourcePosition(), fixnumNode);
+				CallNode newArrayNode = new CallNode(new SourcePosition(),
+						arrayNode.getReceiverNode(), arrayNode.getName(), node,
+						arrayNode.getIterNode());
+				if (parentNode instanceof CallNode) {
+					CallNode callNode = (CallNode) parentNode;
+					if (callNode.getArgsNode().equals(arrayNode)) {
+						callNode.setArgsNode(newArrayNode);
+					} else if (callNode.getIterNode().equals(arrayNode)) {
+						callNode.setIterNode(newArrayNode);
+					} else if (callNode.getReceiverNode().equals(arrayNode)) {
+						callNode.setReceiverNode(arrayNode);
+					}
+				}else if(parentNode instanceof ArrayNode){
+					ArrayNode aNode = (ArrayNode) parentNode;
+					aNode.childNodes().set(0, arrayNode);
+				}
+				if (arrayElementSide.equals(RIGHT_ELEM_ARRAY_CHANGE)
+						&& rightSide.getName().equals("[]")) {
+					rightSide = newArrayNode;
+				} else if (arrayElementSide.equals(LEFT_ELEM_ARRAY_CHANGE)
+						&& leftSide.getName().equals("[]")) {
+					leftSide = newArrayNode;
+				}
+
+			}
+		}
+		return new CallNode[] { leftSide, rightSide };
+	}
+
 	private NewlineNode generateSimpleMapping(CallNode leftSide,
-			CallNode rightSide, String side, NewlineNode parentMapping) {
+			CallNode rightSide, String side, NewlineNode parentMapping,
+			Integer arrayElementSide, Integer arrayNumber) {
+		CallNode[] nodes = addArrayElementDeclaration(leftSide, rightSide,
+				arrayElementSide, arrayNumber);
+		leftSide = nodes[0];
+		rightSide = nodes[1];
 		System.out.println("Mapping: " + leftSide.getName() + ", "
 				+ rightSide.getName() + ", side:" + side);
 		ArrayNode argsNode = new ArrayNode(new SourcePosition(), rightSide);
@@ -778,9 +833,9 @@ public class RootNodeHolder {
 	public void addMapping(Shape leftShape, Shape rightShape, String side,
 			String comment, Integer arrayNumber) {
 		List<Integer> path;
-		if(arrayNumber != null){
+		if (arrayNumber != null) {
 			path = findMappingPath(leftShape, rightShape, arrayNumber);
-		}else{
+		} else {
 			path = findMappingPath(leftShape, rightShape);
 		}
 		NewlineNode node = findRootMappingNode(rootNode);
@@ -812,6 +867,7 @@ public class RootNodeHolder {
 			leftShapeList.remove(0);
 			rightShapeList.remove(0);
 		}
+		Pair lastArrayShape = findLastArrayShape(leftShapeList, rightShapeList);
 
 		int n = 0;
 		if (leftShapeList.size() > rightShapeList.size()) {
@@ -825,12 +881,35 @@ public class RootNodeHolder {
 			if ((leftShapeList.size() > 1 && rightShapeList.size() > 1)
 					|| (leftShapeList.size() == 1 && rightShapeList.size() > 1)
 					|| (leftShapeList.size() > 1 && rightShapeList.size() == 1)) {
-				tmpNode = generateComplexMapping(
-						leftShapeList.get(0).getShapeNode(),
-						rightShapeList.get(0).getShapeNode(),
-						Connection
-								.translateSideFromIntToString(Connection.Side.DUAL),
-						node, BOTH_DASGN_CHANGE);
+				if (lastArrayShape.getLeftShape() != null
+						&& lastArrayShape.getLeftShape().equals(
+								leftShapeList.get(0))) {
+					tmpNode = generateComplexMapping(
+							leftShapeList.get(0).getShapeNode(),
+							rightShapeList.get(0).getShapeNode(),
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, LEFT_ELEM_ARRAY_CHANGE,
+							arrayNumber);
+				} else if (lastArrayShape.getRightShape() != null
+						&& lastArrayShape.getRightShape().equals(
+								rightShapeList.get(0))) {
+					tmpNode = generateComplexMapping(
+							leftShapeList.get(0).getShapeNode(),
+							rightShapeList.get(0).getShapeNode(),
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, RIGHT_ELEM_ARRAY_CHANGE,
+							arrayNumber);
+				} else {
+					tmpNode = generateComplexMapping(
+							leftShapeList.get(0).getShapeNode(),
+							rightShapeList.get(0).getShapeNode(),
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, null, null);
+				}
+
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
@@ -846,11 +925,24 @@ public class RootNodeHolder {
 						"changeMe");
 				CallNode selfNode = new CallNode(new SourcePosition(),
 						dVarNode, "self", listNode);
-
-				tmpNode = generateComplexMapping(leftShapeList.get(0)
-						.getShapeNode(), selfNode, Connection
-						.translateSideFromIntToString(Connection.Side.DUAL),
-						node, BOTH_DASGN_CHANGE);
+				if (lastArrayShape.getLeftShape() != null
+						&& lastArrayShape.getLeftShape().equals(
+								leftShapeList.get(0))) {
+					tmpNode = generateComplexMapping(
+							leftShapeList.get(0).getShapeNode(),
+							selfNode,
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, LEFT_ELEM_ARRAY_CHANGE,
+							arrayNumber);
+				} else {
+					tmpNode = generateComplexMapping(
+							leftShapeList.get(0).getShapeNode(),
+							selfNode,
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, null, null);
+				}
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
@@ -865,11 +957,24 @@ public class RootNodeHolder {
 						"changeMe");
 				CallNode selfNode = new CallNode(new SourcePosition(),
 						dVarNode, "self", listNode);
-
-				tmpNode = generateComplexMapping(selfNode, rightShapeList
-						.get(0).getShapeNode(), Connection
-						.translateSideFromIntToString(Connection.Side.DUAL),
-						node, BOTH_DASGN_CHANGE);
+				if (lastArrayShape.getRightShape() != null
+						&& lastArrayShape.getRightShape().equals(
+								rightShapeList.get(0))) {
+					tmpNode = generateComplexMapping(
+							selfNode,
+							rightShapeList.get(0).getShapeNode(),
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, RIGHT_ELEM_ARRAY_CHANGE,
+							arrayNumber);
+				} else {
+					tmpNode = generateComplexMapping(
+							selfNode,
+							rightShapeList.get(0).getShapeNode(),
+							Connection
+									.translateSideFromIntToString(Connection.Side.DUAL),
+							node, BOTH_DASGN_CHANGE, null, null);
+				}
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
@@ -879,9 +984,25 @@ public class RootNodeHolder {
 			}
 
 			else if (leftShapeList.size() == 1 && rightShapeList.size() == 1) {
-				tmpNode = generateSimpleMapping(leftShapeList.get(0)
-						.getShapeNode(), rightShapeList.get(0).getShapeNode(),
-						side, node);
+				if (lastArrayShape.getLeftShape() != null
+						&& lastArrayShape.getLeftShape().equals(
+								leftShapeList.get(0))) {
+					tmpNode = generateSimpleMapping(leftShapeList.get(0)
+							.getShapeNode(), rightShapeList.get(0)
+							.getShapeNode(), side, node,
+							LEFT_ELEM_ARRAY_CHANGE, arrayNumber);
+				} else if (lastArrayShape.getRightShape() != null
+						&& lastArrayShape.getRightShape().equals(
+								rightShapeList.get(0))) {
+					tmpNode = generateSimpleMapping(leftShapeList.get(0)
+							.getShapeNode(), rightShapeList.get(0)
+							.getShapeNode(), side, node,
+							RIGHT_ELEM_ARRAY_CHANGE, arrayNumber);
+				} else {
+					tmpNode = generateSimpleMapping(leftShapeList.get(0)
+							.getShapeNode(), rightShapeList.get(0)
+							.getShapeNode(), side, node, null, null);
+				}
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
@@ -901,8 +1022,17 @@ public class RootNodeHolder {
 				if (tmpNode == null) {
 					tmpNode = node;
 				}
-				tmpNode = generateSimpleMapping(leftShapeList.get(index)
-						.getShapeNode(), selfNode, side, tmpNode);
+				if (lastArrayShape.getLeftShape() != null
+						&& lastArrayShape.getLeftShape().equals(
+								leftShapeList.get(index))) {
+					tmpNode = generateSimpleMapping(leftShapeList.get(index)
+							.getShapeNode(), selfNode, side, tmpNode,
+							LEFT_ELEM_ARRAY_CHANGE, arrayNumber);
+				} else {
+					tmpNode = generateSimpleMapping(leftShapeList.get(index)
+							.getShapeNode(), selfNode, side, tmpNode, null,
+							null);
+				}
 				leftShapeList.clear();
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
@@ -921,8 +1051,17 @@ public class RootNodeHolder {
 				if (tmpNode == null) {
 					tmpNode = node;
 				}
-				tmpNode = generateSimpleMapping(selfNode, rightShapeList.get(
-						index).getShapeNode(), side, tmpNode);
+				if (lastArrayShape.getRightShape() != null
+						&& lastArrayShape.getRightShape().equals(
+								rightShapeList.get(index))) {
+					tmpNode = generateSimpleMapping(selfNode, rightShapeList
+							.get(index).getShapeNode(), side, tmpNode,
+							RIGHT_ELEM_ARRAY_CHANGE, arrayNumber);
+				} else {
+					tmpNode = generateSimpleMapping(selfNode, rightShapeList
+							.get(index).getShapeNode(), side, tmpNode, null,
+							null);
+				}
 				rightShapeList.clear();
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
@@ -949,9 +1088,9 @@ public class RootNodeHolder {
 	public void removeMapping(Shape leftShape, Shape rightShape, String side,
 			String comment, Integer arrayNumber) {
 		List<Integer> path;
-		if(arrayNumber != null){
+		if (arrayNumber != null) {
 			path = findMappingPath(leftShape, rightShape, arrayNumber);
-		}else{
+		} else {
 			path = findMappingPath(leftShape, rightShape);
 		}
 		NewlineNode node = findRootMappingNode(rootNode);
@@ -1071,19 +1210,8 @@ public class RootNodeHolder {
 				findRootBlockNode(rootNode), 0, 0, null, null, -1);
 	}
 
-	/**
-	 * Finds longest path of mappings already created
-	 * 
-	 * @param leftShape
-	 * @param rightShape
-	 * @return
-	 */
-	public List<Integer> findMappingPath(Shape leftShape, Shape rightShape,
-			int arrayNumber) {
-		List<Shape> leftShapeList = leftShape.getShapeStack();
-		List<Shape> rightShapeList = rightShape.getShapeStack();
-		Collections.reverse(leftShapeList);
-		Collections.reverse(rightShapeList);
+	private Pair findLastArrayShape(List<Shape> leftShapeList,
+			List<Shape> rightShapeList) {
 		Shape lastLeftArrayShape = null;
 		Shape lastRightArrayShape = null;
 		int leftCounter = -1;
@@ -1108,9 +1236,26 @@ public class RootNodeHolder {
 			lastLeftArrayShape = null;
 			lastRightArrayShape = null;
 		}
+		return new Pair(lastLeftArrayShape, lastRightArrayShape);
+	}
+
+	/**
+	 * Finds longest path of mappings already created
+	 * 
+	 * @param leftShape
+	 * @param rightShape
+	 * @return
+	 */
+	public List<Integer> findMappingPath(Shape leftShape, Shape rightShape,
+			int arrayNumber) {
+		List<Shape> leftShapeList = leftShape.getShapeStack();
+		List<Shape> rightShapeList = rightShape.getShapeStack();
+		Collections.reverse(leftShapeList);
+		Collections.reverse(rightShapeList);
+		Pair pair = findLastArrayShape(leftShapeList, rightShapeList);
 		return findMappingPath(leftShape, rightShape,
-				findRootBlockNode(rootNode), 0, 0, lastLeftArrayShape,
-				lastRightArrayShape, arrayNumber);
+				findRootBlockNode(rootNode), 0, 0, pair.getLeftShape(), pair
+						.getRightShape(), arrayNumber);
 	}
 
 	private List<Integer> findMappingPath(Shape leftShape, Shape rightShape,
@@ -1400,9 +1545,11 @@ public class RootNodeHolder {
 	 */
 	private NewlineNode generateComplexMapping(CallNode leftSide,
 			CallNode rightSide, String side, NewlineNode parentMapping,
-			int whichDAsagnChange) {
-		System.out.println("Mapping: " + leftSide.getName() + ", "
-				+ rightSide.getName() + ", side:" + side);
+			int whichDAsagnChange, Integer arrayElementSide, Integer arrayNumber) {
+		CallNode[] nodes = addArrayElementDeclaration(leftSide, rightSide,
+				arrayElementSide, arrayNumber);
+		leftSide = nodes[0];
+		rightSide = nodes[1];
 		String leftPrefix = generateRandomIdent();
 		String rightPrefix = generateRandomIdent();
 		String[] s = findDVars(parentMapping);

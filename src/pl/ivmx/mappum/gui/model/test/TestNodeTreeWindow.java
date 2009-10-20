@@ -9,6 +9,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.eclipse.core.runtime.CoreException;
+import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.INameNode;
 import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.Node;
@@ -59,11 +60,9 @@ public class TestNodeTreeWindow extends JFrame {
 				newNode = new DefaultMutableTreeNode(child.getNodeType() + ":"
 						+ ((INameNode) child).getName());
 			} else {
-				if (child instanceof IterNode) {
-					System.out.println("IterNode scope: "
-							+ ((IterNode) child).getScope() + ", varNode: "
-							+ ((IterNode) child).getVarNode() + ", bodyNode: "
-							+ ((IterNode) child).getBodyNode());
+				if (child instanceof CallNode) {
+					System.out.println("CallNode: "
+							+ ((CallNode) child));
 				}
 
 				newNode = new DefaultMutableTreeNode(child.getNodeType());

@@ -135,6 +135,10 @@ public class CallNode extends Node implements INameNode, IArgumentNode,
 	public Node getReceiverNode() {
 		return receiverNode;
 	}
+	public Node setReceiverNode(Node receiverNode) {
+		this.receiverNode = receiverNode;
+		return receiverNode;
+	}
 
 	public List<Node> childNodes() {
 		return Node.createList(receiverNode, argsNode, iterNode);

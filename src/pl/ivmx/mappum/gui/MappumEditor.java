@@ -52,6 +52,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
+import pl.ivmx.mappum.gui.model.test.TestNodeTreeWindow;
 import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
@@ -109,16 +110,18 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						monitor.worked(35);
 						ModelGeneratorFromXML.getInstance()
 								.addFieldsFromRubyModel(
-										Shape.getRootShapes().get(0).getFullName(),
-										Shape.getRootShapes().get(1).getFullName());
+										Shape.getRootShapes().get(0)
+												.getFullName(),
+										Shape.getRootShapes().get(1)
+												.getFullName());
 						monitor.worked(75);
 						ModelGenerator.getInstance()
 								.generateModelChildElements();
 						monitor.worked(85);
 						RootNodeHolder.generateRootBlockNode(RootNodeHolder
 								.getInstance().getRootNode());
-						// new TestNodeTreeWindow(RootNodeHolder.getInstance()
-						// .getRootNode());
+						TestNodeTreeWindow.show(RootNodeHolder.getInstance()
+								.getRootNode());
 
 					} catch (CoreException e) {
 						e.printStackTrace();
