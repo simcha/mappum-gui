@@ -52,9 +52,11 @@ import org.eclipse.ui.part.FileEditorInput;
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
+import pl.ivmx.mappum.gui.model.Shape.SourceType;
 import pl.ivmx.mappum.gui.model.test.TestNodeTreeWindow;
 import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
+import pl.ivmx.mappum.gui.utils.ModelGeneratorFromJava;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
 
@@ -105,15 +107,41 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						ModelGenerator.getInstance().generateModelRootElements(
 								file);
 						monitor.worked(25);
-						ModelGeneratorFromXML.getInstance().generateModel(
-								file.getProject());
-						monitor.worked(35);
-						ModelGeneratorFromXML.getInstance()
-								.addFieldsFromRubyModel(
-										Shape.getRootShapes().get(0)
-												.getFullName(),
-										Shape.getRootShapes().get(1)
-												.getFullName());
+						if (Shape.getRootShapes().get(0).getSourceType() == SourceType.JAVA
+								&& Shape.getRootShapes().get(1).getSourceType() == SourceType.JAVA) {
+							try {
+								ModelGeneratorFromJava
+										.getInstance()
+										.addFieldsFromJavaModel(
+												"Java::"
+														+ Shape
+																.getRootShapes()
+																.get(0)
+																.getPackageAndName(),
+												"Java::"
+														+ Shape
+																.getRootShapes()
+																.get(1)
+																.getPackageAndName());
+							} catch (IllegalArgumentException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (ClassNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else {
+							ModelGeneratorFromXML.getInstance().generateModel(
+									file.getProject());
+							monitor.worked(35);
+							ModelGeneratorFromXML.getInstance()
+									.addFieldsFromRubyModel(
+											Shape.getRootShapes().get(0)
+													.getFullName(),
+											Shape.getRootShapes().get(1)
+													.getFullName());
+						}
+
 						monitor.worked(75);
 						ModelGenerator.getInstance()
 								.generateModelChildElements();

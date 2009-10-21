@@ -28,6 +28,7 @@ import org.jrubyparser.rewriter.ReWriteVisitor;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
+import pl.ivmx.mappum.gui.model.Shape.SourceType;
 import pl.ivmx.mappum.gui.model.test.TestNodeTreeWindow;
 
 public class ModelGenerator {
@@ -776,12 +777,20 @@ public class ModelGenerator {
 							.getName(), ((ConstNode) ((Colon2Node) preChild)
 							.getLeftNode()).getName(), parents.getLeftShape(),
 							Shape.Side.LEFT, null);
+					if (((ConstNode) ((Colon2Node) preChild).getLeftNode())
+							.getName().equals("Java")) {
+						leftElement.setSourceType(SourceType.JAVA);
+					}
 					left = false;
 				} else {
 					rightElement = Shape.createShape(((Colon2Node) preChild)
 							.getName(), ((ConstNode) ((Colon2Node) preChild)
 							.getLeftNode()).getName(), parents.getRightShape(),
 							Shape.Side.RIGHT, null);
+					if (((ConstNode) ((Colon2Node) preChild).getLeftNode())
+							.getName().equals("Java")) {
+						rightElement.setSourceType(SourceType.JAVA);
+					}
 					left = true;
 				}
 			} else if (preChild instanceof SymbolNode) {
@@ -806,6 +815,58 @@ public class ModelGenerator {
 					rightElement = Shape.createShape(((ConstNode) preChild)
 							.getName(), null, parents.getRightShape(),
 							Shape.Side.RIGHT, null);
+					left = true;
+				}
+			} else if (preChild instanceof CallNode) {
+				if (left) {
+					leftElement = Shape.createShape(((CallNode) preChild)
+							.getName(), null, parents.getLeftShape(),
+							Shape.Side.LEFT, null);
+					String prefix = "";
+					Node tmpNode = preChild.childNodes().get(0);
+					while (tmpNode instanceof CallNode) {
+						if (prefix.equals("")) {
+							prefix = ((CallNode) tmpNode).getName();
+						} else {
+							prefix = ((CallNode) tmpNode).getName() + "."
+									+ prefix;
+						}
+						if (tmpNode.childNodes().size() > 0) {
+							tmpNode = tmpNode.childNodes().get(0);
+						} else {
+							break;
+						}
+					}
+					if (tmpNode instanceof ConstNode) {
+						if (((ConstNode) tmpNode).getName().equals("Java"))
+							leftElement.setSourceType(SourceType.JAVA);
+					}
+					leftElement.setOptionalJavaPackage(prefix);
+					left = false;
+				} else {
+					rightElement = Shape.createShape(((CallNode) preChild)
+							.getName(), null, parents.getRightShape(),
+							Shape.Side.RIGHT, null);
+					String prefix = "";
+					Node tmpNode = preChild.childNodes().get(0);
+					while (tmpNode instanceof CallNode) {
+						if (prefix.equals("")) {
+							prefix = ((CallNode) tmpNode).getName();
+						} else {
+							prefix = ((CallNode) tmpNode).getName() + "."
+									+ prefix;
+						}
+						if (tmpNode.childNodes().size() > 0) {
+							tmpNode = tmpNode.childNodes().get(0);
+						} else {
+							break;
+						}
+					}
+					if (tmpNode instanceof ConstNode) {
+						if (((ConstNode) tmpNode).getName().equals("Java"))
+							rightElement.setSourceType(SourceType.JAVA);
+					}
+					rightElement.setOptionalJavaPackage(prefix);
 					left = true;
 				}
 			}

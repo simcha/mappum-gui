@@ -16,6 +16,9 @@ public class Shape extends ModelElement {
 	public static enum Side {
 		LEFT, RIGHT;
 	}
+	public static enum SourceType {
+		RUBY, JAVA;
+	}
 
 	private final Logger logger = Logger.getLogger(Shape.class);
 	private static IPropertyDescriptor[] descriptors;
@@ -47,6 +50,8 @@ public class Shape extends ModelElement {
 
 	private boolean arrayType = false;
 	private List<Integer> arrayCounters = new ArrayList<Integer>();
+	private SourceType sourceType;
+	private String optionalJavaPackage;
 
 	private CallNode shapeNode;
 	static {
@@ -280,6 +285,14 @@ public class Shape extends ModelElement {
 		else
 			return name;
 	}
+	public String getPackageAndName() {
+		if(optionalJavaPackage!=null){
+			if(!optionalJavaPackage.equals("")){
+				return optionalJavaPackage + "." + name;
+			}
+		}
+		return name;
+	}
 
 	/**
 	 * Returns all parents of the shape without rootParent
@@ -316,6 +329,22 @@ public class Shape extends ModelElement {
 
 	public List<Integer> getArrayCounters() {
 		return arrayCounters;
+	}
+
+	public void setSourceType(SourceType sourceType) {
+		this.sourceType = sourceType;
+	}
+
+	public SourceType getSourceType() {
+		return sourceType;
+	}
+
+	public void setOptionalJavaPackage(String optionalJavaPackage) {
+		this.optionalJavaPackage = optionalJavaPackage;
+	}
+
+	public String getOptionalJavaPackage() {
+		return optionalJavaPackage;
 	}
 
 }
