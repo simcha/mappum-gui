@@ -21,9 +21,7 @@ public interface IJavaModelGenerator {
 	 *             when <code>clazz</code> is not found on classpath
 	 * @throws IllegalArgumentException
 	 *             when <code>clazz</code> is not prefixed with "Java::"
-	 * @return <code>true</code> if element was added, <code>false</code>
-	 *         otherwise
 	 */
-	public boolean generate(final String clazz, final List<TreeElement> model)
+	public void generate(final String clazz, final List<TreeElement> model)
 			throws ClassNotFoundException, IllegalArgumentException;
 }
