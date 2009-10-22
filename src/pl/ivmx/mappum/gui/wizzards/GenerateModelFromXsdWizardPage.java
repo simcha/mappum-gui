@@ -242,7 +242,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	}
 
 	public boolean isPageComplete() {
-
 		if (!isPageComplete0(leftJavaCheckbox, leftSelectedTypeText, leftTree)
 				|| !isPageComplete0(rightJavaCheckbox, rightSelectedTypeText,
 						rightTree)) {

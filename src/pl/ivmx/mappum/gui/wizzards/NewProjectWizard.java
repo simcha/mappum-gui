@@ -3,6 +3,7 @@ package pl.ivmx.mappum.gui.wizzards;
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -17,7 +18,8 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.ProjectProperties;
 
-public class NewProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
+public class NewProjectWizard extends Wizard implements INewWizard,
+		IExecutableExtension {
 	private NewProjectWizardPage page;
 	private Logger logger = Logger.getLogger(NewProjectWizard.class);
 	private IConfigurationElement configElement;
@@ -30,7 +32,7 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 
 		return ResourcesPlugin.getWorkspace().getRoot().getFolder(folderPath);
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		IProject projectHandle = page.getProjectHandle();
@@ -85,7 +87,23 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 		logger.debug("New Project wizzard ended. Created new mappum project: "
 				+ projectHandle.getName());
 		BasicNewProjectResourceWizard.updatePerspective(configElement);
+
+		addJavaNature(projectHandle);
 		return true;
+	}
+
+	private void addJavaNature(final IProject project) {
+		try {
+			final IProjectDescription description = project.getDescription();
+			String[] natures = description.getNatureIds();
+			String[] newNatures = new String[natures.length + 1];
+			System.arraycopy(natures, 0, newNatures, 0, natures.length);
+			newNatures[natures.length] = "org.eclipse.jdt.core.javanature";
+			description.setNatureIds(newNatures);
+			project.setDescription(description, null);
+		} catch (final CoreException e) {
+
+		}
 	}
 
 	@Override
@@ -105,7 +123,7 @@ public class NewProjectWizard extends Wizard implements INewWizard, IExecutableE
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
 		this.configElement = config;
-		
+
 	}
 
 }

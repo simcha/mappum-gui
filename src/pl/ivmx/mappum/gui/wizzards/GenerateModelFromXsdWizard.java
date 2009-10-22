@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
@@ -58,8 +59,8 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		logger.debug("Generate model from XSD schema wizard started.");
 		setWindowTitle("Generate model from XSD schema"); // NON-NLS-1
 		setNeedsProgressMonitor(true);
-		if (selection.getFirstElement() instanceof IProject) {
-			project = (IProject) selection.getFirstElement();
+		if (selection.getFirstElement() instanceof IJavaProject) {
+			project = ((IJavaProject) selection.getFirstElement()).getProject();
 		}
 		page = new GenerateModelFromXsdWizardPage(
 				"Generate model from XSD schema");
