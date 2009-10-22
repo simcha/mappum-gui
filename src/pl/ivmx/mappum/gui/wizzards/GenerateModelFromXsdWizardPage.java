@@ -11,14 +11,17 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import pl.ivmx.mappum.TreeElement;
+import pl.ivmx.mappum.gui.utils.java.IJavaModelGenerator;
 
 public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		Listener {
@@ -103,20 +106,109 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		}
 	}
 
+	private Text createSelectedTypeText(final Composite c) {
+
+		final Text t = new Text(c, SWT.SINGLE | SWT.BORDER);
+
+		t.setEnabled(false);
+		t.setEditable(false);
+		t.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		return t;
+	}
+
+	private Listener createChecboxListener(final Button c, final Button b,
+			final Text text, final Tree tree) {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (c.getSelection()) {
+					tree.setEnabled(false);
+					b.setEnabled(true);
+					text.setEnabled(true);
+				} else {
+					tree.setEnabled(true);
+					b.setEnabled(false);
+					text.setEnabled(false);
+				}
+			}
+		};
+	}
+
+	private Button createCheckbox(final Composite c) {
+		final Button b = new Button(c, SWT.CHECK);
+		b.setText("Java type");
+		return b;
+	}
+
+	private Button createSelectTypeButton(final Composite c) {
+		final Button b = new Button(c, SWT.NONE);
+		b.setText("Select type");
+		b.setEnabled(false);
+		return b;
+	}
+
+	private Listener createSelectTypeListener(final Text text) {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				final String t = JavaTypeSelectorDialog
+						.selectJavaType(getShell());
+				if (t != null) {
+					text.setText(t);
+					getContainer().updateButtons();
+				}
+			}
+		};
+	}
+
+	private Label createLabel(final Composite c) {
+		final Label l = new Label(c, SWT.NONE);
+		l.setText("Left mapping model side:");
+		return l;
+	}
+
+	Button leftJavaCheckbox;
+	Button rightJavaCheckbox;
+
+	Text leftSelectedTypeText;
+	Text rightSelectedTypeText;
+
 	public void createControl(Composite parent) {
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout gl = new GridLayout();
 		gl.numColumns = 2;
 		composite.setLayout(gl);
 
-		final Label leftLabel = new Label(composite, SWT.NONE);
-		leftLabel.setText("Left mapping model side:");
+		leftJavaCheckbox = createCheckbox(composite);
+		rightJavaCheckbox = createCheckbox(composite);
 
-		final Label rightLabel = new Label(composite, SWT.NONE);
-		rightLabel.setText("Right mapping model side:");
+		final Button leftSelectTypeButton = createSelectTypeButton(composite);
+		final Button rightSelectTypeButton = createSelectTypeButton(composite);
+
+		leftSelectedTypeText = createSelectedTypeText(composite);
+		rightSelectedTypeText = createSelectedTypeText(composite);
+
+		createLabel(composite);
+		createLabel(composite);
 
 		leftTree = createTree(composite);
 		rightTree = createTree(composite);
+
+		leftSelectTypeButton.addListener(SWT.MouseUp,
+				createSelectTypeListener(leftSelectedTypeText));
+		rightSelectTypeButton.addListener(SWT.MouseUp,
+				createSelectTypeListener(rightSelectedTypeText));
+
+		leftJavaCheckbox.addListener(SWT.MouseUp, createChecboxListener(
+				leftJavaCheckbox, leftSelectTypeButton, leftSelectedTypeText,
+				leftTree));
+		leftJavaCheckbox.addListener(SWT.Selection, this);
+		rightJavaCheckbox.addListener(SWT.MouseUp, createChecboxListener(
+				rightJavaCheckbox, rightSelectTypeButton,
+				rightSelectedTypeText, rightTree));
+		rightJavaCheckbox.addListener(SWT.Selection, this);
 
 		setControl(composite);
 		onEnterPage();
@@ -124,7 +216,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	}
 
 	public boolean canFlipToNextPage() {
-		// no next page for this path through the wizard
 		return false;
 	}
 
@@ -133,26 +224,52 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	 * can be finished
 	 */
 	public void handleEvent(Event e) {
-		setPageComplete(isPageComplete());
-		getWizard().getContainer().updateButtons();
+		// setPageComplete(isPageComplete()); //?
+		getContainer().updateButtons();
+		// getWizard().getContainer().updateButtons();
 	}
 
-	/*
-	 * Sets the completed field on the wizard class when all the information is
-	 * entered and the wizard can be completed
-	 */
-	public boolean isPageComplete() {
-		if (leftTree.getSelectionCount() == 0
-				&& rightTree.getSelectionCount() == 0) {
+	private boolean isPageComplete0(final Button checkbox, final Text text,
+			final Tree tree) {
+		if (checkbox.getSelection()) {
+			if ("".equals(text.getText())) {
+				return false;
+			}
+		} else if (tree.getSelectionCount() == 0) {
 			return false;
 		}
-		GenerateModelFromXsdWizard wizard = (GenerateModelFromXsdWizard) getWizard();
-		wizard.setLeftChoosenElement(leftTree.getSelection()[0].getText());
-		wizard.setRightChoosenElement(rightTree.getSelection()[0].getText());
 		return true;
 	}
 
-	void onEnterPage() {
+	public boolean isPageComplete() {
+
+		if (!isPageComplete0(leftJavaCheckbox, leftSelectedTypeText, leftTree)
+				|| !isPageComplete0(rightJavaCheckbox, rightSelectedTypeText,
+						rightTree)) {
+			return false;
+		}
+
+		final GenerateModelFromXsdWizard w = (GenerateModelFromXsdWizard) getWizard();
+		if (leftJavaCheckbox.getSelection()) {
+			w.setLeftChoosenElement(String.format("%s%s",
+					IJavaModelGenerator.JAVA_TYPE_PREFIX, leftSelectedTypeText
+							.getText()));
+		} else {
+			w.setLeftChoosenElement(leftTree.getSelection()[0].getText());
+		}
+
+		if (rightJavaCheckbox.getSelection()) {
+			w.setRightChoosenElement(String.format("%s%s",
+					IJavaModelGenerator.JAVA_TYPE_PREFIX, rightSelectedTypeText
+							.getText()));
+		} else {
+			w.setRightChoosenElement(rightTree.getSelection()[0].getText());
+		}
+
+		return true;
+	}
+
+	private void onEnterPage() {
 		fillTree(leftTree);
 		fillTree(rightTree);
 	}
