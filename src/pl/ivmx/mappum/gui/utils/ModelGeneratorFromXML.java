@@ -103,10 +103,7 @@ public class ModelGeneratorFromXML {
 		setGeneratedClassesFolder(classesFolder);
 		setMapFolder(mapFolder);
 		setSchemaFolder(schemaFolder);
-		getModel();
-		for (TreeElement element : model) {
-			System.out.println(element.getName());
-		}
+
 		return getModel();
 	}
 
@@ -188,7 +185,7 @@ public class ModelGeneratorFromXML {
 		}
 	}
 
-	public CallNode generateRubyModelForField(String name, final Shape.Side side) {
+	private CallNode generateRubyModelForField(String name, final Shape.Side side) {
 		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
 		// RootNodeHolder.IDENT_LENGTH);
 		if (side == Shape.Side.LEFT) {
