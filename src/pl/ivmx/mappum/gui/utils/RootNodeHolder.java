@@ -616,36 +616,6 @@ public class RootNodeHolder {
 		return newlineNode;
 	}
 
-	private NewlineNode getFirstNodeArrayElementNumber(NewlineNode node,
-			int elementNum) {
-		if (node != null) {
-			Node fCallNode = node.getNextNode();
-			if (fCallNode != null && fCallNode instanceof FCallNode
-					&& ((FCallNode) fCallNode).getName().equals("map")) {
-				Node callNode = fCallNode.childNodes().get(0).childNodes().get(
-						0);
-				if (callNode != null && callNode instanceof CallNode) {
-					if (findFixNumNode(callNode.childNodes().get(0), null) != findFixNumNode(
-							callNode.childNodes().get(1), null)) {
-						if (findFixNumNode(callNode.childNodes().get(0),
-								elementNum)) {
-							return node;
-						} else if (findFixNumNode(callNode.childNodes().get(1),
-								elementNum)) {
-							return node;
-						}
-					}
-				}
-			}
-			NewlineNode returnNode;
-			if ((returnNode = getFirstNodeArrayElementNumber(
-					getParentMappingNode(node), elementNum)) != null) {
-				return returnNode;
-			}
-		}
-		return null;
-	}
-
 	private boolean checkIfMappingIsVarToArray(NewlineNode node, int elementNum) {
 		if (node != null) {
 			Node fCallNode = node.getNextNode();
@@ -751,7 +721,7 @@ public class RootNodeHolder {
 					} else if (callNode.getReceiverNode().equals(arrayNode)) {
 						callNode.setReceiverNode(arrayNode);
 					}
-				}else if(parentNode instanceof ArrayNode){
+				} else if (parentNode instanceof ArrayNode) {
 					ArrayNode aNode = (ArrayNode) parentNode;
 					aNode.childNodes().set(0, arrayNode);
 				}
@@ -1276,9 +1246,8 @@ public class RootNodeHolder {
 				if (mappingExists(leftShapeList.get(leftLevel).getName(),
 						"self", (NewlineNode) rootNode.childNodes().get(i))) {
 					if ((lastLeftArrayShape == null)
-							|| (lastLeftArrayShape != null
-									&& lastLeftArrayShape == leftShapeList
-											.get(leftLevel) && checkIfMappingIsVarToArray(
+							|| (lastLeftArrayShape == leftShapeList
+									.get(leftLevel) && checkIfMappingIsVarToArray(
 									(NewlineNode) rootNode.childNodes().get(i),
 									arrayNumber))) {
 						List<Integer> tmpList = new ArrayList<Integer>();
@@ -1301,9 +1270,8 @@ public class RootNodeHolder {
 				} else if (mappingExists("self", rightShapeList.get(rightLevel)
 						.getName(), (NewlineNode) rootNode.childNodes().get(i))) {
 					if ((lastRightArrayShape == null)
-							|| (lastRightArrayShape != null
-									&& lastRightArrayShape == rightShapeList
-											.get(rightLevel) && checkIfMappingIsVarToArray(
+							|| (lastRightArrayShape == rightShapeList
+									.get(rightLevel) && checkIfMappingIsVarToArray(
 									(NewlineNode) rootNode.childNodes().get(i),
 									arrayNumber))) {
 						List<Integer> tmpList = new ArrayList<Integer>();

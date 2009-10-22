@@ -3,24 +3,18 @@ package pl.ivmx.mappum.gui.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.script.ScriptException;
-
-import org.apache.log4j.Logger;
-import org.eclipse.core.resources.IProject;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.DVarNode;
 import org.jrubyparser.ast.ListNode;
 
-import pl.ivmx.mappum.MappumApi;
 import pl.ivmx.mappum.TreeElement;
-import pl.ivmx.mappum.WorkdirLoader;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.Shape.Side;
 import pl.ivmx.mappum.gui.utils.java.JavaModelGenerator;
 
 public class ModelGeneratorFromJava {
-	private Logger logger = Logger.getLogger(ModelGeneratorFromJava.class);
+//	private Logger logger = Logger.getLogger(ModelGeneratorFromJava.class);
 
 	private static final ModelGeneratorFromJava INSTANCE = new ModelGeneratorFromJava();
 

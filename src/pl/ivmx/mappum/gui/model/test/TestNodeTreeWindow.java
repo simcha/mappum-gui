@@ -11,7 +11,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.eclipse.core.runtime.CoreException;
 import org.jrubyparser.ast.CallNode;
 import org.jrubyparser.ast.INameNode;
-import org.jrubyparser.ast.IterNode;
 import org.jrubyparser.ast.Node;
 
 public class TestNodeTreeWindow extends JFrame {
@@ -62,7 +61,7 @@ public class TestNodeTreeWindow extends JFrame {
 			} else {
 				if (child instanceof CallNode) {
 					System.out.println("CallNode: "
-							+ ((CallNode) child));
+							+ child);
 				}
 
 				newNode = new DefaultMutableTreeNode(child.getNodeType());

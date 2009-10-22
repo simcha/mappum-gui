@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.script.ScriptException;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
@@ -32,7 +31,7 @@ public class ModelGeneratorFromXML {
 
 	private List<TreeElement> model;
 
-	private Logger logger = Logger.getLogger(ModelGeneratorFromXML.class);
+	// private Logger logger = Logger.getLogger(ModelGeneratorFromXML.class);
 
 	private static final ModelGeneratorFromXML INSTANCE = new ModelGeneratorFromXML();
 
@@ -185,7 +184,8 @@ public class ModelGeneratorFromXML {
 		}
 	}
 
-	private CallNode generateRubyModelForField(String name, final Shape.Side side) {
+	private CallNode generateRubyModelForField(String name,
+			final Shape.Side side) {
 		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
 		// RootNodeHolder.IDENT_LENGTH);
 		if (side == Shape.Side.LEFT) {
