@@ -16,7 +16,7 @@ import org.jrubyparser.ast.Node;
 public class TestNodeTreeWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private static boolean DISPLAY = true;
+	private static boolean DISPLAY = false;
 
 	public static void show(final Node node) {
 		if (DISPLAY) {
@@ -60,8 +60,7 @@ public class TestNodeTreeWindow extends JFrame {
 						+ ((INameNode) child).getName());
 			} else {
 				if (child instanceof CallNode) {
-					System.out.println("CallNode: "
-							+ child);
+					System.out.println("CallNode: " + child);
 				}
 
 				newNode = new DefaultMutableTreeNode(child.getNodeType());
