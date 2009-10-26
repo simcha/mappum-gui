@@ -25,19 +25,17 @@ public class GenerateModelFromXsdWizard extends Wizard {
 	private GenerateModelFromXsdWizardPage page;
 	private Logger logger = Logger.getLogger(GenerateModelFromXsdWizard.class);
 	private List<TreeElement> model;
-	private String leftChosenElement = null;
-	private String rightChosenElement = null;
 	private IProject project;
 
 	public GenerateModelFromXsdWizard(final List<TreeElement> model) {
-		super();
 		setModel(model);
 	}
 
 	@Override
 	public boolean performFinish() {
 		try {
-			if (leftChosenElement != null && rightChosenElement != null) {
+			if (getLeftChosenElement() != null
+					&& getRightChosenElement() != null) {
 				getMapFile(null);
 				return true;
 			}
@@ -79,30 +77,18 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		return model;
 	}
 
-	public void setLeftChoosenElement(String leftChoosenElement) {
-		this.leftChosenElement = leftChoosenElement;
+	public SelectedType getLeftChosenElement() {
+		return page.getLeftSelectedType();
 	}
 
-	public String getLeftChoosenElement() {
-		return leftChosenElement;
-	}
-
-	public void setRightChoosenElement(String rightChoosenElement) {
-		this.rightChosenElement = rightChoosenElement;
-	}
-
-	public String getRightChoosenElement() {
-		return rightChosenElement;
-	}
-
-	private String getSimpleElementName(final String element) {
-		return element.split("::")[element.split("::").length - 1];
+	public SelectedType getRightChosenElement() {
+		return page.getRightSelectedType();
 	}
 
 	private IFile getMapFile(IProgressMonitor monitor) throws Exception {
 
-		final String leftElementSimple = getSimpleElementName(leftChosenElement);
-		final String rightElementSimple = getSimpleElementName(rightChosenElement);
+		final String leftElementSimple = getLeftChosenElement().getName();
+		final String rightElementSimple = getRightChosenElement().getName();
 
 		final IPath fullPath = project.getFullPath();
 
@@ -139,8 +125,9 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		params.append("\n\n");
 		params.append("Mappum.catalogue_add do");
 		params.append("\n");
-		params.append("  map " + leftChosenElement + ", " + rightChosenElement
-				+ " do |" + leftPrefix + ", " + rightPrefix + "|");
+		params.append("  map " + getLeftChosenElement().getPrefixedName() + ", "
+				+ getRightChosenElement().getPrefixedName() + " do |" + leftPrefix
+				+ ", " + rightPrefix + "|");
 		params.append("\n");
 		params.append("  end");
 		params.append("\n");

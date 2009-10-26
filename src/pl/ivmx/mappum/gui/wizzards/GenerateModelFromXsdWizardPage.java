@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import pl.ivmx.mappum.TreeElement;
-import pl.ivmx.mappum.gui.utils.java.IJavaModelGenerator;
 
 public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		Listener {
@@ -29,16 +28,35 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	private Tree leftTree;
 	private Tree rightTree;
 
+	private SelectedType leftSelectedType = null;
+	private SelectedType rightSelectedType = null;
+
 	protected GenerateModelFromXsdWizardPage(String arg0) {
 		super(arg0);
 		setTitle("Generate model from XSD schema");
 		setDescription("Specify left and right side of mapping model");
 	}
 
-	private Tree createTree(final Composite c) {
+	private Listener createTreeSelChangeListener(final boolean left) {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (left) {
+					leftSelectedType = new SelectedType(
+							leftTree.getSelection()[0].getText());
+				} else {
+					rightSelectedType = new SelectedType(rightTree
+							.getSelection()[0].getText());
+				}
+			}
+		};
+	}
+
+	private Tree createTree(final Composite c, final boolean left) {
 		final Tree tree = new Tree(c, SWT.SINGLE | SWT.BORDER);
 		final GridData gd_list = new GridData(SWT.FILL, SWT.FILL, true, true);
 		tree.setLayoutData(gd_list);
+		tree.addListener(SWT.Selection, createTreeSelChangeListener(left));
 		tree.addListener(SWT.Selection, this);
 
 		return tree;
@@ -148,14 +166,20 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		return b;
 	}
 
-	private Listener createSelectTypeListener(final Text text) {
+	private Listener createSelectTypeListener(final Text text,
+			final boolean left) {
 		return new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				final String t = JavaTypeSelectorDialog
+				final SelectedType t = JavaTypeSelectorDialog
 						.selectJavaType(getShell());
 				if (t != null) {
-					text.setText(t);
+					if (left) {
+						leftSelectedType = t;
+					} else {
+						rightSelectedType = t;
+					}
+					text.setText(t.getFullName());
 					getContainer().updateButtons();
 				}
 			}
@@ -193,13 +217,13 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 		createLabel(composite);
 		createLabel(composite);
 
-		leftTree = createTree(composite);
-		rightTree = createTree(composite);
+		leftTree = createTree(composite, true);
+		rightTree = createTree(composite, false);
 
-		leftSelectTypeButton.addListener(SWT.MouseUp,
-				createSelectTypeListener(leftSelectedTypeText));
+		leftSelectTypeButton.addListener(SWT.MouseUp, createSelectTypeListener(
+				leftSelectedTypeText, true));
 		rightSelectTypeButton.addListener(SWT.MouseUp,
-				createSelectTypeListener(rightSelectedTypeText));
+				createSelectTypeListener(rightSelectedTypeText, false));
 
 		leftJavaCheckbox.addListener(SWT.MouseUp, createChecboxListener(
 				leftJavaCheckbox, leftSelectTypeButton, leftSelectedTypeText,
@@ -248,28 +272,19 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 			return false;
 		}
 
-		final GenerateModelFromXsdWizard w = (GenerateModelFromXsdWizard) getWizard();
-		if (leftJavaCheckbox.getSelection()) {
-			w.setLeftChoosenElement(String.format("%s%s",
-					IJavaModelGenerator.JAVA_TYPE_PREFIX, leftSelectedTypeText
-							.getText()));
-		} else {
-			w.setLeftChoosenElement(leftTree.getSelection()[0].getText());
-		}
-
-		if (rightJavaCheckbox.getSelection()) {
-			w.setRightChoosenElement(String.format("%s%s",
-					IJavaModelGenerator.JAVA_TYPE_PREFIX, rightSelectedTypeText
-							.getText()));
-		} else {
-			w.setRightChoosenElement(rightTree.getSelection()[0].getText());
-		}
-
 		return true;
 	}
 
 	private void onEnterPage() {
 		fillTree(leftTree);
 		fillTree(rightTree);
+	}
+
+	public SelectedType getLeftSelectedType() {
+		return leftSelectedType;
+	}
+
+	public SelectedType getRightSelectedType() {
+		return rightSelectedType;
 	}
 }

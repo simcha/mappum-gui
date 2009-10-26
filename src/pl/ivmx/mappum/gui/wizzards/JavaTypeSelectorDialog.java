@@ -26,14 +26,14 @@ public class JavaTypeSelectorDialog {
 		return (IJavaProject) is.getFirstElement();
 	}
 
-	public static String selectJavaType(final Shell shell) {
+	public static SelectedType selectJavaType(final Shell shell) {
 
 		try {
 
 			final JavaSearchScope ss = new JavaSearchScope();
-			final IJavaProject p = getThisJavaProject();
+			
 
-			ss.add(p);
+			ss.add(getThisJavaProject());
 			final SelectionDialog sd = JavaUI
 					.createTypeDialog(
 							shell,
@@ -43,8 +43,7 @@ public class JavaTypeSelectorDialog {
 							false, "");
 			sd.setTitle("Select type");
 			if (sd.open() == 0) {
-				final IType type = (IType) sd.getResult()[0];
-				return type.getFullyQualifiedName();
+				return new SelectedType((IType) sd.getResult()[0]);
 			}
 			return null;
 
