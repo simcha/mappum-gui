@@ -88,7 +88,7 @@
             point="org.eclipse.ui.commands">
          <command
                id="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD"
-               name="Generate model from XSD schema">
+               name="Generate model">
          </command>
       </extension>
       <extension

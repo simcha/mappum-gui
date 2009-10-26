@@ -288,7 +288,7 @@ public class Shape extends ModelElement {
 	public String getPackageAndName() {
 		if(optionalJavaPackage!=null){
 			if(!optionalJavaPackage.equals("")){
-				return optionalJavaPackage + "." + name;
+				return "Java::" +optionalJavaPackage + "." + name;
 			}
 		}
 		return name;

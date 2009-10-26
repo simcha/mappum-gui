@@ -31,7 +31,7 @@ public class ModelGeneratorFromJava {
 			boolean isArray) {
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
-				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
+				if (name.equals(Shape.getRootShapes().get(0).getName())) {
 					return Shape.getRootShapes().get(0);
 				} else {
 					throw new IllegalArgumentException(
@@ -39,7 +39,7 @@ public class ModelGeneratorFromJava {
 									+ name + ", side: " + side);
 				}
 			} else {
-				if (name.equals(Shape.getRootShapes().get(1).getFullName())) {
+				if (name.equals(Shape.getRootShapes().get(1).getName())) {
 					return Shape.getRootShapes().get(1);
 				} else {
 					throw new IllegalArgumentException(
@@ -61,15 +61,15 @@ public class ModelGeneratorFromJava {
 		}
 	}
 
-	public void addFieldsFromJavaModel(String leftElement, String rightElement)
+	public void addFieldsFromJavaModel(String leftClazz, String rightClazz, String leftElement, String rightElement)
 			throws IllegalArgumentException, ClassNotFoundException,
 			JavaModelException {
 		List<JavaTreeElement> leftModel = new ArrayList<JavaTreeElement>();
 		List<JavaTreeElement> rightModel = new ArrayList<JavaTreeElement>();
-		JavaModelGenerator.getInstance().generate(leftElement, leftModel);
-		JavaModelGenerator.getInstance().generate(leftElement, rightModel);
+		JavaModelGenerator.getInstance().generate(leftClazz, leftModel);
+		JavaModelGenerator.getInstance().generate(rightClazz, rightModel);
 		for (TreeElement element : leftModel) {
-			if (element.getClazz().equals(leftElement)) {
+			if (element.getClazz().equals(leftClazz)) {
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT, false);
 				for (TreeElement childElement : element.getElements()) {
@@ -83,7 +83,7 @@ public class ModelGeneratorFromJava {
 			}
 		}
 		for (TreeElement element : rightModel) {
-			if (element.getClazz().equals(rightElement)) {
+			if (element.getClazz().equals(rightClazz)) {
 				Shape parent = checkAndAddShape(rightElement, null,
 						Shape.Side.RIGHT, false);
 				for (TreeElement childElement : element.getElements()) {

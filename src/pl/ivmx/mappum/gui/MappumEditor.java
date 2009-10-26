@@ -113,16 +113,18 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 								ModelGeneratorFromJava
 										.getInstance()
 										.addFieldsFromJavaModel(
-												"Java::"
-														+ Shape
+											Shape
 																.getRootShapes()
 																.get(0)
 																.getPackageAndName(),
-												"Java::"
-														+ Shape
+												 Shape
 																.getRootShapes()
 																.get(1)
-																.getPackageAndName());
+																.getPackageAndName(), 	Shape
+																.getRootShapes()
+																.get(0).getName(), 	Shape
+																.getRootShapes()
+																.get(1).getName());
 							} catch (IllegalArgumentException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
