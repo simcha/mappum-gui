@@ -61,54 +61,46 @@ public class ModelGeneratorFromJava {
 		}
 	}
 
-	public void addFieldsFromJavaModel(String leftClazz, String rightClazz,
-			String leftElement, String rightElement)
-			throws IllegalArgumentException, ClassNotFoundException,
-			JavaModelException {
-		List<JavaTreeElement> leftModel = new ArrayList<JavaTreeElement>();
-		List<JavaTreeElement> rightModel = new ArrayList<JavaTreeElement>();
-		JavaModelGenerator.getInstance().generate(leftClazz, leftModel);
-		JavaModelGenerator.getInstance().generate(rightClazz, rightModel);
-		for (TreeElement element : leftModel) {
-			if (element.getClazz().equals(leftClazz)) {
-				Shape parent = checkAndAddShape(leftElement, null,
-						Shape.Side.LEFT, false);
-				if (element.getElements() != null) {
-					for (TreeElement childElement : element.getElements()) {
-						Shape child = checkAndAddShape(childElement.getName(),
-								parent, Shape.Side.LEFT, childElement
-										.getIsArray());
-						if (childElement.getClazz() != null) {
-							getComplexField(childElement.getClazz(), child,
-									Shape.Side.LEFT, leftModel);
-						}
-					}
-				}
-			}
-		}
-		for (TreeElement element : rightModel) {
-			if (element.getClazz().equals(rightClazz)) {
-				Shape parent = checkAndAddShape(rightElement, null,
-						Shape.Side.RIGHT, false);
-				if (element.getElements() != null) {
-					for (TreeElement childElement : element.getElements()) {
-						Shape child = checkAndAddShape(childElement.getName(),
-								parent, Shape.Side.RIGHT, childElement
-										.getIsArray());
-						if (childElement.getClazz() != null) {
-							getComplexField(childElement.getClazz(), child,
-									Shape.Side.RIGHT, rightModel);
-						}
+	private void addFieldsFromJavaModel0(final String clazz,
+			final TreeElement el, final String sideElement,
+			final List<JavaTreeElement> model, final Shape.Side side) {
+		if (el.getClazz().equals(clazz)) {
+			Shape parent = checkAndAddShape(sideElement, null, side, false);
+			if (el.getElements() != null) {
+				for (TreeElement childElement : el.getElements()) {
+					Shape child = checkAndAddShape(childElement.getName(),
+							parent, side, childElement.getIsArray());
+					if (childElement.getClazz() != null) {
+						getComplexField(childElement.getClazz(), child, side,
+								model);
 					}
 				}
 			}
 		}
 	}
 
+	public void addFieldsFromJavaModel(String leftClazz, String rightClazz,
+			String leftElement, String rightElement)
+			throws IllegalArgumentException, ClassNotFoundException,
+			JavaModelException {
+		List<JavaTreeElement> model = new ArrayList<JavaTreeElement>();
+
+		JavaModelGenerator.getInstance().generate(leftClazz, model);
+		JavaModelGenerator.getInstance().generate(rightClazz, model);
+
+		for (TreeElement element : model) {
+
+			addFieldsFromJavaModel0(leftClazz, element, leftElement, model,
+					Shape.Side.LEFT);
+			addFieldsFromJavaModel0(rightClazz, element, rightElement, model,
+					Shape.Side.RIGHT);
+		}
+	}
+
 	private void getComplexField(String searchElement, Shape parent,
 			final Shape.Side side, List<JavaTreeElement> model) {
 		for (TreeElement element : model) {
-			if (element.getName().equals(searchElement)) {
+			if (element.getClazz().equals(searchElement)) {
 				for (TreeElement childElement : element.getElements()) {
 					Shape child = checkAndAddShape(childElement.getName(),
 							parent, side, childElement.getIsArray());

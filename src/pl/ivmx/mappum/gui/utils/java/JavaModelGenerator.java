@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import pl.ivmx.mappum.TreeElement;
 
+@SuppressWarnings("restriction")
 public class JavaModelGenerator implements IJavaModelGenerator {
 
 	private final static Map<String, String> PRIMITIVE_TYPES_MAPPING = new HashMap<String, String>();
