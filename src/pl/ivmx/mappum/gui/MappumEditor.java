@@ -38,6 +38,7 @@ import org.eclipse.jface.util.TransferDropTargetListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -110,27 +111,30 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						if (Shape.getRootShapes().get(0).getSourceType() == SourceType.JAVA
 								&& Shape.getRootShapes().get(1).getSourceType() == SourceType.JAVA) {
 							try {
-								ModelGeneratorFromJava
-										.getInstance()
+								ModelGeneratorFromJava.getInstance()
 										.addFieldsFromJavaModel(
-											Shape
-																.getRootShapes()
-																.get(0)
-																.getPackageAndName(),
-												 Shape
-																.getRootShapes()
-																.get(1)
-																.getPackageAndName(), 	Shape
-																.getRootShapes()
-																.get(0).getName(), 	Shape
-																.getRootShapes()
-																.get(1).getName());
-							} catch (IllegalArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							} catch (ClassNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+												Shape.getRootShapes().get(0)
+														.getPackageAndName(),
+												Shape.getRootShapes().get(1)
+														.getPackageAndName(),
+												Shape.getRootShapes().get(0)
+														.getName(),
+												Shape.getRootShapes().get(1)
+														.getName());
+							} catch (final Exception e) {
+								Display.getDefault().syncExec(new Runnable() {
+									@Override
+									public void run() {
+										final MessageBox mb = new MessageBox(
+												getSite().getShell(),
+												SWT.ICON_ERROR);
+										mb.setMessage(String.format(
+												"Model generation failed: %s",
+												e.getMessage()));
+										mb.setText("Error");
+										mb.open();
+									}
+								});
 							}
 						} else {
 							ModelGeneratorFromXML.getInstance().generateModel(

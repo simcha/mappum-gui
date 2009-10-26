@@ -61,7 +61,8 @@ public class ModelGeneratorFromJava {
 		}
 	}
 
-	public void addFieldsFromJavaModel(String leftClazz, String rightClazz, String leftElement, String rightElement)
+	public void addFieldsFromJavaModel(String leftClazz, String rightClazz,
+			String leftElement, String rightElement)
 			throws IllegalArgumentException, ClassNotFoundException,
 			JavaModelException {
 		List<JavaTreeElement> leftModel = new ArrayList<JavaTreeElement>();
@@ -72,12 +73,15 @@ public class ModelGeneratorFromJava {
 			if (element.getClazz().equals(leftClazz)) {
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT, false);
-				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, Shape.Side.LEFT, childElement.getIsArray());
-					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child,
-								Shape.Side.LEFT, leftModel);
+				if (element.getElements() != null) {
+					for (TreeElement childElement : element.getElements()) {
+						Shape child = checkAndAddShape(childElement.getName(),
+								parent, Shape.Side.LEFT, childElement
+										.getIsArray());
+						if (childElement.getClazz() != null) {
+							getComplexField(childElement.getClazz(), child,
+									Shape.Side.LEFT, leftModel);
+						}
 					}
 				}
 			}
@@ -86,12 +90,15 @@ public class ModelGeneratorFromJava {
 			if (element.getClazz().equals(rightClazz)) {
 				Shape parent = checkAndAddShape(rightElement, null,
 						Shape.Side.RIGHT, false);
-				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, Shape.Side.RIGHT, childElement.getIsArray());
-					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child,
-								Shape.Side.RIGHT, rightModel);
+				if (element.getElements() != null) {
+					for (TreeElement childElement : element.getElements()) {
+						Shape child = checkAndAddShape(childElement.getName(),
+								parent, Shape.Side.RIGHT, childElement
+										.getIsArray());
+						if (childElement.getClazz() != null) {
+							getComplexField(childElement.getClazz(), child,
+									Shape.Side.RIGHT, rightModel);
+						}
 					}
 				}
 			}

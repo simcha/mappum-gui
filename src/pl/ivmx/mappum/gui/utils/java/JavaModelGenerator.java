@@ -17,30 +17,25 @@ import pl.ivmx.mappum.TreeElement;
 public class JavaModelGenerator implements IJavaModelGenerator {
 
 	private final static Map<String, String> PRIMITIVE_TYPES_MAPPING = new HashMap<String, String>();
+	private final static Map<String, String> PRIMITIVE_OBJECTS_MAPPING = new HashMap<String, String>();
 	static {
 
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.String", "String");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.String", "String");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Byte", "Fixnum");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Short", "Fixnum");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Character", "Fixnum");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Integer", "Fixnum");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Long", "Fixnum");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.Lang.Float", "Float");
+		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Double", "Float");
 
 		PRIMITIVE_TYPES_MAPPING.put("byte", "Fixnum");
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.Byte", "Fixnum");
-
 		PRIMITIVE_TYPES_MAPPING.put("short", "Fixnum");
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.Short", "Fixnum");
-
 		PRIMITIVE_TYPES_MAPPING.put("char", "Fixnum");
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.Character", "Fixnum");
-
 		PRIMITIVE_TYPES_MAPPING.put("int", "Fixnum");
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.Integer", "Fixnum");
-
 		PRIMITIVE_TYPES_MAPPING.put("long", "Fixnum");
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.Long", "Fixnum");
-
 		PRIMITIVE_TYPES_MAPPING.put("float", "Float");
-		PRIMITIVE_TYPES_MAPPING.put("java.Lang.Float", "Float");
-
 		PRIMITIVE_TYPES_MAPPING.put("double", "Float");
-		PRIMITIVE_TYPES_MAPPING.put("java.lang.Double", "Float");
 	}
 
 	private static JavaModelGenerator instance;
@@ -105,13 +100,14 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 								isParameterArray, m.getElementName().substring(
 										3)));
 					} else {
-						throw new IllegalArgumentException(String
-								.format("Parameter type=%s cannot be resolved"));
+						throw new IllegalArgumentException(String.format(
+								"Parameter type=%s cannot be resolved",
+								flatType));
 					}
-				} else if (PRIMITIVE_TYPES_MAPPING.containsKey(resolved)) {
-					subElements.add(new JavaTreeElement(PRIMITIVE_TYPES_MAPPING
-							.get(resolved), null, isParameterArray, m
-							.getElementName().substring(3)));
+				} else if (PRIMITIVE_OBJECTS_MAPPING.containsKey(resolved)) {
+					subElements.add(new JavaTreeElement(
+							PRIMITIVE_OBJECTS_MAPPING.get(resolved), null,
+							isParameterArray, m.getElementName().substring(3)));
 				} else {
 					subElements.add(generate0(
 							IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved,
