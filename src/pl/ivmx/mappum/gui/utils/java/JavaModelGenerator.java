@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -50,16 +51,16 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 
 	@Override
 	public void generate(final String classPrefixed,
-			final List<JavaTreeElement> model) throws JavaModelException,
-			IllegalArgumentException {
+			final List<JavaTreeElement> model, final IProject project)
+			throws JavaModelException, IllegalArgumentException {
 
-		generate0(classPrefixed, model, null, false);
+		generate0(classPrefixed, model, null, false, project);
 	}
 
 	private JavaTreeElement generate0(final String classPrefixed,
 			final List<JavaTreeElement> model, final String name,
-			final boolean isArray) throws JavaModelException,
-			IllegalArgumentException {
+			final boolean isArray, final IProject project)
+			throws JavaModelException, IllegalArgumentException {
 
 		final JavaTreeElement te = findByName(model, classPrefixed);
 		if (te != null) {
@@ -77,7 +78,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		// final Class<?> clazz = Class.forName(classWithoutPrefix);
 
 		final IType type = JavaModelManager.getJavaModelManager()
-				.getJavaModel().getJavaProject("javatest").findType(
+				.getJavaModel().getJavaProject(project.getName()).findType(
 						classWithoutPrefix);
 		final List<TreeElement> subElements = new ArrayList<TreeElement>();
 		for (final IMethod m : type.getMethods()) {
@@ -113,7 +114,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 					subElements.add(generate0(
 							IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved,
 							model, m.getElementName().substring(3),
-							isParameterArray));
+							isParameterArray, project));
 				}
 			}
 		}

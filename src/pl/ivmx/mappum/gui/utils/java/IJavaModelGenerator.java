@@ -2,9 +2,8 @@ package pl.ivmx.mappum.gui.utils.java;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.JavaModelException;
-
-import pl.ivmx.mappum.TreeElement;
 
 public interface IJavaModelGenerator {
 
@@ -24,6 +23,7 @@ public interface IJavaModelGenerator {
 	 * @throws IllegalArgumentException
 	 *             when <code>clazz</code> is not prefixed with "Java::"
 	 */
-	public void generate(final String clazz, final List<JavaTreeElement> model)
-			throws JavaModelException, IllegalArgumentException;
+	public void generate(final String clazz, final List<JavaTreeElement> model,
+			final IProject project) throws JavaModelException,
+			IllegalArgumentException;
 }

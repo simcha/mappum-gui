@@ -120,7 +120,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 												Shape.getRootShapes().get(0)
 														.getName(),
 												Shape.getRootShapes().get(1)
-														.getName());
+														.getName(),
+												file.getProject());
 							} catch (final Exception e) {
 								Display.getDefault().syncExec(new Runnable() {
 									@Override

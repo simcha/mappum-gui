@@ -3,6 +3,7 @@ package pl.ivmx.mappum.gui.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
@@ -80,13 +81,13 @@ public class ModelGeneratorFromJava {
 	}
 
 	public void addFieldsFromJavaModel(String leftClazz, String rightClazz,
-			String leftElement, String rightElement)
+			String leftElement, String rightElement, final IProject project)
 			throws IllegalArgumentException, ClassNotFoundException,
 			JavaModelException {
 		List<JavaTreeElement> model = new ArrayList<JavaTreeElement>();
 
-		JavaModelGenerator.getInstance().generate(leftClazz, model);
-		JavaModelGenerator.getInstance().generate(rightClazz, model);
+		JavaModelGenerator.getInstance().generate(leftClazz, model, project);
+		JavaModelGenerator.getInstance().generate(rightClazz, model, project);
 
 		for (TreeElement element : model) {
 
