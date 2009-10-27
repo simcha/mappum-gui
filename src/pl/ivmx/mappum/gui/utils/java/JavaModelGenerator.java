@@ -1,9 +1,12 @@
 package pl.ivmx.mappum.gui.utils.java;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.Flags;
@@ -53,18 +56,23 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			final List<JavaTreeElement> model, final IProject project)
 			throws JavaModelException, IllegalArgumentException {
 
-		generate0(classPrefixed, model, null, false, project);
+		generate0(classPrefixed, model, null, false, project, Collections
+				.unmodifiableSet(Collections.EMPTY_SET));
 	}
 
 	private JavaTreeElement generate0(final String classPrefixed,
 			final List<JavaTreeElement> model, final String name,
-			final boolean isArray, final IProject project)
-			throws JavaModelException, IllegalArgumentException {
+			final boolean isArray, final IProject project,
+			final Set<String> inParents) throws JavaModelException,
+			IllegalArgumentException {
 
-		final JavaTreeElement te = findByType(model, classPrefixed);
-		if (te != null) {
+		final Set<String> parents = new HashSet<String>(inParents);
+
+		if (parents.contains(classPrefixed)) {
 			return new JavaTreeElement(null, null, isArray, name, false, true);
 		}
+
+		parents.add(classPrefixed);
 
 		if (!classPrefixed.startsWith(IJavaModelGenerator.JAVA_TYPE_PREFIX)) {
 			throw new IllegalArgumentException(String.format(
@@ -108,12 +116,11 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 							PRIMITIVE_OBJECTS_MAPPING.get(resolved), null,
 							isParameterArray, m.getElementName().substring(3)));
 				} else {
-					add(model, new JavaTreeElement(classPrefixed, null,
-							isArray, type.getElementName(), false, false));
 					subElements.add(generate0(
 							IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved,
 							model, m.getElementName().substring(3),
-							isParameterArray, project));
+							isParameterArray, project, Collections
+									.unmodifiableSet(parents)));
 				}
 			}
 		}
