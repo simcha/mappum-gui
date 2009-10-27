@@ -92,14 +92,33 @@ public class ModelGeneratorFromJava {
 		}
 	}
 
+	private List<JavaTreeElement> mergeModels(
+			final List<JavaTreeElement> model1,
+			final List<JavaTreeElement> model2) {
+		final List<JavaTreeElement> merged = new ArrayList<JavaTreeElement>(
+				model1);
+		for (final JavaTreeElement e : model2) {
+			if (JavaModelGenerator.findByType(model1, e.getClazz()) == null) {
+				merged.add(e);
+			}
+		}
+		return merged;
+	}
+
 	public void addFieldsFromJavaModel(String leftClazz, String rightClazz,
 			String leftElement, String rightElement, final IProject project)
 			throws IllegalArgumentException, ClassNotFoundException,
 			JavaModelException {
-		List<JavaTreeElement> model = new ArrayList<JavaTreeElement>();
 
-		JavaModelGenerator.getInstance().generate(leftClazz, model, project);
-		JavaModelGenerator.getInstance().generate(rightClazz, model, project);
+		final List<JavaTreeElement> modelLeft = new ArrayList<JavaTreeElement>();
+		final List<JavaTreeElement> modelRight = new ArrayList<JavaTreeElement>();
+
+		JavaModelGenerator.getInstance()
+				.generate(leftClazz, modelLeft, project);
+		JavaModelGenerator.getInstance().generate(rightClazz, modelRight,
+				project);
+
+		final List<JavaTreeElement> model = mergeModels(modelLeft, modelRight);
 
 		for (TreeElement element : model) {
 

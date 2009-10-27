@@ -140,7 +140,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		return resolved[0][0] + "." + resolved[0][1];
 	}
 
-	private JavaTreeElement findByType(final List<JavaTreeElement> model,
+	public static JavaTreeElement findByType(final List<JavaTreeElement> model,
 			final String clazz) {
 		for (final JavaTreeElement te : model) {
 			if (te.getClazz().equals(clazz)) {
