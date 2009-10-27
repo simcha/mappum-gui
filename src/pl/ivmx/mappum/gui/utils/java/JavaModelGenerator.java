@@ -61,9 +61,10 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			final boolean isArray, final IProject project)
 			throws JavaModelException, IllegalArgumentException {
 
-		final JavaTreeElement te = findByName(model, classPrefixed);
+		final JavaTreeElement te = findByType(model, classPrefixed);
 		if (te != null) {
-			return te;
+			return new JavaTreeElement(null, null, isArray, name, false, te
+					.isMarkedAsComplex());
 		}
 
 		if (!classPrefixed.startsWith(IJavaModelGenerator.JAVA_TYPE_PREFIX)) {
@@ -73,8 +74,6 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		}
 		final String classWithoutPrefix = classPrefixed
 				.substring(IJavaModelGenerator.JAVA_TYPE_PREFIX.length());
-
-		// final Class<?> clazz = Class.forName(classWithoutPrefix);
 
 		final IType type = JavaModelManager.getJavaModelManager()
 				.getJavaModel().getJavaProject(project.getName()).findType(
@@ -110,6 +109,8 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 							PRIMITIVE_OBJECTS_MAPPING.get(resolved), null,
 							isParameterArray, m.getElementName().substring(3)));
 				} else {
+					add(model, new JavaTreeElement(classPrefixed, null,
+							isArray, type.getElementName(), false, false));
 					subElements.add(generate0(
 							IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved,
 							model, m.getElementName().substring(3),
@@ -121,7 +122,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 				subElements.isEmpty() ? null : subElements, isArray,
 				name != null ? name : type.getElementName());
 
-		model.add(el);
+		add(model, el);
 		return el;
 	}
 
@@ -140,14 +141,30 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		return resolved[0][0] + "." + resolved[0][1];
 	}
 
-	private JavaTreeElement findByName(final List<JavaTreeElement> model,
-			final String name) {
+	private JavaTreeElement findByType(final List<JavaTreeElement> model,
+			final String clazz) {
 		for (final JavaTreeElement te : model) {
-			if (te.getName().equals(name)) {
+			if (te.getClazz().equals(clazz)) {
 				return te;
 			}
 		}
 		return null;
+	}
+
+	private void add(final List<JavaTreeElement> model,
+			final JavaTreeElement element) {
+		for (int i = 0; i < model.size(); i++) {
+			final JavaTreeElement te = model.get(i);
+			if (te.getName().equals(element.getName())) {
+				if (te.isComplete() || !element.isComplete()) {
+					return;
+				} else {
+					model.remove(i);
+					break;
+				}
+			}
+		}
+		model.add(element);
 	}
 
 	private boolean hasMatchingGetter(final IType type, final IMethod setter)
