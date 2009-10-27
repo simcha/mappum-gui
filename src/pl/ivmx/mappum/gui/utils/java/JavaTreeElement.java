@@ -75,10 +75,6 @@ public class JavaTreeElement implements TreeElement {
 		return markAsComplex;
 	}
 
-	public JavaTreeElement withoutElements() {
-		return new JavaTreeElement(null, null, isArray, name, true, true);
-	}
-
 	@Override
 	public String toString() {
 		return String.format(

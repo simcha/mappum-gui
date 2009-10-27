@@ -17,7 +17,6 @@ import pl.ivmx.mappum.gui.utils.java.JavaModelGenerator;
 import pl.ivmx.mappum.gui.utils.java.JavaTreeElement;
 
 public class ModelGeneratorFromJava {
-	// private Logger logger = Logger.getLogger(ModelGeneratorFromJava.class);
 
 	private static final ModelGeneratorFromJava INSTANCE = new ModelGeneratorFromJava();
 
@@ -90,19 +89,6 @@ public class ModelGeneratorFromJava {
 				}
 			}
 		}
-	}
-
-	private List<JavaTreeElement> mergeModels(
-			final List<JavaTreeElement> model1,
-			final List<JavaTreeElement> model2) {
-		final List<JavaTreeElement> merged = new ArrayList<JavaTreeElement>(
-				model1);
-		for (final JavaTreeElement e : model2) {
-			if (JavaModelGenerator.findByType(model1, e.getClazz()) == null) {
-				merged.add(e);
-			}
-		}
-		return merged;
 	}
 
 	public void addFieldsFromJavaModel(String leftClazz, String rightClazz,
