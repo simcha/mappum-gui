@@ -18,6 +18,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.ProjectProperties;
 
+
 public class NewProjectWizard extends Wizard implements INewWizard,
 		IExecutableExtension {
 	private NewProjectWizardPage page;

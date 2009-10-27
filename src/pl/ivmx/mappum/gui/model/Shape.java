@@ -16,6 +16,7 @@ public class Shape extends ModelElement {
 	public static enum Side {
 		LEFT, RIGHT;
 	}
+
 	public static enum SourceType {
 		RUBY, JAVA;
 	}
@@ -52,6 +53,7 @@ public class Shape extends ModelElement {
 	private List<Integer> arrayCounters = new ArrayList<Integer>();
 	private SourceType sourceType;
 	private String optionalJavaPackage;
+	private boolean reccuranceInstance;
 
 	private CallNode shapeNode;
 	static {
@@ -239,8 +241,7 @@ public class Shape extends ModelElement {
 			for (int i = 0; i < shapes.size(); i++) {
 				if (shapes.get(i).equals(shape)) {
 					if (shapes.get(i).getChildren().size() > 0) {
-						for (int j = 0; j < shapes.get(i).getChildren()
-								.size(); j++) {
+						for (int j = 0; j < shapes.get(i).getChildren().size(); j++) {
 							removeShape(shapes.get(i).getChildren().get(j));
 						}
 					}
@@ -285,10 +286,11 @@ public class Shape extends ModelElement {
 		else
 			return name;
 	}
+
 	public String getPackageAndName() {
-		if(optionalJavaPackage!=null){
-			if(!optionalJavaPackage.equals("")){
-				return "Java::" +optionalJavaPackage + "." + name;
+		if (optionalJavaPackage != null) {
+			if (!optionalJavaPackage.equals("")) {
+				return "Java::" + optionalJavaPackage + "." + name;
 			}
 		}
 		return name;
@@ -307,8 +309,7 @@ public class Shape extends ModelElement {
 		if (shape.getParent() != null) {
 			initialShapeList.add(shape);
 			if (!shape.getParent().equals(Shape.getRootShapes().get(0))
-					&& !shape.getParent().equals(
-							Shape.getRootShapes().get(1))) {
+					&& !shape.getParent().equals(Shape.getRootShapes().get(1))) {
 				checkShapeStack(shape.getParent(), initialShapeList);
 			}
 		}
@@ -345,6 +346,14 @@ public class Shape extends ModelElement {
 
 	public String getOptionalJavaPackage() {
 		return optionalJavaPackage;
+	}
+
+	public void setReccuranceInstance(boolean reccuranceInstance) {
+		this.reccuranceInstance = reccuranceInstance;
+	}
+
+	public boolean isReccuranceInstance() {
+		return reccuranceInstance;
 	}
 
 }

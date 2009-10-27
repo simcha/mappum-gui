@@ -288,7 +288,10 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		if (model.getParent() == null) {
 			figure.setImage(ImageFactory
 					.getImage(ImageFactory.ImageType.CLASS_IMAGE));
-		} else {
+		} else if(model.isReccuranceInstance()){
+			figure.setImage(ImageFactory
+					.getImage(ImageFactory.ImageType.RECURRENCE_IMAGE));
+		}	else {
 			figure.setImage(ImageFactory
 					.getImage(ImageFactory.ImageType.FIELD_IMAGE));
 		}

@@ -29,7 +29,9 @@ public class ModelGeneratorFromJava {
 	}
 
 	private Shape checkAndAddShape(String name, Shape parent, Side side,
-			boolean isArray) {
+			boolean isArray, boolean isRecurrence) {
+		System.out.println(name + ", recurrence?:" + isRecurrence);
+
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
 				if (name.equals(Shape.getRootShapes().get(0).getName())) {
@@ -51,6 +53,9 @@ public class ModelGeneratorFromJava {
 		} else {
 			for (Shape shape : parent.getChildren()) {
 				if (shape.getName().equals(name)) {
+					if (isRecurrence) {
+						shape.setReccuranceInstance(true);
+					}
 					return shape;
 				}
 			}
@@ -58,6 +63,9 @@ public class ModelGeneratorFromJava {
 					generateRubyModelForField(name, side));
 			shape.setArrayType(isArray);
 			shape.addToParent();
+			if (isRecurrence) {
+				shape.setReccuranceInstance(true);
+			}
 			return shape;
 		}
 	}
@@ -66,14 +74,18 @@ public class ModelGeneratorFromJava {
 			final TreeElement el, final String sideElement,
 			final List<JavaTreeElement> model, final Shape.Side side) {
 		if (el.getClazz().equals(clazz)) {
-			Shape parent = checkAndAddShape(sideElement, null, side, false);
+			Shape parent = checkAndAddShape(sideElement, null, side, false,
+					((JavaTreeElement) el).isMarkedAsComplex());
 			if (el.getElements() != null) {
 				for (TreeElement childElement : el.getElements()) {
 					Shape child = checkAndAddShape(childElement.getName(),
-							parent, side, childElement.getIsArray());
+							parent, side, childElement.getIsArray(),
+							((JavaTreeElement) childElement)
+									.isMarkedAsComplex());
 					if (childElement.getClazz() != null) {
 						getComplexField(childElement.getClazz(), child, side,
 								model);
+
 					}
 				}
 			}
@@ -104,7 +116,9 @@ public class ModelGeneratorFromJava {
 			if (element.getClazz().equals(searchElement)) {
 				for (TreeElement childElement : element.getElements()) {
 					Shape child = checkAndAddShape(childElement.getName(),
-							parent, side, childElement.getIsArray());
+							parent, side, childElement.getIsArray(),
+							((JavaTreeElement) childElement)
+									.isMarkedAsComplex());
 					if (childElement.getClazz() != null) {
 						getComplexField(childElement.getClazz(), child, side,
 								model);

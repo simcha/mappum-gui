@@ -62,7 +62,7 @@
             <command
                   commandId="pl.ivmx.mappum.gui.commands.id.generateModelFromXSD"
                   icon="icons/rubby.gif"
-                  label="Generate model"
+                  label="Generate mapping"
                   style="push">
                <visibleWhen>
                   <with

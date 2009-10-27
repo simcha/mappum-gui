@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Image;
 public class ImageFactory {
 
 	public static enum ImageType {
-		CLASS_IMAGE, FIELD_IMAGE, METHOD_IMAGE, CONNECTION_SMALL_IMAGE, CONNECTION_LARGE_IMAGE
+		CLASS_IMAGE, FIELD_IMAGE, METHOD_IMAGE, CONNECTION_SMALL_IMAGE, CONNECTION_LARGE_IMAGE, RECURRENCE_IMAGE
 	}
 
 	public static Image getImage(final ImageType imageType) {
@@ -47,6 +47,8 @@ public class ImageFactory {
 			return "connection_s16.gif";
 		case CONNECTION_LARGE_IMAGE:
 			return "connection_s24.gif";
+		case RECURRENCE_IMAGE:
+			return "recurrence.gif";
 		default:
 			return null;
 		}
