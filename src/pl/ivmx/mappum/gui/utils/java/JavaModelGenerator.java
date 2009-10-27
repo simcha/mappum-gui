@@ -63,8 +63,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 
 		final JavaTreeElement te = findByType(model, classPrefixed);
 		if (te != null) {
-			return new JavaTreeElement(null, null, isArray, name, false, te
-					.isMarkedAsComplex());
+			return new JavaTreeElement(null, null, isArray, name, false, true);
 		}
 
 		if (!classPrefixed.startsWith(IJavaModelGenerator.JAVA_TYPE_PREFIX)) {
