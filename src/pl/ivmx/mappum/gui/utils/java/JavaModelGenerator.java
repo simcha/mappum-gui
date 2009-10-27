@@ -49,7 +49,6 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		return instance;
 	}
 
-	@Override
 	public void generate(final String classPrefixed,
 			final List<JavaTreeElement> model, final IProject project)
 			throws JavaModelException, IllegalArgumentException {

@@ -43,12 +43,10 @@ public final class MappumEditorPaletteFactory {
 		return new ConnectionCreationToolEntry(label, shortDesc,
 				new CreationFactory() {
 
-					@Override
 					public Object getNewObject() {
 						return null;
 					}
 
-					@Override
 					public Object getObjectType() {
 						return info;
 					}

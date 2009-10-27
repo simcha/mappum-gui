@@ -300,11 +300,9 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		getFigure().recreateLabel();
 	}
 
-	@Override
 	public void mouseDoubleClicked(MouseEvent me) {
 	}
 
-	@Override
 	public void mousePressed(MouseEvent me) {
 		if (hasModelChildren()
 				&& editor.getCurrentPaletteTool().equals(
@@ -327,7 +325,6 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		return super.getChildren();
 	}
 
-	@Override
 	public void mouseReleased(MouseEvent me) {
 	}
 

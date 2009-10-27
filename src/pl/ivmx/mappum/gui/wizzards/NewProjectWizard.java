@@ -106,7 +106,6 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 		}
 	}
 
-	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		logger.debug("New Project wizzard started.");
 		setWindowTitle("New Mappum Project Wizard"); // NON-NLS-1
@@ -119,7 +118,6 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 		addPage(page);
 	}
 
-	@Override
 	public void setInitializationData(IConfigurationElement config,
 			String propertyName, Object data) throws CoreException {
 		this.configElement = config;

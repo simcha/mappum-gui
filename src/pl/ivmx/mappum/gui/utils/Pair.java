@@ -33,9 +33,7 @@ public class Pair {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return "Shapes: " + leftShape.getName() + ", "
-				+ rightShape.getName();
+		return "Shapes: " + leftShape.getName() + ", " + rightShape.getName();
 	}
 
 }

@@ -2,8 +2,6 @@ package pl.ivmx.mappum.gui.utils;
 
 import java.util.List;
 
-import javax.script.ScriptException;
-
 import org.eclipse.core.resources.IProject;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.ast.CallNode;
@@ -74,10 +72,10 @@ public class ModelGeneratorFromXML {
 		return wl.definedElementTrees();
 	}
 
-	public List<TreeElement> getModel() throws ScriptException {
+	public List<TreeElement> getModel() throws Exception {
 		if (model == null) {
 			if ((model = evalMappumApi()) == null)
-				throw new ScriptException(
+				throw new Exception(
 						"Error while returning model. Model is null. Check logs for more details.");
 		}
 		return model;
@@ -88,7 +86,7 @@ public class ModelGeneratorFromXML {
 	}
 
 	public List<TreeElement> generateModel(IProject project)
-			throws ScriptException {
+			throws Exception {
 		final String classesFolder = project.getFolder(
 				ModelGeneratorFromXML.DEFAULT_GENERATED_CLASSES_FOLDER)
 				.getLocation().toPortableString();

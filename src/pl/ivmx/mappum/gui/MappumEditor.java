@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.EventObject;
 
-import javax.script.ScriptException;
-
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -74,6 +73,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	/** Palette component, holding the tools and shapes. */
 	private PaletteRoot PALETTE_MODEL;
 
+	private Logger logger = Logger.getLogger(ModelGenerator.class);
+
 	/** Create a new ShapesEditor instance. This is called by the Workspace. */
 	public MappumEditor() {
 		setEditDomain(new DefaultEditDomain(this));
@@ -88,8 +89,9 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	}
 
 	protected void setInput(IEditorInput input) {
+		logger.info("Loading Mappum file");
 		setPartName(input.getName());
-		System.out.println("SET INPUT");
+
 		super.setInput(input);
 
 		cleanup();
@@ -124,7 +126,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 												file.getProject());
 							} catch (final Exception e) {
 								Display.getDefault().syncExec(new Runnable() {
-									@Override
 									public void run() {
 										final MessageBox mb = new MessageBox(
 												getSite().getShell(),
@@ -158,9 +159,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						TestNodeTreeWindow.show(RootNodeHolder.getInstance()
 								.getRootNode());
 
-					} catch (CoreException e) {
-						e.printStackTrace();
-					} catch (ScriptException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					monitor.done();
@@ -395,6 +394,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	 * @see org.eclipse.gef.ui.parts.GraphicalEditorWithFlyoutPalette#initializeGraphicalViewer()
 	 */
 	protected void initializeGraphicalViewer() {
+		logger.info("Initialize Mappum started");
 
 		final GraphicalViewer viewer = getGraphicalViewer();
 
@@ -431,7 +431,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		super.dispose();
 	}
 
-	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
 		if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
 			if (resourceChangedBySelf) {
@@ -464,7 +463,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		return false;
 	}
 
-	@Override
 	public ToolEntry getCurrentPaletteTool() {
 		return getPaletteViewerProvider().getEditDomain().getPaletteViewer()
 				.getActiveTool();

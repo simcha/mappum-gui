@@ -3,8 +3,6 @@ package pl.ivmx.mappum.gui.handlers;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import javax.script.ScriptException;
-
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -128,7 +126,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 								generator.setModel(null);
 								generator.generateModel(finalProject);
 								monitor.done();
-							} catch (ScriptException e) {
+							} catch (Exception e) {
 								e.printStackTrace();
 								logger.error("Error while generating classes: "
 										+ e.getCause().getMessage());
@@ -158,7 +156,7 @@ public class GenerateModelFromXsdHandler extends AbstractHandler {
 
 		try {
 			return ModelGeneratorFromXML.getInstance().getModel();
-		} catch (ScriptException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			if (e.getCause() != null) {
 				if (e.getCause() instanceof RaiseException) {

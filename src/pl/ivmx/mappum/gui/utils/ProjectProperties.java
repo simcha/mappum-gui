@@ -44,8 +44,9 @@ public class ProjectProperties {
 		}
 
 		try {
-			properties
-					.load(new InputStreamReader(propertiesFile.getContents()));
+			properties.load(propertiesFile.getContents());
+//			properties
+//					.load(new InputStreamReader(propertiesFile.getContents()));
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

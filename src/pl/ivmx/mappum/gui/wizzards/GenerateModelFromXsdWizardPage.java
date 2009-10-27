@@ -39,7 +39,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 
 	private Listener createTreeSelChangeListener(final boolean left) {
 		return new Listener() {
-			@Override
 			public void handleEvent(Event event) {
 				if (left) {
 					leftSelectedType = new SelectedType(
@@ -138,7 +137,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	private Listener createChecboxListener(final Button c, final Button b,
 			final Text text, final Tree tree) {
 		return new Listener() {
-			@Override
 			public void handleEvent(Event event) {
 				if (c.getSelection()) {
 					tree.setEnabled(false);
@@ -169,7 +167,6 @@ public class GenerateModelFromXsdWizardPage extends WizardPage implements
 	private Listener createSelectTypeListener(final Text text,
 			final boolean left) {
 		return new Listener() {
-			@Override
 			public void handleEvent(Event event) {
 				final SelectedType t = JavaTypeSelectorDialog
 						.selectJavaType(getShell());

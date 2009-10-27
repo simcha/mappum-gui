@@ -20,42 +20,34 @@ public class JavaTreeElement implements TreeElement {
 	private final boolean isArray;
 	private final String name;
 
-	@Override
 	public String getClazz() {
 		return clazz;
 	}
 
-	@Override
 	public List<TreeElement> getElements() {
 		return elements;
 	}
 
-	@Override
 	public boolean getIsArray() {
 		return isArray;
 	}
 
-	@Override
 	public String getName() {
 		return name;
 	}
 
-	@Override
 	public void setClazz(String arg0) {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	@Override
 	public void setElements(List<TreeElement> arg0) {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	@Override
 	public void setIsArray(boolean arg0) {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
-	@Override
 	public void setName(String arg0) {
 		throw new UnsupportedOperationException("Not implemented");
 	}
