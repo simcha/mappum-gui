@@ -129,8 +129,6 @@ public class ModelGeneratorFromJava {
 	}
 
 	public CallNode generateRubyModelForField(String name, final Shape.Side side) {
-		// String prefix = RootNodeHolder.getInstance().generateRandomIdent(
-		// RootNodeHolder.IDENT_LENGTH);
 		if (side == Shape.Side.LEFT) {
 			ListNode listNode = new ListNode(new SourcePosition());
 			DVarNode dVarNode = new DVarNode(new SourcePosition(), 0,

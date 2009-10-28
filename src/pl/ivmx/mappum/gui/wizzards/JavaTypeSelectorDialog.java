@@ -16,8 +16,6 @@ import org.eclipse.ui.dialogs.SelectionDialog;
 @SuppressWarnings("restriction")
 public class JavaTypeSelectorDialog {
 
-	public static String JAVA_PROJECT_NAME = "java";
-
 	private static IJavaProject getThisJavaProject() {
 		IStructuredSelection is = (IStructuredSelection) PlatformUI
 				.getWorkbench().getActiveWorkbenchWindow()
