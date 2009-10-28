@@ -20,6 +20,7 @@ public class ModelGeneratorFromXML {
 	public static final String DEFAULT_MAP_FOLDER = ".map";
 	public static final String DEFAULT_WORKING_MAP_FOLDER = "map";
 	public static final String DEFAULT_SCHEMA_FOLDER = "schema";
+	public static final String DEFAULT_JAVA_FOLDER = "java";
 	public static final String DEFAULT_GENERATED_CLASSES_FOLDER = ".classes";
 	public static final String DEFAULT_PROJECT_PROPERTIES_FILE = "project.properties";
 

@@ -20,6 +20,7 @@ public class ProjectProperties {
 	public static String CLASSES_DIRECTORY_PROPS = "classesDirectory";
 	public static String SCHEMA_DIRECTORY_PROPS = "schemaDirectory";
 	public static String WORKING_MAP_DIRECTORY_PROPS = "workingMapDirectory";
+	public static String JAVA_DIRECTORY_PROPS = "javaDirectory";
 
 	public ProjectProperties(IProject project) {
 		IPath propertiesPath = project.getFullPath().append(PROPERTIES_FILE);
@@ -36,6 +37,7 @@ public class ProjectProperties {
 			try {
 				propertiesFile.create(new ByteArrayInputStream(stream
 						.toByteArray()), true, null);
+				propertiesFile.setHidden(true);
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

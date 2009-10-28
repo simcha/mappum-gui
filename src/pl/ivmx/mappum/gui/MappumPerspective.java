@@ -73,6 +73,11 @@ public class MappumPerspective implements IPerspectiveFactory {
 		factory.addNewWizardShortcut("pl.ivmx.mappum.gui.wizzards.NewProjectWizard");//NON-NLS-1
 		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//NON-NLS-1
 		factory.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//NON-NLS-1
+		factory.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewPackageCreationWizard");//NON-NLS-1
+		factory.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewClassCreationWizard");//NON-NLS-1
+		factory.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewInterfaceCreationWizard"); //$NON-NLS-1$
+
+
 	}
 
 	private void addViewShortcuts() {

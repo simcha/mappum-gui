@@ -9,6 +9,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
@@ -17,7 +21,6 @@ import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromXML;
 import pl.ivmx.mappum.gui.utils.ProjectProperties;
-
 
 public class NewProjectWizard extends Wizard implements INewWizard,
 		IExecutableExtension {
@@ -54,15 +57,20 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 				.append(ModelGeneratorFromXML.DEFAULT_SCHEMA_FOLDER);
 		IPath folderClassesPath = projectPath
 				.append(ModelGeneratorFromXML.DEFAULT_GENERATED_CLASSES_FOLDER);
+		IPath folderJavaPath = projectPath
+				.append(ModelGeneratorFromXML.DEFAULT_JAVA_FOLDER);
 		IFolder folderMap = createFolderHandle(folderMapPath);
 		IFolder folderWorkingMap = createFolderHandle(folderWorkingMapPath);
 		IFolder folderSchema = createFolderHandle(folderSchemaPath);
 		IFolder folderClasses = createFolderHandle(folderClassesPath);
+		IFolder folderJava = createFolderHandle(folderJavaPath);
 		try {
-			folderMap.create(false, true, null);
-			folderWorkingMap.create(false, true, null);
-			folderSchema.create(false, true, null);
-			folderClasses.create(false, true, null);
+			folderMap.create(true, true, null);
+			folderWorkingMap.create(true, true, null);
+			folderSchema.create(true, true, null);
+			folderClasses.create(true, true, null);
+			folderJava.create(true, true, null);
+			folderJava.setHidden(true);
 		} catch (CoreException e) {
 			logger.error("Error performing finish operations: "
 					+ e.getCause().getMessage());
@@ -84,6 +92,10 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 				projectHandle.getLocation().append(
 						ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER)
 						.toPortableString());
+		properties.setProperty(ProjectProperties.JAVA_DIRECTORY_PROPS,
+				projectHandle.getLocation().append(
+						ModelGeneratorFromXML.DEFAULT_JAVA_FOLDER)
+						.toPortableString());
 
 		logger.debug("New Project wizzard ended. Created new mappum project: "
 				+ projectHandle.getName());
@@ -102,6 +114,27 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 			newNatures[natures.length] = "org.eclipse.jdt.core.javanature";
 			description.setNatureIds(newNatures);
 			project.setDescription(description, null);
+
+			IJavaProject jProject = JavaCore.create(project);
+			IFolder binFolder = project.getFolder(new Path("java/class"));
+			binFolder.create(true, true, null);
+
+			IFolder srcFolder = project.getFolder(new Path("java/src"));
+			srcFolder.create(true, true, null);
+
+			IFolder libFolder = project.getFolder(new Path("java/lib"));
+			libFolder.create(true, true, null);
+
+			jProject.setOutputLocation(binFolder.getFullPath(), null);
+			jProject
+					.setRawClasspath(
+							new IClasspathEntry[] {
+									JavaCore.newSourceEntry(srcFolder
+											.getFullPath()),
+									JavaCore
+											.newContainerEntry(new Path(
+													"org.eclipse.jdt.launching.JRE_CONTAINER")) },
+							null);
 		} catch (final CoreException e) {
 
 		}
