@@ -60,6 +60,11 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 				.unmodifiableSet(Collections.EMPTY_SET));
 	}
 
+	private String getFieldName(final String methodName) {
+		final String firstLetter = methodName.substring(3, 4).toLowerCase();
+		return firstLetter + methodName.substring(4);
+	}
+
 	private JavaTreeElement generate0(final String classPrefixed,
 			final List<JavaTreeElement> model, final String name,
 			final boolean isArray, final IProject project,
@@ -104,21 +109,22 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 					if (PRIMITIVE_TYPES_MAPPING.containsKey(flatType)) {
 						subElements.add(new JavaTreeElement(
 								PRIMITIVE_TYPES_MAPPING.get(flatType), null,
-								isParameterArray, m.getElementName().substring(
-										3)));
+								isParameterArray, getFieldName(m
+										.getElementName())));
 					} else {
 						throw new IllegalArgumentException(String.format(
 								"Parameter type=%s cannot be resolved",
 								flatType));
 					}
 				} else if (PRIMITIVE_OBJECTS_MAPPING.containsKey(resolved)) {
-					subElements.add(new JavaTreeElement(
-							PRIMITIVE_OBJECTS_MAPPING.get(resolved), null,
-							isParameterArray, m.getElementName().substring(3)));
+					subElements
+							.add(new JavaTreeElement(PRIMITIVE_OBJECTS_MAPPING
+									.get(resolved), null, isParameterArray,
+									getFieldName(m.getElementName())));
 				} else {
 					subElements.add(generate0(
 							IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved,
-							model, m.getElementName().substring(3),
+							model, getFieldName(m.getElementName()),
 							isParameterArray, project, Collections
 									.unmodifiableSet(parents)));
 				}
