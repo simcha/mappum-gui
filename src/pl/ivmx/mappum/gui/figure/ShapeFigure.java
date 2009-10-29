@@ -1,11 +1,11 @@
 package pl.ivmx.mappum.gui.figure;
 
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.FlowLayout;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MarginBorder;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.RoundedRectangle;
+import org.eclipse.draw2d.ToolbarLayout;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.swt.SWT;
@@ -25,8 +25,10 @@ public class ShapeFigure extends RoundedRectangle {
 	public ShapeFigure(final MouseListener ml, final boolean isDark) {
 		setBorder(new MarginBorder(5));
 		setCornerDimensions(new Dimension(20, 20));
-		final FlowLayout layout = new FlowLayout(false);
+		final ToolbarLayout layout = new ToolbarLayout(false);
+		layout.setSpacing(5);
 		layout.setStretchMinorAxis(true);
+		// layout.set
 		setLayoutManager(layout);
 		setSize(50, 20);
 		setBackgroundColor(isDark ? COLOR_DARK : COLOR_LIGHT);
