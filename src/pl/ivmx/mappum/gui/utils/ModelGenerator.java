@@ -452,8 +452,7 @@ public class ModelGenerator {
 		BlockNode blockNode = (BlockNode) subobjectFcallnode.childNodes()
 				.get(1).childNodes().get(1);
 		XStrNode childComment = null;
-		IterNode iterNode = (IterNode) subobjectFcallnode.childNodes().get(1)
-				.childNodes().get(0);
+		IterNode iterNode = (IterNode) subobjectFcallnode.childNodes().get(1);
 		if (iterNode.getVarNode() instanceof MultipleAsgnNode) {
 			DAsgnNode asgnLeftNode = (DAsgnNode) iterNode.getVarNode()
 					.childNodes().get(0).childNodes().get(0);

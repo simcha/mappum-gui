@@ -159,9 +159,19 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						TestNodeTreeWindow.show(RootNodeHolder.getInstance()
 								.getRootNode());
 
-					} catch (Exception e) {
-						MessageDialog.openError(getSite().getShell(),
-								"Error while generating model", "Mapping model has errors." + e.getCause().getMessage());
+					} catch (final Exception e) {
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								final MessageBox mb = new MessageBox(
+										getSite().getShell(),
+										SWT.ICON_ERROR);
+								mb.setMessage(String.format(
+										"Model generation failed: %s",
+										e.getMessage()));
+								mb.setText("Error");
+								mb.open();
+							}
+						});
 						e.printStackTrace();
 					}
 					monitor.done();
