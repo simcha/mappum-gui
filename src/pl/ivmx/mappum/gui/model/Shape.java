@@ -54,6 +54,9 @@ public class Shape extends ModelElement {
 	private SourceType sourceType;
 	private String optionalJavaPackage;
 	private boolean reccuranceInstance;
+	
+	private String alias;
+	private String childAlias;
 
 	private CallNode shapeNode;
 	static {
@@ -354,6 +357,22 @@ public class Shape extends ModelElement {
 
 	public boolean isReccuranceInstance() {
 		return reccuranceInstance;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setChildAlias(String childAlias) {
+		this.childAlias = childAlias;
+	}
+
+	public String getChildAlias() {
+		return childAlias;
 	}
 
 }

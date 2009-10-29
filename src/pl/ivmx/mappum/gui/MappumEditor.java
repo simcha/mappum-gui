@@ -160,6 +160,8 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 								.getRootNode());
 
 					} catch (Exception e) {
+						MessageDialog.openError(getSite().getShell(),
+								"Error while generating model", "Mapping model has errors." + e.getCause().getMessage());
 						e.printStackTrace();
 					}
 					monitor.done();
@@ -170,11 +172,11 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 			MessageDialog.openError(getSite().getShell(),
-					"Error while generating model", e.getCause().getMessage());
+					"Error while generating model", "Mapping model has errors.");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			MessageDialog.openError(getSite().getShell(),
-					"Error while generating model", e.getCause().getMessage());
+					"Error while generating model", "Generating interupted.");
 		}
 	}
 
