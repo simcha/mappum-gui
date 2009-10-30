@@ -5,6 +5,8 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.JavaModelException;
 
+import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
+
 public interface IJavaModelGenerator {
 
 	public final String JAVA_TYPE_PREFIX = "Java::";

@@ -54,6 +54,7 @@ import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.ShapesDiagram;
 import pl.ivmx.mappum.gui.model.Shape.SourceType;
 import pl.ivmx.mappum.gui.model.test.TestNodeTreeWindow;
+import pl.ivmx.mappum.gui.model.treeelement.TypedTreeElement;
 import pl.ivmx.mappum.gui.parts.ShapesEditPartFactory;
 import pl.ivmx.mappum.gui.utils.ModelGenerator;
 import pl.ivmx.mappum.gui.utils.ModelGeneratorFromJava;
@@ -144,10 +145,12 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 							monitor.worked(35);
 							ModelGeneratorFromXML.getInstance()
 									.addFieldsFromRubyModel(
-											Shape.getRootShapes().get(0)
-													.getFullName(),
-											Shape.getRootShapes().get(1)
-													.getFullName());
+											new TypedTreeElement(Shape
+													.getRootShapes().get(0)
+													.getFullName()),
+											new TypedTreeElement(Shape
+													.getRootShapes().get(1)
+													.getFullName()));
 						}
 
 						monitor.worked(75);
@@ -162,12 +165,11 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 					} catch (final Exception e) {
 						Display.getDefault().syncExec(new Runnable() {
 							public void run() {
-								final MessageBox mb = new MessageBox(
-										getSite().getShell(),
-										SWT.ICON_ERROR);
+								final MessageBox mb = new MessageBox(getSite()
+										.getShell(), SWT.ICON_ERROR);
 								mb.setMessage(String.format(
-										"Model generation failed: %s",
-										e.getMessage()));
+										"Model generation failed: %s", e
+												.getMessage()));
 								mb.setText("Error");
 								mb.open();
 							}
@@ -181,8 +183,10 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 			});
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
-			MessageDialog.openError(getSite().getShell(),
-					"Error while generating model", "Mapping model has errors.");
+			MessageDialog
+					.openError(getSite().getShell(),
+							"Error while generating model",
+							"Mapping model has errors.");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			MessageDialog.openError(getSite().getShell(),

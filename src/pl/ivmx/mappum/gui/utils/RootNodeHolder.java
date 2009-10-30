@@ -738,16 +738,43 @@ public class RootNodeHolder {
 		return new CallNode[] { leftSide, rightSide };
 	}
 
-	private NewlineNode generateSimpleMapping(CallNode leftSide,
-			CallNode rightSide, String side, NewlineNode parentMapping,
+	private Node createTypeNode(final String typeName) {
+		final ConstNode constNode = new ConstNode(new SourcePosition(),
+				typeName);
+		return new ArrayNode(new SourcePosition(), constNode);
+	}
+
+	private void addTypeToNode(final CallNode node, final String typeName) {
+		if (typeName != null) {
+			node.setArgsNode(createTypeNode(typeName));
+		}
+	}
+
+	private void addTypesToNodes(final CallNode node1, final String typeName1,
+			final CallNode node2, final String typeName2) {
+		if (typeName1 != null && typeName1.equals(typeName2)) {
+			return;
+		}
+		addTypeToNode(node1, typeName1);
+		addTypeToNode(node2, typeName2);
+	}
+
+	private NewlineNode generateSimpleMapping(final CallNode leftSideIn,
+			final String leftType, final CallNode rightSideIn,
+			final String rightType, String side, NewlineNode parentMapping,
 			Integer arrayElementSide, Integer arrayNumber) {
-		CallNode[] nodes = addArrayElementDeclaration(leftSide, rightSide,
+		CallNode[] nodes = addArrayElementDeclaration(leftSideIn, rightSideIn,
 				arrayElementSide, arrayNumber);
-		leftSide = nodes[0];
-		rightSide = nodes[1];
+
+		final CallNode leftSide = nodes[0];
+		final CallNode rightSide = nodes[1];
+
+		addTypesToNodes(leftSide, leftType, rightSide, rightType);
+
 		System.out.println("Mapping: " + leftSide.getName() + ", "
 				+ rightSide.getName() + ", side:" + side);
 		ArrayNode argsNode = new ArrayNode(new SourcePosition(), rightSide);
+
 		CallNode callNode = new CallNode(new SourcePosition(), leftSide, side,
 				argsNode);
 		ArrayNode arrayNode = new ArrayNode(new SourcePosition(), callNode);
@@ -851,12 +878,20 @@ public class RootNodeHolder {
 			if ((leftShapeList.size() > 1 && rightShapeList.size() > 1)
 					|| (leftShapeList.size() == 1 && rightShapeList.size() > 1)
 					|| (leftShapeList.size() > 1 && rightShapeList.size() == 1)) {
+
+				final CallNode leftNode = leftShapeList.get(0).getShapeNode();
+				final String leftType = leftShapeList.get(0).getType();
+				final CallNode rightNode = rightShapeList.get(0).getShapeNode();
+				final String rightType = rightShapeList.get(0).getType();
+
 				if (lastArrayShape.getLeftShape() != null
 						&& lastArrayShape.getLeftShape().equals(
 								leftShapeList.get(0))) {
 					tmpNode = generateComplexMapping(
-							leftShapeList.get(0).getShapeNode(),
-							rightShapeList.get(0).getShapeNode(),
+							leftNode,
+							leftType,
+							rightNode,
+							rightType,
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, LEFT_ELEM_ARRAY_CHANGE,
@@ -865,16 +900,20 @@ public class RootNodeHolder {
 						&& lastArrayShape.getRightShape().equals(
 								rightShapeList.get(0))) {
 					tmpNode = generateComplexMapping(
-							leftShapeList.get(0).getShapeNode(),
-							rightShapeList.get(0).getShapeNode(),
+							leftNode,
+							leftType,
+							rightNode,
+							rightType,
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, RIGHT_ELEM_ARRAY_CHANGE,
 							arrayNumber);
 				} else {
 					tmpNode = generateComplexMapping(
-							leftShapeList.get(0).getShapeNode(),
-							rightShapeList.get(0).getShapeNode(),
+							leftNode,
+							leftType,
+							rightNode,
+							rightType,
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, null, null);
@@ -900,7 +939,9 @@ public class RootNodeHolder {
 								leftShapeList.get(0))) {
 					tmpNode = generateComplexMapping(
 							leftShapeList.get(0).getShapeNode(),
+							leftShapeList.get(0).getType(),
 							selfNode,
+							null,
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, LEFT_ELEM_ARRAY_CHANGE,
@@ -908,7 +949,9 @@ public class RootNodeHolder {
 				} else {
 					tmpNode = generateComplexMapping(
 							leftShapeList.get(0).getShapeNode(),
+							leftShapeList.get(0).getType(),
 							selfNode,
+							null,
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, null, null);
@@ -932,7 +975,9 @@ public class RootNodeHolder {
 								rightShapeList.get(0))) {
 					tmpNode = generateComplexMapping(
 							selfNode,
+							null,
 							rightShapeList.get(0).getShapeNode(),
+							rightShapeList.get(0).getType(),
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, RIGHT_ELEM_ARRAY_CHANGE,
@@ -940,7 +985,9 @@ public class RootNodeHolder {
 				} else {
 					tmpNode = generateComplexMapping(
 							selfNode,
+							null,
 							rightShapeList.get(0).getShapeNode(),
+							rightShapeList.get(0).getType(),
 							Connection
 									.translateSideFromIntToString(Connection.Side.DUAL),
 							node, BOTH_DASGN_CHANGE, null, null);
@@ -954,24 +1001,27 @@ public class RootNodeHolder {
 			}
 
 			else if (leftShapeList.size() == 1 && rightShapeList.size() == 1) {
+
+				final CallNode leftNode = leftShapeList.get(0).getShapeNode();
+				final String leftType = leftShapeList.get(0).getType();
+				final CallNode rightNode = rightShapeList.get(0).getShapeNode();
+				final String rightType = rightShapeList.get(0).getType();
+
 				if (lastArrayShape.getLeftShape() != null
 						&& lastArrayShape.getLeftShape().equals(
 								leftShapeList.get(0))) {
-					tmpNode = generateSimpleMapping(leftShapeList.get(0)
-							.getShapeNode(), rightShapeList.get(0)
-							.getShapeNode(), side, node,
+					tmpNode = generateSimpleMapping(leftNode, leftType,
+							rightNode, rightType, side, node,
 							LEFT_ELEM_ARRAY_CHANGE, arrayNumber);
 				} else if (lastArrayShape.getRightShape() != null
 						&& lastArrayShape.getRightShape().equals(
 								rightShapeList.get(0))) {
-					tmpNode = generateSimpleMapping(leftShapeList.get(0)
-							.getShapeNode(), rightShapeList.get(0)
-							.getShapeNode(), side, node,
+					tmpNode = generateSimpleMapping(leftNode, leftType,
+							rightNode, rightType, side, node,
 							RIGHT_ELEM_ARRAY_CHANGE, arrayNumber);
 				} else {
-					tmpNode = generateSimpleMapping(leftShapeList.get(0)
-							.getShapeNode(), rightShapeList.get(0)
-							.getShapeNode(), side, node, null, null);
+					tmpNode = generateSimpleMapping(leftNode, leftType,
+							rightNode, rightType, side, node, null, null);
 				}
 				NewlineNode newLineNode;
 				if ((newLineNode = generateComment(comment)) != null) {
@@ -992,16 +1042,20 @@ public class RootNodeHolder {
 				if (tmpNode == null) {
 					tmpNode = node;
 				}
+
+				final CallNode leftNode = leftShapeList.get(index)
+						.getShapeNode();
+				final String leftType = leftShapeList.get(index).getType();
+
 				if (lastArrayShape.getLeftShape() != null
 						&& lastArrayShape.getLeftShape().equals(
 								leftShapeList.get(index))) {
-					tmpNode = generateSimpleMapping(leftShapeList.get(index)
-							.getShapeNode(), selfNode, side, tmpNode,
+					tmpNode = generateSimpleMapping(leftNode, leftType,
+							selfNode, null, side, tmpNode,
 							LEFT_ELEM_ARRAY_CHANGE, arrayNumber);
 				} else {
-					tmpNode = generateSimpleMapping(leftShapeList.get(index)
-							.getShapeNode(), selfNode, side, tmpNode, null,
-							null);
+					tmpNode = generateSimpleMapping(leftNode, leftType,
+							selfNode, null, side, tmpNode, null, null);
 				}
 				leftShapeList.clear();
 				NewlineNode newLineNode;
@@ -1021,16 +1075,20 @@ public class RootNodeHolder {
 				if (tmpNode == null) {
 					tmpNode = node;
 				}
+
+				final CallNode rightNode = rightShapeList.get(index)
+						.getShapeNode();
+				final String rightType = rightShapeList.get(index).getType();
+
 				if (lastArrayShape.getRightShape() != null
 						&& lastArrayShape.getRightShape().equals(
 								rightShapeList.get(index))) {
-					tmpNode = generateSimpleMapping(selfNode, rightShapeList
-							.get(index).getShapeNode(), side, tmpNode,
-							RIGHT_ELEM_ARRAY_CHANGE, arrayNumber);
+					tmpNode = generateSimpleMapping(selfNode, null, rightNode,
+							rightType, side, tmpNode, RIGHT_ELEM_ARRAY_CHANGE,
+							arrayNumber);
 				} else {
-					tmpNode = generateSimpleMapping(selfNode, rightShapeList
-							.get(index).getShapeNode(), side, tmpNode, null,
-							null);
+					tmpNode = generateSimpleMapping(selfNode, null, rightNode,
+							rightType, side, tmpNode, null, null);
 				}
 				rightShapeList.clear();
 				NewlineNode newLineNode;
@@ -1511,13 +1569,19 @@ public class RootNodeHolder {
 	 *            assign prefixes
 	 * @return
 	 */
-	private NewlineNode generateComplexMapping(CallNode leftSide,
-			CallNode rightSide, String side, NewlineNode parentMapping,
-			int whichDAsagnChange, Integer arrayElementSide, Integer arrayNumber) {
-		CallNode[] nodes = addArrayElementDeclaration(leftSide, rightSide,
+	private NewlineNode generateComplexMapping(final CallNode leftSideIn,
+			final String leftType, final CallNode rightSideIn,
+			final String rightType, final String side,
+			final NewlineNode parentMapping, final int whichDAsagnChange,
+			final Integer arrayElementSide, final Integer arrayNumber) {
+		CallNode[] nodes = addArrayElementDeclaration(leftSideIn, rightSideIn,
 				arrayElementSide, arrayNumber);
-		leftSide = nodes[0];
-		rightSide = nodes[1];
+
+		final CallNode leftSide = nodes[0];
+		final CallNode rightSide = nodes[1];
+
+		addTypesToNodes(leftSide, leftType, rightSide, rightType);
+
 		String leftPrefix = generateRandomIdent();
 		String rightPrefix = generateRandomIdent();
 		String[] s = findDVars(parentMapping);

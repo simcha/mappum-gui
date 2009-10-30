@@ -1,10 +1,10 @@
-package pl.ivmx.mappum.gui.utils.java;
+package pl.ivmx.mappum.gui.model.treeelement;
 
 import java.util.List;
 
 import pl.ivmx.mappum.TreeElement;
 
-public class JavaTreeElement implements TreeElement {
+public class JavaTreeElement extends TreeElementAdapter {
 
 	public JavaTreeElement(final String clazz,
 			final List<TreeElement> elements, final boolean isArray,
@@ -31,10 +31,12 @@ public class JavaTreeElement implements TreeElement {
 	private final boolean complete;
 	private final boolean markAsComplex;
 
+	@Override
 	public String getClazz() {
 		return clazz;
 	}
 
+	@Override
 	public List<TreeElement> getElements() {
 		if (!isComplete()) {
 			throw new IllegalStateException(
@@ -43,32 +45,18 @@ public class JavaTreeElement implements TreeElement {
 		return elements;
 	}
 
+	@Override
 	public boolean getIsArray() {
 		return isArray;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
-	public void setClazz(String arg0) {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
 	public boolean isComplete() {
 		return complete;
-	}
-
-	public void setElements(List<TreeElement> arg0) {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setIsArray(boolean arg0) {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	public void setName(String arg0) {
-		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public boolean isMarkedAsComplex() {

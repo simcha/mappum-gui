@@ -5,7 +5,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.jrubyparser.ast.NewlineNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.lexer.SyntaxException;
 

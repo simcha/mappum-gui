@@ -54,7 +54,7 @@ public class Shape extends ModelElement {
 	private SourceType sourceType;
 	private String optionalJavaPackage;
 	private boolean reccuranceInstance;
-	
+
 	private String alias;
 	private String childAlias;
 
@@ -157,6 +157,10 @@ public class Shape extends ModelElement {
 
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		return descriptors;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 	public Object getPropertyValue(Object propertyId) {

@@ -13,8 +13,9 @@ import org.jrubyparser.ast.ListNode;
 import pl.ivmx.mappum.TreeElement;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.Shape.Side;
+import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
+import pl.ivmx.mappum.gui.model.treeelement.TypedTreeElement;
 import pl.ivmx.mappum.gui.utils.java.JavaModelGenerator;
-import pl.ivmx.mappum.gui.utils.java.JavaTreeElement;
 
 public class ModelGeneratorFromJava {
 
@@ -27,39 +28,42 @@ public class ModelGeneratorFromJava {
 		return INSTANCE;
 	}
 
-	private Shape checkAndAddShape(String name, Shape parent, Side side,
-			boolean isArray, boolean isRecurrence) {
-		System.out.println(name + ", recurrence?:" + isRecurrence);
+	private Shape checkAndAddShape(final TreeElement element, Shape parent,
+			Side side, boolean isArray, boolean isRecurrence) {
+		System.out.println(element.getName() + ", recurrence?:" + isRecurrence);
 
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
-				if (name.equals(Shape.getRootShapes().get(0).getName())) {
+				if (element.getName().equals(
+						Shape.getRootShapes().get(0).getName())) {
 					return Shape.getRootShapes().get(0);
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
-									+ name + ", side: " + side);
+									+ element.getName() + ", side: " + side);
 				}
 			} else {
-				if (name.equals(Shape.getRootShapes().get(1).getName())) {
+				if (element.getName().equals(
+						Shape.getRootShapes().get(1).getName())) {
 					return Shape.getRootShapes().get(1);
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
-									+ name + ", side: " + side);
+									+ element.getName() + ", side: " + side);
 				}
 			}
 		} else {
 			for (Shape shape : parent.getChildren()) {
-				if (shape.getName().equals(name)) {
+				if (shape.getName().equals(element.getName())) {
 					if (isRecurrence) {
 						shape.setReccuranceInstance(true);
 					}
 					return shape;
 				}
 			}
-			Shape shape = Shape.createShape(name, null, parent, side,
-					generateRubyModelForField(name, side));
+			Shape shape = Shape.createShape(element.getName(), element
+					.getClazz(), parent, side, generateRubyModelForField(
+					element.getName(), side));
 			shape.setArrayType(isArray);
 			shape.addToParent();
 			if (isRecurrence) {
@@ -73,12 +77,13 @@ public class ModelGeneratorFromJava {
 			final TreeElement el, final String sideElement,
 			final List<JavaTreeElement> model, final Shape.Side side) {
 		if (el.getClazz().equals(clazz)) {
-			Shape parent = checkAndAddShape(sideElement, null, side, false,
-					((JavaTreeElement) el).isMarkedAsComplex());
+			Shape parent = checkAndAddShape(new TypedTreeElement(sideElement,
+					clazz), null, side, false, ((JavaTreeElement) el)
+					.isMarkedAsComplex());
 			if (el.getElements() != null) {
 				for (TreeElement childElement : el.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, side, childElement.getIsArray(),
+					Shape child = checkAndAddShape(childElement, parent, side,
+							childElement.getIsArray(),
 							((JavaTreeElement) childElement)
 									.isMarkedAsComplex());
 					if (childElement.getClazz() != null) {
@@ -115,8 +120,8 @@ public class ModelGeneratorFromJava {
 		for (TreeElement element : model) {
 			if (element.getClazz().equals(searchElement)) {
 				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, side, childElement.getIsArray(),
+					Shape child = checkAndAddShape(childElement, parent, side,
+							childElement.getIsArray(),
 							((JavaTreeElement) childElement)
 									.isMarkedAsComplex());
 					if (childElement.getClazz() != null) {

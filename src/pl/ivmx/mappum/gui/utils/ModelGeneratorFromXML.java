@@ -79,6 +79,10 @@ public class ModelGeneratorFromXML {
 				throw new Exception(
 						"Error while returning model. Model is null. Check logs for more details.");
 		}
+		for (final TreeElement te : model) {
+			System.out.println(String.format("%s;%s", te.getName(), te
+					.getClazz()));
+		}
 		return model;
 	}
 
@@ -86,8 +90,7 @@ public class ModelGeneratorFromXML {
 		this.model = model;
 	}
 
-	public List<TreeElement> generateModel(IProject project)
-			throws Exception {
+	public List<TreeElement> generateModel(IProject project) throws Exception {
 		final String classesFolder = project.getFolder(
 				ModelGeneratorFromXML.DEFAULT_GENERATED_CLASSES_FOLDER)
 				.getLocation().toPortableString();
@@ -105,60 +108,64 @@ public class ModelGeneratorFromXML {
 		return getModel();
 	}
 
-	private Shape checkAndAddShape(String name, Shape parent, Side side,
-			boolean isArray) {
+	private Shape checkAndAddShape(TreeElement element, Shape parent,
+			Side side, boolean isArray) {
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
-				if (name.equals(Shape.getRootShapes().get(0).getFullName())) {
+				if (element.getName().equals(
+						Shape.getRootShapes().get(0).getFullName())) {
 					return Shape.getRootShapes().get(0);
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
-									+ name + ", side: " + side);
+									+ element.getName() + ", side: " + side);
 				}
 			} else {
-				if (name.equals(Shape.getRootShapes().get(1).getFullName())) {
+				if (element.getName().equals(
+						Shape.getRootShapes().get(1).getFullName())) {
 					return Shape.getRootShapes().get(1);
 				} else {
 					throw new IllegalArgumentException(
 							"There is no root element for arguments: Shape name: "
-									+ name + ", side: " + side);
+									+ element.getName() + ", side: " + side);
 				}
 			}
 		} else {
 			for (Shape shape : parent.getChildren()) {
-				if (shape.getName().equals(name)) {
+				if (shape.getName().equals(element.getName())) {
 					return shape;
 				}
 			}
-			Shape shape = Shape.createShape(name, null, parent, side,
-					generateRubyModelForField(name, side));
+			Shape shape = Shape.createShape(element.getName(), element
+					.getClazz(), parent, side, generateRubyModelForField(
+					element.getName(), side));
 			shape.setArrayType(isArray);
 			shape.addToParent();
 			return shape;
 		}
 	}
 
-	public void addFieldsFromRubyModel(String leftElement, String rightElement) {
+	public void addFieldsFromRubyModel(final TreeElement leftElement,
+			final TreeElement rightElement) {
 		for (TreeElement element : model) {
-			if (element.getName().equals(leftElement)) {
+			if (element.getName().equals(leftElement.getName())) {
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT, false);
 				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, Shape.Side.LEFT, childElement.getIsArray());
+					Shape child = checkAndAddShape(childElement, parent,
+							Shape.Side.LEFT, childElement.getIsArray());
 					if (childElement.getClazz() != null) {
 						getComplexField(childElement.getClazz(), child,
 								Shape.Side.LEFT);
 					}
 				}
 			}
-			if (element.getName().equals(rightElement)) {
+			if (element.getName().equals(rightElement.getName())) {
 				Shape parent = checkAndAddShape(rightElement, null,
 						Shape.Side.RIGHT, false);
 				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, Shape.Side.RIGHT, childElement.getIsArray());
+					Shape child = checkAndAddShape(childElement, parent,
+							Shape.Side.RIGHT, childElement.getIsArray());
 					if (childElement.getClazz() != null) {
 						getComplexField(childElement.getClazz(), child,
 								Shape.Side.RIGHT);
@@ -173,8 +180,8 @@ public class ModelGeneratorFromXML {
 		for (TreeElement element : model) {
 			if (element.getName().equals(searchElement)) {
 				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement.getName(),
-							parent, side, childElement.getIsArray());
+					Shape child = checkAndAddShape(childElement, parent, side,
+							childElement.getIsArray());
 					if (childElement.getClazz() != null) {
 						getComplexField(childElement.getClazz(), child, side);
 					}

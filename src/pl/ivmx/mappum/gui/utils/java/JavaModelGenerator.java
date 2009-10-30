@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import pl.ivmx.mappum.TreeElement;
+import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
 
 @SuppressWarnings("restriction")
 public class JavaModelGenerator implements IJavaModelGenerator {
