@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
+import org.jrubyparser.ast.NewlineNode;
 import org.jrubyparser.ast.Node;
 import org.jrubyparser.lexer.SyntaxException;
 
@@ -46,6 +47,10 @@ public class ChangeConnectionPropsWizard extends Wizard {
 				mb.setMessage("Parsing failed. Please correct the code.");
 				mb.open();
 				return false;
+			}
+			if (!connection.getComment().equals(mainPage.getRubyComment())) {
+				RootNodeHolder.getInstance().changeMappingAtributes(
+						getConnection(), null, mainPage.getRubyComment());
 			}
 
 			final MessageBox mb = new MessageBox(getShell(), SWT.ICON_QUESTION
