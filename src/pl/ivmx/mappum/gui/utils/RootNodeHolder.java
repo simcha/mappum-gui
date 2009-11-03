@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jrubyparser.ast.NodeType;
 import org.jrubyparser.BlockStaticScope;
 import org.jrubyparser.SourcePosition;
 import org.jrubyparser.StaticScope;
@@ -166,9 +167,26 @@ public class RootNodeHolder {
 				parent.childNodes().add(n, comment);
 				return true;
 			} else {
-				if (comment != null)
+				if (comment != null) {
 					parent.childNodes().add(n, comment);
-				parent.childNodes().remove(n - 1);
+				}
+				int offset = 1;
+				do {
+					if (offset > n) {
+						break;
+					}
+					final Node nodeToDelete = parent.childNodes().get(
+							n - offset);
+					if (nodeToDelete.getNodeType().equals(NodeType.NEWLINENODE)) {
+						if (((NewlineNode) nodeToDelete).getNextNode()
+								.getNodeType().equals(NodeType.XSTRNODE)) {
+							parent.childNodes().remove(n - offset++);
+							continue;
+						}
+					}
+					break;
+				} while (true);
+
 				return true;
 			}
 		}

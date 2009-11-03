@@ -106,7 +106,7 @@ public class ModelGenerator {
 	 * Generates GUI tree model from ruby tree model
 	 * 
 	 * @param file
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public void generateModelChildElements() throws Exception {
 		findRootMap(RootNodeHolder.getInstance().getRootNode());
@@ -138,7 +138,7 @@ public class ModelGenerator {
 	 * Iterates as long as it finds first map
 	 * 
 	 * @param node
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private void findRootMap(Node node) throws Exception {
 		String leftChildAlias = null;
@@ -164,25 +164,29 @@ public class ModelGenerator {
 					}
 					if (((IterNode) ((FCallNode) child).getIterNode())
 							.getBodyNode() instanceof BlockNode) {
-						XStrNode comment = null;
+						final StringBuilder comment = new StringBuilder();
 						for (Node newline : ((IterNode) ((FCallNode) child)
 								.getIterNode()).getBodyNode().childNodes()) {
 							if (((NewlineNode) newline).getNextNode() instanceof XStrNode) {
-								comment = (XStrNode) ((NewlineNode) newline)
-										.getNextNode();
+								if (comment.length() > 0) {
+									comment.append("\n");
+								}
+								comment
+										.append(((XStrNode) ((NewlineNode) newline)
+												.getNextNode()).getValue());
 							} else if (((NewlineNode) newline).getNextNode() instanceof FCallNode) {
 								System.out.println(Shape.getRootShapes());
 								operateOnInternalMap((NewlineNode) newline,
 										new Pair(Shape.getRootShapes().get(0),
 												Shape.getRootShapes().get(1)),
-										comment, leftChildAlias,
+										comment.length() == 0 ? null : comment
+												.toString(), leftChildAlias,
 										rightChildAlias);
-								comment = null;
+								comment.setLength(0);
 							}
 
 						}
 					}
-
 				}
 			}
 			if (iterate == true)
@@ -195,10 +199,11 @@ public class ModelGenerator {
 	 * 
 	 * @param node
 	 * @param parents
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private Connection operateOnInternalMap(NewlineNode node, Pair parents,
-			XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			final String comment, String leftAlias, String rightAlias)
+			throws Exception {
 		int mappingType = 0;
 		for (Node child : node.childNodes()) {
 			if (child instanceof FCallNode)
@@ -243,7 +248,7 @@ public class ModelGenerator {
 			return operateOnMapWithSubmap(submapFcallnode, parents, comment,
 					leftAlias, rightAlias);
 		case MAP_WITH_CODE:
-			// TODO obs³uga kodu (narazie zwyk³e proste mapowanie)
+			// TODO obsluga kodu (narazie zwykle proste mapowanie)
 			CallNode MapWithCodeNode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
 			return operateOnSimpleMapOrWithFunctionCall(MapWithCodeNode,
@@ -279,7 +284,8 @@ public class ModelGenerator {
 	}
 
 	private Connection operateOnMapWithFunction(FCallNode mapNode,
-			Pair parents, XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			Pair parents, final String comment, String leftAlias,
+			String rightAlias) throws Exception {
 		CallNode assignNode = (CallNode) mapNode.childNodes().get(0)
 				.childNodes().get(0);
 		Pair pair = null;
@@ -308,7 +314,7 @@ public class ModelGenerator {
 			connection = new Connection(pair.getLeftShape(), pair
 					.getRightShape(), side, Connection.Type.FUN_TO_VAR_CONN);
 			if (comment != null) {
-				connection.setComment(comment.getValue());
+				connection.setComment(comment);
 			}
 			if (connection.getSource().isArrayType()
 					&& !connection.getTarget().isArrayType()) {
@@ -339,7 +345,8 @@ public class ModelGenerator {
 	}
 
 	private Connection operateOnMapWithConstant(CallNode mapnode, Pair parents,
-			XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			final String comment, String leftAlias, String rightAlias)
+			throws Exception {
 		Pair pair = null;
 		String constantName = null;
 		Shape shape = null;
@@ -384,15 +391,15 @@ public class ModelGenerator {
 											.size() - 1));
 			}
 			if (comment != null) {
-				connection.setComment(comment.getValue());
+				connection.setComment(comment);
 			}
 		}
-
 		return connection;
 	}
 
 	private Connection operateOnMapWithSelf(CallNode callnode, Pair parents,
-			XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			final String comment, String leftAlias, String rightAlias)
+			throws Exception {
 		final Connection.Side side = Connection
 				.translateSideFromStringToInt((callnode).getName());
 		Pair pair = null;
@@ -431,18 +438,16 @@ public class ModelGenerator {
 									connection.getTarget().getArrayCounters()
 											.size() - 1));
 			}
-
 			if (comment != null) {
-				connection.setComment(comment.getValue());
+				connection.setComment(comment);
 			}
 		}
-
 		return connection;
-
 	}
 
 	private Connection operateOnMapWithSubobject(FCallNode subobjectFcallnode,
-			Pair parents, XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			Pair parents, final String comment, String leftAlias,
+			String rightAlias) throws Exception {
 		String leftChildAlias = null;
 		String rightChildAlias = null;
 		Connection connection = null;
@@ -451,7 +456,7 @@ public class ModelGenerator {
 
 		BlockNode blockNode = (BlockNode) subobjectFcallnode.childNodes()
 				.get(1).childNodes().get(1);
-		XStrNode childComment = null;
+		final StringBuffer childComment = new StringBuffer();
 		IterNode iterNode = (IterNode) subobjectFcallnode.childNodes().get(1);
 		if (iterNode.getVarNode() instanceof MultipleAsgnNode) {
 			DAsgnNode asgnLeftNode = (DAsgnNode) iterNode.getVarNode()
@@ -465,8 +470,8 @@ public class ModelGenerator {
 		for (Node node : blockNode.childNodes()) {
 			if (node instanceof NewlineNode) {
 				if (((NewlineNode) node).getNextNode() instanceof XStrNode) {
-					childComment = (XStrNode) ((NewlineNode) node)
-							.getNextNode();
+					childComment.append(((XStrNode) ((NewlineNode) node)
+							.getNextNode()).toString());
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					Shape shape = null;
 					if (RootNodeHolder.checkLeftSideMappingName(parentCallNode)
@@ -485,18 +490,21 @@ public class ModelGenerator {
 						if (shape.getSide() == Shape.Side.LEFT) {
 							connection = operateOnInternalMap(
 									(NewlineNode) node, new Pair(shape, parents
-											.getRightShape()), childComment,
+											.getRightShape()), childComment
+											.length() == 0 ? null
+											: childComment.toString(),
 									leftChildAlias, rightChildAlias);
 						} else {
 							connection = operateOnInternalMap(
 									(NewlineNode) node, new Pair(parents
 											.getLeftShape(), shape),
-									childComment, leftChildAlias,
-									rightChildAlias);
+									childComment.length() == 0 ? null
+											: childComment.toString(),
+									leftChildAlias, rightChildAlias);
 						}
 					}
 
-					childComment = null;
+					childComment.setLength(0);
 
 					if (connection != null) {
 						if (parents.getLeftShape().isArrayType()
@@ -520,18 +528,18 @@ public class ModelGenerator {
 														.size() - 1));
 						}
 						if (comment != null) {
-							connection.setComment(comment.getValue());
+							connection.setComment(comment);
 						}
 					}
 				}
-
 			}
 		}
 		return connection;
 	}
 
 	private Connection operateOnMapWithSubmap(FCallNode fcallnode,
-			Pair parents, XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			Pair parents, final String comment, String leftAlias,
+			String rightAlias) throws Exception {
 		String leftChildAlias = null;
 		String rightChildAlias = null;
 		Connection connection = null;
@@ -540,7 +548,7 @@ public class ModelGenerator {
 		Pair mainPair = createShapesPair(parentCallNode, parents, leftAlias,
 				rightAlias);
 		IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
-		XStrNode childComment = null;
+		final StringBuilder childComment = new StringBuilder();
 		if (iterNode.getVarNode() instanceof MultipleAsgnNode) {
 			DAsgnNode asgnLeftNode = (DAsgnNode) iterNode.getVarNode()
 					.childNodes().get(0).childNodes().get(0);
@@ -552,11 +560,15 @@ public class ModelGenerator {
 		for (Node node : iterNode.getBodyNode().childNodes()) {
 			if (node instanceof NewlineNode) {
 				if (((NewlineNode) node).getNextNode() instanceof XStrNode) {
-					childComment = (XStrNode) ((NewlineNode) node)
-							.getNextNode();
+					if (childComment.length() > 0) {
+						childComment.append("\n");
+					}
+					childComment.append(((XStrNode) ((NewlineNode) node)
+							.getNextNode()).getValue());
 				} else if (((NewlineNode) node).getNextNode() instanceof FCallNode) {
 					connection = operateOnInternalMap((NewlineNode) node,
-							mainPair, childComment, leftChildAlias,
+							mainPair, childComment.length() == 0 ? null
+									: childComment.toString(), leftChildAlias,
 							rightChildAlias);
 
 					if (connection != null) {
@@ -585,7 +597,8 @@ public class ModelGenerator {
 				} else if (((NewlineNode) node).getNextNode() instanceof CallNode) {
 					connection = operateOnMapWithConstant(
 							(CallNode) ((NewlineNode) node).getNextNode(),
-							mainPair, childComment, leftChildAlias,
+							mainPair, childComment.length() == 0 ? null
+									: childComment.toString(), leftChildAlias,
 							rightChildAlias);
 
 					if (connection != null) {
@@ -610,12 +623,10 @@ public class ModelGenerator {
 														.size() - 1));
 						}
 						if (comment != null) {
-							connection.setComment(comment.getValue());
+							connection.setComment(comment);
 						}
 					}
-
 				}
-
 			}
 		}
 
@@ -623,7 +634,8 @@ public class ModelGenerator {
 	}
 
 	private Connection operateOnSimpleMapOrWithFunctionCall(CallNode callnode,
-			Pair parents, XStrNode comment, String leftAlias, String rightAlias) throws Exception {
+			Pair parents, final String comment, String leftAlias,
+			String rightAlias) throws Exception {
 		Pair pair = createShapesPair(callnode, parents, leftAlias, rightAlias);
 		final Connection.Side side = Connection
 				.translateSideFromStringToInt((callnode).getName());
@@ -650,7 +662,7 @@ public class ModelGenerator {
 			}
 
 			if (comment != null) {
-				connection.setComment(comment.getValue());
+				connection.setComment(comment);
 			}
 
 		}
@@ -672,7 +684,7 @@ public class ModelGenerator {
 	 * @param callnode
 	 * @param parents
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private Shape createLeftShape(CallNode callnode, Pair parents,
 			String leftAlias, String rightAlias) throws Exception {
@@ -690,8 +702,10 @@ public class ModelGenerator {
 					leftShape = Shape.createShape(leftNode.getName(), null,
 							parents.getLeftShape(), Shape.Side.LEFT, rootNode);
 				} else {
-					leftShape = Shape.createShape(leftNode.getName(), null,
-							parents.getRightShape(), Shape.Side.RIGHT, rootNode);
+					leftShape = Shape
+							.createShape(leftNode.getName(), null, parents
+									.getRightShape(), Shape.Side.RIGHT,
+									rootNode);
 				}
 
 				leftShape.addToParent();
@@ -717,7 +731,7 @@ public class ModelGenerator {
 				}
 			}
 		}
-		if(leftShape==null){
+		if (leftShape == null) {
 			throw new Exception("Ruby map has errors for node: " + callnode);
 		}
 		return leftShape;
@@ -730,7 +744,7 @@ public class ModelGenerator {
 	 * @param callnode
 	 * @param parents
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private Shape createRightShape(CallNode callnode, Pair parents,
 			String leftAlias, String rightAlias) throws Exception {
@@ -749,8 +763,10 @@ public class ModelGenerator {
 					rightShape = Shape.createShape(rightNode.getName(), null,
 							parents.getLeftShape(), Shape.Side.LEFT, rootNode);
 				} else {
-					rightShape = Shape.createShape(rightNode.getName(), null,
-							parents.getRightShape(), Shape.Side.RIGHT, rootNode);
+					rightShape = Shape
+							.createShape(rightNode.getName(), null, parents
+									.getRightShape(), Shape.Side.RIGHT,
+									rootNode);
 				}
 				rightShape.addToParent();
 				if (rootNode != null) {
@@ -775,7 +791,7 @@ public class ModelGenerator {
 				}
 			}
 		}
-		if(rightShape==null){
+		if (rightShape == null) {
 			throw new Exception("Ruby map has errors for node: " + callnode);
 		}
 		return rightShape;
