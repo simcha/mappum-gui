@@ -570,7 +570,7 @@ public class ModelGenerator {
 							mainPair, childComment.length() == 0 ? null
 									: childComment.toString(), leftChildAlias,
 							rightChildAlias);
-
+					childComment.setLength(0);
 					if (connection != null) {
 						if (mainPair.getLeftShape().isArrayType()
 								&& !mainPair.getRightShape().isArrayType()) {
@@ -600,7 +600,7 @@ public class ModelGenerator {
 							mainPair, childComment.length() == 0 ? null
 									: childComment.toString(), leftChildAlias,
 							rightChildAlias);
-
+					childComment.setLength(0);
 					if (connection != null) {
 						if (mainPair.getLeftShape().isArrayType()
 								&& !mainPair.getRightShape().isArrayType()) {
