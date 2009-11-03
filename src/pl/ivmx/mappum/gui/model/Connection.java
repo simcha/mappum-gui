@@ -114,6 +114,7 @@ public class Connection extends ModelElement {
 		this.comment = "";
 		reconnect(source, target, side);
 	}
+
 	/**
 	 * Create a (solid) connection between two distinct shapes.
 	 */
@@ -498,5 +499,26 @@ public class Connection extends ModelElement {
 
 	public int getArrayNumber() {
 		return arrayNumber;
+	}
+
+	public String getFullSourceName() {
+		return getFullName(source);
+	}
+
+	public String getFullTargetName() {
+		return getFullName(target);
+	}
+
+	private String getFullName(final Shape shape) {
+		StringBuilder sb = new StringBuilder();
+		Shape currentShape = shape;
+		while (currentShape != null && currentShape.getParent() != null) {
+			if (sb.length() > 0) {
+				sb.insert(0, '.');
+			}
+			sb.insert(0, currentShape.getName());
+			currentShape = currentShape.getParent();
+		}
+		return sb.toString();
 	}
 }

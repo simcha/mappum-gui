@@ -211,13 +211,26 @@ public class RootNodeHolder {
 		return node;
 	}
 
-	public NewlineNode findMappingNode(Connection connection, Node node) {
-		String leftVariable = null;
-		String rightVariable = null;
+	private String appendToVariableName(final String name, final String newName) {
+		if (name == null || "".equals(name)) {
+			return newName;
+		}
+		return name + "." + newName;
+	}
+
+	public NewlineNode findMappingNode(final Connection connection,
+			final Node node) {
+		return findMappingNode(connection, node, "", "");
+	}
+
+	public NewlineNode findMappingNode(Connection connection, Node node,
+			String inLeftVariable, String inRightVariable) {
 		NewlineNode newlineNode = null;
 		if (node instanceof BlockNode) {
 			for (Node newline : node.childNodes()) {
 				for (Node child : newline.childNodes()) {
+					String leftVariable = inLeftVariable;
+					String rightVariable = inRightVariable;
 					if (child instanceof FCallNode) {
 						if (((FCallNode) child).getName().equals("map")) {
 							if ((((FCallNode) child).getArgsNode()) instanceof ArrayNode) {
@@ -240,16 +253,26 @@ public class RootNodeHolder {
 										if (leftNode != null
 												&& rightNode != null) {
 
-											leftVariable = leftNode.getName();
-											if (!leftVariable.equals("self")) {
-												lastNotSelfLeftVariable = leftVariable;
+											final String curLeftVariable = leftNode
+													.getName();
+											if (!curLeftVariable.equals("self")) {
+												lastNotSelfLeftVariable = curLeftVariable;
+												leftVariable = appendToVariableName(
+														leftVariable,
+														curLeftVariable);
 											}
 
-											rightVariable = rightNode.getName();
+											final String curRightVariable = rightNode
+													.getName();
 
-											if (!rightVariable.equals("self")) {
-												lastNotSelfRightVariable = rightVariable;
+											if (!curRightVariable
+													.equals("self")) {
+												lastNotSelfRightVariable = curRightVariable;
+												rightVariable = appendToVariableName(
+														rightVariable,
+														curRightVariable);
 											}
+
 											if (Connection
 													.translateSideFromIntToString(
 															connection
@@ -257,14 +280,10 @@ public class RootNodeHolder {
 													.equals(callnode.getName())) {
 												if (leftVariable
 														.equals(connection
-																.getSource()
-																// .getShapeNode()
-																.getName())
+																.getFullSourceName())
 														&& rightVariable
 																.equals(connection
-																		.getTarget()
-																		// .getShapeNode()
-																		.getName())) {
+																		.getFullTargetName())) {
 													if (connection
 															.getArrayNumber() > -1) {
 														if (checkFirstNodeArrayElementNumber(
@@ -293,10 +312,14 @@ public class RootNodeHolder {
 											if (leftNode != null
 													&& rightNode != null) {
 
-												leftVariable = leftNode
+												final String curLeftVariable = leftNode
 														.getValue();
-												rightVariable = rightNode
+												final String curRightVariable = rightNode
 														.getName();
+
+												rightVariable = appendToVariableName(
+														rightVariable,
+														curLeftVariable);
 
 												if (Connection
 														.translateSideFromIntToString(
@@ -305,14 +328,12 @@ public class RootNodeHolder {
 														.equals(
 																callnode
 																		.getName())) {
-													if (leftVariable
+													if (curLeftVariable
 															.equals(connection
 																	.getConstantName())
-															&& rightVariable
+															&& curRightVariable
 																	.equals(connection
-																			.getTarget()
-																			// .getShapeNode()
-																			.getName())) {
+																			.getFullTargetName())) {
 														if (connection
 																.getArrayNumber() > -1) {
 															if (checkFirstNodeArrayElementNumber(
@@ -339,10 +360,14 @@ public class RootNodeHolder {
 											if (leftNode != null
 													&& rightNode != null) {
 
-												leftVariable = leftNode
+												final String curLeftVariable = leftNode
 														.getName();
-												rightVariable = rightNode
+												final String curRightVariable = rightNode
 														.getValue();
+
+												leftVariable = appendToVariableName(
+														leftVariable,
+														curLeftVariable);
 
 												if (Connection
 														.translateSideFromIntToString(
@@ -353,10 +378,8 @@ public class RootNodeHolder {
 																		.getName())) {
 													if (leftVariable
 															.equals(connection
-																	.getSource()
-																	// .getShapeNode()
-																	.getName())
-															&& rightVariable
+																	.getFullSourceName())
+															&& curRightVariable
 																	.equals(connection
 																			.getConstantName())) {
 														if (connection
@@ -389,10 +412,13 @@ public class RootNodeHolder {
 											if (leftNode != null
 													&& rightNode != null) {
 
-												leftVariable = leftNode
+												final String curLeftVariable = leftNode
 														.getName();
-												rightVariable = rightNode
+												final String curRightVariable = rightNode
 														.getName();
+												rightVariable = appendToVariableName(
+														rightVariable,
+														curRightVariable);
 
 												if (Connection
 														.translateSideFromIntToString(
@@ -401,13 +427,11 @@ public class RootNodeHolder {
 														.equals(
 																callnode
 																		.getName())) {
-													if (leftVariable
+													if (curLeftVariable
 															.equals("func")
 															&& rightVariable
 																	.equals(connection
-																			.getTarget()
-																			.getShapeNode()
-																			.getName())) {
+																			.getFullTargetName())) {
 														if (connection
 																.getArrayNumber() > -1) {
 															if (checkFirstNodeArrayElementNumber(
@@ -434,10 +458,13 @@ public class RootNodeHolder {
 											if (leftNode != null
 													&& rightNode != null) {
 
-												leftVariable = leftNode
+												final String curLeftVariable = leftNode
 														.getName();
-												rightVariable = rightNode
+												final String curRightVariable = rightNode
 														.getName();
+												leftVariable = appendToVariableName(
+														leftVariable,
+														curLeftVariable);
 
 												if (Connection
 														.translateSideFromIntToString(
@@ -448,10 +475,8 @@ public class RootNodeHolder {
 																		.getName())) {
 													if (leftVariable
 															.equals(connection
-																	.getSource()
-																	.getShapeNode()
-																	.getName())
-															&& rightVariable
+																	.getFullSourceName())
+															&& curRightVariable
 																	.equals("func")) {
 														if (connection
 																.getArrayNumber() > -1) {
@@ -554,20 +579,22 @@ public class RootNodeHolder {
 
 								if (leftNode != null && rightNode != null) {
 
-									leftVariable = leftNode.getValue();
-									rightVariable = rightNode.getName();
+									final String curLeftVariable = leftNode
+											.getValue();
+									final String curRightVariable = rightNode
+											.getName();
+									rightVariable = appendToVariableName(
+											rightVariable, curRightVariable);
 
 									if (Connection
 											.translateSideFromIntToString(
 													connection.getMappingSide())
 											.equals(callnode.getName())) {
-										if (leftVariable.equals(connection
+										if (curLeftVariable.equals(connection
 												.getConstantName())
 												&& rightVariable
 														.equals(connection
-																.getTarget()
-																.getShapeNode()
-																.getName())) {
+																.getFullTargetName())) {
 											if (connection.getArrayNumber() > -1) {
 												if (checkFirstNodeArrayElementNumber(
 														(NewlineNode) newline,
@@ -581,8 +608,10 @@ public class RootNodeHolder {
 										}
 									}
 								}
-							} else if (callnode.getArgsNode().childNodes().get(
-									0) instanceof StrNode) {
+							} else if ((callnode.getArgsNode().childNodes()
+									.size() > 0)
+									&& (callnode.getArgsNode().childNodes()
+											.get(0) instanceof StrNode)) {
 								CallNode leftNode = ModelGenerator
 										.findLastCallNodeInTree((callnode
 												.getReceiverNode()));
@@ -591,17 +620,21 @@ public class RootNodeHolder {
 
 								if (leftNode != null && rightNode != null) {
 
-									leftVariable = leftNode.getName();
-									rightVariable = rightNode.getValue();
+									final String curLeftVariable = leftNode
+											.getName();
+									final String curRightVariable = rightNode
+											.getValue();
+
+									leftVariable = appendToVariableName(
+											leftVariable, curLeftVariable);
 
 									if (Connection
 											.translateSideFromIntToString(
 													connection.getMappingSide())
 											.equals(callnode.getName())) {
 										if (leftVariable.equals(connection
-												.getSource().getShapeNode()
-												.getName())
-												&& rightVariable
+												.getFullSourceName())
+												&& curRightVariable
 														.equals(connection
 																.getConstantName())) {
 											if (connection.getArrayNumber() > -1) {
@@ -622,7 +655,8 @@ public class RootNodeHolder {
 					}
 					if (getBlockNode((NewlineNode) newline) != null) {
 						newlineNode = findMappingNode(connection,
-								(getBlockNode((NewlineNode) newline)));
+								(getBlockNode((NewlineNode) newline)),
+								leftVariable, rightVariable);
 						if (newlineNode != null) {
 							return newlineNode;
 						}
