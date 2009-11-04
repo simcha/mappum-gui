@@ -118,7 +118,8 @@ public class ModelGeneratorFromJava {
 	private void getComplexField(String searchElement, Shape parent,
 			final Shape.Side side, List<JavaTreeElement> model) {
 		for (TreeElement element : model) {
-			if (element.getClazz().equals(searchElement)) {
+			if (element.getClazz().equals(searchElement)
+					&& element.getElements() != null) {
 				for (TreeElement childElement : element.getElements()) {
 					Shape child = checkAndAddShape(childElement, parent, side,
 							childElement.getIsArray(),
