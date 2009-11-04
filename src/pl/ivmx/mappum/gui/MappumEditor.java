@@ -131,9 +131,13 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 										final MessageBox mb = new MessageBox(
 												getSite().getShell(),
 												SWT.ICON_ERROR);
-										mb.setMessage(String.format(
-												"Model generation failed: %s",
-												e.getMessage()));
+										mb
+												.setMessage(String
+														.format(
+																"Model generation failed: %s",
+																e.getMessage() == null ? "Internal error"
+																		: e
+																				.getMessage()));
 										mb.setText("Error");
 										mb.open();
 									}
