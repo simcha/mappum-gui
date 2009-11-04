@@ -32,10 +32,10 @@ public final class MappumEditorPaletteFactory {
 			ICON_CONN_S24, new Connection.Info(Connection.Side.LEFT_TO_RIGHT,
 					Connection.Type.VAR_TO_VAR_CONN));
 
-	public static final ToolEntry CONNECTION_CONSTANT_TOOL = createTool(
-			"Constant", "Creates constant", ICON_CONN_C16, ICON_CONN_C24,
-			new Connection.Info(Connection.Side.LEFT_TO_RIGHT,
-					Connection.Type.CONST_TO_VAR_CONN));
+//	public static final ToolEntry CONNECTION_CONSTANT_TOOL = createTool(
+//			"Constant", "Creates constant", ICON_CONN_C16, ICON_CONN_C24,
+//			new Connection.Info(Connection.Side.LEFT_TO_RIGHT,
+//					Connection.Type.CONST_TO_VAR_CONN));
 
 	private static ToolEntry createTool(final String label,
 			final String shortDesc, final String iconSmall,
@@ -72,7 +72,7 @@ public final class MappumEditorPaletteFactory {
 		toolbar.add(SELECTION_TOOL);
 		toolbar.add(CONNECTION_DUAL_TOOL);
 		toolbar.add(CONNECTION_SIMPLE_TOOL);
-		toolbar.add(CONNECTION_CONSTANT_TOOL);
+		//toolbar.add(CONNECTION_CONSTANT_TOOL);
 		palette.setDefaultEntry(SELECTION_TOOL);
 
 		return toolbar;

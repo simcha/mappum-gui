@@ -70,7 +70,7 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 			folderSchema.create(true, true, null);
 			folderClasses.create(true, true, null);
 			folderJava.create(true, true, null);
-			folderJava.setHidden(true);
+			//folderJava.setHidden(true);
 		} catch (CoreException e) {
 			logger.error("Error performing finish operations: "
 					+ e.getCause().getMessage());
