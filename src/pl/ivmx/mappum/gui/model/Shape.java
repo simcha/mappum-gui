@@ -27,36 +27,29 @@ public class Shape extends ModelElement {
 	private static final long serialVersionUID = 1;
 
 	public static final String LAYOUT_PROP = "Shape.Layout";
-
 	private static final String NAME_PROP = "Shape.Name";
-
 	private static final String TYPE_PROP = "Shape.TYPE";
 
 	public static final String CHILD_ADDED_PROP = "Shape.ChildAdded";
 	public static final String CHILD_REMOVED_PROP = "Shape.ChildRemoved";
 
 	public static final String SOURCE_CONNECTIONS_PROP = "Shape.SourceConn";
-
 	public static final String TARGET_CONNECTIONS_PROP = "Shape.TargetConn";
 
-	private List<Connection> sourceConnections = new ArrayList<Connection>();
+	private final List<Connection> sourceConnections = new ArrayList<Connection>();
+	private final List<Connection> targetConnections = new ArrayList<Connection>();
 
-	private List<Connection> targetConnections = new ArrayList<Connection>();
-
-	private String type;
-	private final Shape shapeParent;
-	private List<Shape> shapeChildren;
-	private Side side;
-	private static List<Shape> shapes = new ArrayList<Shape>();
+	private final String name;
+	private final String type;
+	private final Shape parent;
+	private final List<Shape> children;
+	private final Side side;
 
 	private boolean arrayType = false;
 	private List<Integer> arrayCounters = new ArrayList<Integer>();
 	private SourceType sourceType;
 	private String optionalJavaPackage;
 	private boolean reccuranceInstance;
-
-	private String alias;
-	private String childAlias;
 
 	private CallNode shapeNode;
 	static {
@@ -84,25 +77,22 @@ public class Shape extends ModelElement {
 	private Shape(final String name, final String type,
 			final Shape shapeParent, final Side side, final CallNode shapeNode) {
 		this.shapeNode = shapeNode;
-		shapeChildren = new ArrayList<Shape>();
+		children = new ArrayList<Shape>();
 		if (shapeParent == null)
 			rootShapes.add(this);
-		shapes.add(this);
 		this.name = name;
 		this.type = type;
-		this.shapeParent = shapeParent;
-		// if (this.shapeParent != null)
-		// this.shapeParent.addChild(this);
+		this.parent = shapeParent;
 		this.side = side;
 		logger.debug("Created shape: " + this);
 	}
 
 	public boolean addToParent() {
-		if (shapeParent != null) {
-			if (shapeParent.getChildren().contains(this)) {
+		if (parent != null) {
+			if (parent.getChildren().contains(this)) {
 				return false;
 			} else {
-				return shapeParent.addChild(this);
+				return parent.addChild(this);
 			}
 		}
 		return false;
@@ -110,7 +100,7 @@ public class Shape extends ModelElement {
 	}
 
 	public boolean addChild(Shape s) {
-		if (s != null && shapeChildren.add(s)) {
+		if (s != null && children.add(s)) {
 			firePropertyChange(CHILD_ADDED_PROP, null, s);
 			return true;
 		}
@@ -118,7 +108,7 @@ public class Shape extends ModelElement {
 	}
 
 	public boolean removeChild(Shape s) {
-		if (s != null && shapeChildren.remove(s)) {
+		if (s != null && children.remove(s)) {
 			firePropertyChange(CHILD_REMOVED_PROP, null, s);
 			return true;
 		}
@@ -195,18 +185,16 @@ public class Shape extends ModelElement {
 		}
 	}
 
-	private String name;
-
 	public String getName() {
 		return name;
 	}
 
 	public Shape getParent() {
-		return shapeParent;
+		return parent;
 	}
 
 	public List<Shape> getChildren() {
-		return shapeChildren;
+		return children;
 	}
 
 	public Side getSide() {
@@ -231,50 +219,17 @@ public class Shape extends ModelElement {
 		return shapeNode;
 	}
 
-	public static List<Shape> getShapes() {
-		return shapes;
-	}
-
 	private static List<Shape> rootShapes = new ArrayList<Shape>();
 
 	public static List<Shape> getRootShapes() {
 		return rootShapes;
 	}
 
-	public static boolean removeShape(Shape shape) {
-		if (rootShapes.get(0).equals(shape) || rootShapes.get(1).equals(shape)) {
-			return false;
-		} else {
-			for (int i = 0; i < shapes.size(); i++) {
-				if (shapes.get(i).equals(shape)) {
-					if (shapes.get(i).getChildren().size() > 0) {
-						for (int j = 0; j < shapes.get(i).getChildren().size(); j++) {
-							removeShape(shapes.get(i).getChildren().get(j));
-						}
-					}
-					for (int j = 0; j < shape.getSourceConnections().size(); j++) {
-						Connection.removeConnection(shape
-								.getSourceConnections().get(j));
-					}
-					for (int j = 0; j < shape.getTargetConnections().size(); j++) {
-						Connection.removeConnection(shape
-								.getTargetConnections().get(j));
-					}
-					Shape.getShapes().remove(shape);
-					shape.getParent().removeChild(shape);
-					shape = null;
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public String toString() {
-		if (shapeParent != null)
+		if (parent != null)
 			return "|| Variable: " + name + ", type: " + type + ", parent: "
-					+ shapeParent.getName() + ", array: " + arrayType
+					+ parent.getName() + ", array: " + arrayType
 					+ ", array counters: " + arrayCounters + " ||";
 		else
 			return "|| Variable: " + name + ", type: " + type + ", no parent "
@@ -351,10 +306,6 @@ public class Shape extends ModelElement {
 		this.optionalJavaPackage = optionalJavaPackage;
 	}
 
-	public String getOptionalJavaPackage() {
-		return optionalJavaPackage;
-	}
-
 	public void setReccuranceInstance(boolean reccuranceInstance) {
 		this.reccuranceInstance = reccuranceInstance;
 	}
@@ -362,21 +313,4 @@ public class Shape extends ModelElement {
 	public boolean isReccuranceInstance() {
 		return reccuranceInstance;
 	}
-
-	public void setAlias(String alias) {
-		this.alias = alias;
-	}
-
-	public String getAlias() {
-		return alias;
-	}
-
-	public void setChildAlias(String childAlias) {
-		this.childAlias = childAlias;
-	}
-
-	public String getChildAlias() {
-		return childAlias;
-	}
-
 }

@@ -148,7 +148,6 @@ public class ModelGeneratorFromXML {
 	public void addFieldsFromRubyModel(final TreeElement leftElement,
 			final TreeElement rightElement) {
 		for (TreeElement element : model) {
-			String name = element.getName();
 			if (element.getName().equals(leftElement.getName())) {
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT, false);

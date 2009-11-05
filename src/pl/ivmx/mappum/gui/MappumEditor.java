@@ -85,7 +85,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		RootNodeHolder.getInstance().setRootNode(null);
 		Connection.getConnections().clear();
 		Shape.getRootShapes().clear();
-		Shape.getShapes().clear();
 		ModelGeneratorFromXML.getInstance().setModel(null);
 	}
 
@@ -447,7 +446,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 		RootNodeHolder.getInstance().setRootNode(null);
 		Connection.getConnections().clear();
 		Shape.getRootShapes().clear();
-		Shape.getShapes().clear();
 		ModelGeneratorFromXML.getInstance().setModel(null);
 		super.dispose();
 	}
@@ -485,23 +483,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 				e.printStackTrace();
 			}
 		}
-	}
-
-	private boolean isChanged(final String path, final IResourceDelta[] ird) {
-		for (final IResourceDelta el : ird) {
-			final IResourceDelta[] children = el
-					.getAffectedChildren(IResourceDelta.REMOVED);
-			if (children.length > 0) {
-				if (isChanged(path, children)) {
-					return true;
-				}
-			} else {
-				if (path.equals(el.getFullPath().toString())) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	public ToolEntry getCurrentPaletteTool() {
