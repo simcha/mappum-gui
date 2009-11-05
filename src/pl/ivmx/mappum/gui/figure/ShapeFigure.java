@@ -30,7 +30,7 @@ public class ShapeFigure extends RoundedRectangle {
 		layout.setStretchMinorAxis(true);
 		// layout.set
 		setLayoutManager(layout);
-		setSize(50, 20);
+		//setSize(100, 40);
 		setBackgroundColor(isDark ? COLOR_DARK : COLOR_LIGHT);
 
 		labelName.setForegroundColor(ColorConstants.darkGray);

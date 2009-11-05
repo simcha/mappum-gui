@@ -101,9 +101,11 @@ public class GenerateModelFromXsdWizard extends Wizard {
 		if (!mapFolder.exists()) {
 			mapFolder.create(false, false, null);
 		}
+		String leftFileNamePart = leftElementSimple.replace("::", "");
+		String rightFileNamePart = rightElementSimple.replace("::", "");
 		final IPath filePath = fullPath.append(
 				ModelGeneratorFromXML.DEFAULT_WORKING_MAP_FOLDER).append(
-				leftElementSimple + rightElementSimple + ".rb");
+						leftFileNamePart +"-"+ rightFileNamePart + ".rb");
 		final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
 				filePath);
 		if (!file.exists()) {

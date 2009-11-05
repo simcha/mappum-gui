@@ -890,6 +890,28 @@ public class ModelGenerator {
 
 	}
 
+	private String getElementType(Node element) {
+		String name = null;
+		while (true) {
+			if (element.childNodes().size() > 0
+					&& (element.childNodes().get(0) instanceof INameNode)) {
+				if (name == null) {
+					name = ((INameNode) element.childNodes().get(0)).getName();
+				} else {
+					name = name
+							+ "::"
+							+ ((INameNode) element.childNodes().get(0))
+									.getName();
+				}
+				element = element.childNodes().get(0);
+			} else {
+				break;
+			}
+		}
+
+		return name;
+	}
+
 	/**
 	 * Creates complex elements (with childs)
 	 * 
@@ -904,22 +926,20 @@ public class ModelGenerator {
 		for (Node preChild : (((FCallNode) node).getArgsNode().childNodes())) {
 			if (preChild instanceof Colon2Node) {
 				if (left) {
+					String type = getElementType(preChild);
 					leftElement = Shape.createShape(((Colon2Node) preChild)
-							.getName(), ((ConstNode) ((Colon2Node) preChild)
-							.getLeftNode()).getName(), parents.getLeftShape(),
+							.getName(), type, parents.getLeftShape(),
 							Shape.Side.LEFT, null);
-					if (((ConstNode) ((Colon2Node) preChild).getLeftNode())
-							.getName().equals("Java")) {
+					if (type.startsWith("Java")) {
 						leftElement.setSourceType(SourceType.JAVA);
 					}
 					left = false;
 				} else {
+					String type = getElementType(preChild);
 					rightElement = Shape.createShape(((Colon2Node) preChild)
-							.getName(), ((ConstNode) ((Colon2Node) preChild)
-							.getLeftNode()).getName(), parents.getRightShape(),
+							.getName(), type, parents.getRightShape(),
 							Shape.Side.RIGHT, null);
-					if (((ConstNode) ((Colon2Node) preChild).getLeftNode())
-							.getName().equals("Java")) {
+					if (type.startsWith("Java")) {
 						rightElement.setSourceType(SourceType.JAVA);
 					}
 					left = true;

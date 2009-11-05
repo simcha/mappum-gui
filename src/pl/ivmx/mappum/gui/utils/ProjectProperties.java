@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.IPath;
 public class ProjectProperties {
 	private Properties properties = new Properties();
 	private IFile propertiesFile;
-	public static String PROPERTIES_FILE = "project.propierties";
+	public static String PROPERTIES_FILE = "project.properties";
 	public static String PROJECT_NAME_PROPS = "projectName";
 	public static String MAP_DIRECTORY_PROPS = "mapDirectory";
 	public static String CLASSES_DIRECTORY_PROPS = "classesDirectory";
