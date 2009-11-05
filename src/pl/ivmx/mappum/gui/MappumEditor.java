@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -76,7 +77,6 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 
 	private Logger logger = Logger.getLogger(ModelGenerator.class);
 
-	/** Create a new ShapesEditor instance. This is called by the Workspace. */
 	public MappumEditor() {
 		setEditDomain(new DefaultEditDomain(this));
 	}
@@ -181,8 +181,9 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 						e.printStackTrace();
 					}
 					monitor.done();
-					ResourcesPlugin.getWorkspace().addResourceChangeListener(
-							MappumEditor.this);
+					ResourcesPlugin.getWorkspace()
+							.addResourceChangeListener(MappumEditor.this,
+									IResourceChangeEvent.POST_CHANGE);
 				}
 			});
 		} catch (InvocationTargetException e) {
@@ -457,11 +458,31 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 				resourceChangedBySelf = false;
 				return;
 			}
+
 			final String path = ((IFileEditorInput) getEditorInput()).getFile()
 					.getFullPath().toString();
-			if (isChanged(path, event.getDelta().getAffectedChildren(
-					IResourceDelta.CHANGED))) {
-				dirtyInput = true;
+
+			try {
+				event.getDelta().accept(new IResourceDeltaVisitor() {
+
+					public boolean visit(IResourceDelta delta)
+							throws CoreException {
+						if (path.equals(delta.getFullPath().toString())) {
+							switch (delta.getKind()) {
+							case IResourceDelta.CHANGED:
+								dirtyInput = true;
+								return false;
+							case IResourceDelta.REMOVED:
+								getSite().getWorkbenchWindow().getActivePage()
+										.closeEditor(MappumEditor.this, false);
+								return false;
+							}
+						}
+						return true;
+					}
+				});
+			} catch (CoreException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -469,7 +490,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	private boolean isChanged(final String path, final IResourceDelta[] ird) {
 		for (final IResourceDelta el : ird) {
 			final IResourceDelta[] children = el
-					.getAffectedChildren(IResourceDelta.CHANGED);
+					.getAffectedChildren(IResourceDelta.REMOVED);
 			if (children.length > 0) {
 				if (isChanged(path, children)) {
 					return true;

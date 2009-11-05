@@ -1,6 +1,7 @@
 package pl.ivmx.mappum.gui.utils;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -74,11 +75,21 @@ public class ModelGenerator {
 	 * @return
 	 * @throws CoreException
 	 */
-	private Node parseRubbyFile(final IFile file) throws CoreException {
+	private Node parseRubyFile(final IFile file) throws CoreException {
 		parser = new Parser();
-		content = new InputStreamReader(file.getContents());
-		configuration = new ParserConfiguration();
-		return parser.parse(file.getName(), content, configuration);
+		try {
+			content = new InputStreamReader(file.getContents());
+			configuration = new ParserConfiguration();
+			return parser.parse(file.getName(), content, configuration);
+		} finally {
+			if (content != null) {
+				try {
+					content.close();
+				} catch (IOException e) {
+					logger.warn("Failed to close input stream");
+				}
+			}
+		}
 	}
 
 	public Node parseExternalRubbyCode(String code) {
@@ -100,7 +111,7 @@ public class ModelGenerator {
 				.getInstance()
 				.setRootNode(
 						RootNodeHolder
-								.correctNodeIterationBlocks(parseRubbyFile(file)));
+								.correctNodeIterationBlocks(parseRubyFile(file)));
 		TestNodeTreeWindow.show(RootNodeHolder.getInstance().getRootNode());
 		createRootMapElements(RootNodeHolder.getInstance().getRootNode());
 	}
