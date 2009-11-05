@@ -3,6 +3,9 @@ package pl.ivmx.mappum.gui.utils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
@@ -892,23 +895,25 @@ public class ModelGenerator {
 
 	private String getElementType(Node element) {
 		String name = null;
+		List<String> subTypes = new ArrayList<String>();
 		while (true) {
 			if (element.childNodes().size() > 0
 					&& (element.childNodes().get(0) instanceof INameNode)) {
-				if (name == null) {
-					name = ((INameNode) element.childNodes().get(0)).getName();
-				} else {
-					name = name
-							+ "::"
-							+ ((INameNode) element.childNodes().get(0))
-									.getName();
-				}
+				subTypes.add(((INameNode) element.childNodes().get(0))
+						.getName());
 				element = element.childNodes().get(0);
 			} else {
 				break;
 			}
 		}
-
+		Collections.reverse(subTypes);
+		for (String tmp : subTypes) {
+			if (name == null) {
+				name = tmp;
+			} else {
+				name = name + "::" + tmp;
+			}
+		}
 		return name;
 	}
 
