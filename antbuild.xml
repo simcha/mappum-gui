@@ -11,6 +11,7 @@
 	<property name="majorversion" value="0.2.0" />
 	<property name="fullpluginname" value="pl.ivmx.mappum.gui" />
 	<property name="finalJarName" value="pl.ivmx.mappum.gui_${Built-Date}.jar" />
+	<property name="finalZipName" value="pl.ivmx.mappum.gui_${Built-Date}.jar" />
 	<property name="maindir" value="./" />
 	<property name="src" value="./src" />
 	<property name="build" value="./bin" />
@@ -28,12 +29,15 @@
 	<property name="plugin_offset" value="/Applications/eclipse/plugins" />
 
 	<target name="Compile">
-
-		<javac srcdir="${src}" destdir="${build}" debug="on" source="1.6">
+		<mkdir dir="bin"/>
+		<javac srcdir="${src}" destdir="${build}" debug="on" source="1.5">
 			<classpath>
 				<fileset dir="${plugin_offset}">
 					<include name="**/*.jar" />
 				</fileset>
+ 				<fileset dir="lib">
+ 					<include name="**/*.jar" />
+ 				</fileset>
 			</classpath>
 		</javac>
 	</target>
