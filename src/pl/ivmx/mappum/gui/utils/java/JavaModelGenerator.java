@@ -64,6 +64,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		JavaTreeElement el = generate0(classPrefixed, null, null, false, project, Collections
 				.unmodifiableSet(new HashSet<String>()));
 		model.add(el);
+		Collections.sort(model);
 	}
 
 	private String getFieldName(final String methodName) {
@@ -169,7 +170,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			//when type == null
 			logger.warn("Type not on classspath:" + classPrefixed + " for element:" + name);
 		}
-
+		Collections.sort(subElements);
 		final JavaTreeElement el = new JavaTreeElement(classPrefixed,
 				subElements.isEmpty() ? null : subElements, isArray,
 				name != null ? name : type.getElementName());

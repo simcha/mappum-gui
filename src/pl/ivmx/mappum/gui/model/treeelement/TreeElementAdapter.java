@@ -4,7 +4,7 @@ import java.util.List;
 
 import pl.ivmx.mappum.TreeElement;
 
-public abstract class TreeElementAdapter implements TreeElement {
+public abstract class TreeElementAdapter implements TreeElement{
 
 	public String getClazz() {
 		return null;
@@ -36,5 +36,15 @@ public abstract class TreeElementAdapter implements TreeElement {
 
 	public void setName(String arg0) {
 		throw new UnsupportedOperationException("Operation is not supported");
+	}
+	public int compareTo(TreeElement that) {
+	    @SuppressWarnings("unused")
+		final int BEFORE = -1;
+	    final int EQUAL = 0;
+	    final int AFTER = 1;
+	    
+	    if ( this == that ) return EQUAL;
+	    if ( that == null ) return AFTER;
+	    return this.getName().compareTo(that.getName());
 	}
 }
