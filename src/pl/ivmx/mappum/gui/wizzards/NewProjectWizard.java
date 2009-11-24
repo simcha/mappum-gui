@@ -96,7 +96,8 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 				projectHandle.getLocation().append(
 						ModelGeneratorFromXML.DEFAULT_JAVA_FOLDER)
 						.toPortableString());
-
+		properties.setProperty(ProjectProperties.MAX_DEPTH_PROP,
+				ProjectProperties.MAX_DEPTH_DEFAULT);
 		logger.debug("New Project wizzard ended. Created new mappum project: "
 				+ projectHandle.getName());
 		BasicNewProjectResourceWizard.updatePerspective(configElement);

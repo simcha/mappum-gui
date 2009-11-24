@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
@@ -18,10 +19,12 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import pl.ivmx.mappum.TreeElement;
 import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
+import pl.ivmx.mappum.gui.utils.ProjectProperties;
 
 @SuppressWarnings("restriction")
 public class JavaModelGenerator implements IJavaModelGenerator {
-
+	private Logger logger = Logger.getLogger(JavaModelGenerator.class);
+	
 	private final static Map<String, String> PRIMITIVE_TYPES_MAPPING = new HashMap<String, String>();
 	private final static Map<String, String> PRIMITIVE_OBJECTS_MAPPING = new HashMap<String, String>();
 	static {
@@ -34,7 +37,8 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Long", "Fixnum");
 		PRIMITIVE_OBJECTS_MAPPING.put("java.Lang.Float", "Float");
 		PRIMITIVE_OBJECTS_MAPPING.put("java.lang.Double", "Float");
-
+		PRIMITIVE_OBJECTS_MAPPING.put("java.util.Date", "Time");
+		
 		PRIMITIVE_TYPES_MAPPING.put("byte", "Fixnum");
 		PRIMITIVE_TYPES_MAPPING.put("short", "Fixnum");
 		PRIMITIVE_TYPES_MAPPING.put("char", "Fixnum");
@@ -57,8 +61,9 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			final List<JavaTreeElement> model, final IProject project)
 			throws JavaModelException, IllegalArgumentException {
 
-		generate0(classPrefixed, model, null, false, project, Collections
-				.unmodifiableSet(Collections.EMPTY_SET));
+		JavaTreeElement el = generate0(classPrefixed, null, null, false, project, Collections
+				.unmodifiableSet(new HashSet<String>()));
+		model.add(el);
 	}
 
 	private String getFieldName(final String methodName) {
@@ -67,15 +72,21 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 	}
 
 	private JavaTreeElement generate0(final String classPrefixed,
-			final List<JavaTreeElement> model, final String name,
+			Map<String,JavaTreeElement> typeCache, final String name,
 			final boolean isArray, final IProject project,
 			final Set<String> inParents) throws JavaModelException,
 			IllegalArgumentException {
 
 		final Set<String> parents = new HashSet<String>(inParents);
-
-		if (parents.contains(classPrefixed)) {
-			return new JavaTreeElement(null, null, isArray, name, false, true);
+		final ProjectProperties prop = new ProjectProperties(project);
+		final int maxDepth = Integer.parseInt(prop.getProperty(ProjectProperties.MAX_DEPTH_PROP)); 
+		if(typeCache==null){
+			typeCache = new HashMap<String, JavaTreeElement>();
+		}
+		
+		if (parents.contains(classPrefixed) || parents.size() >= maxDepth) {
+			JavaTreeElement el = new JavaTreeElement(classPrefixed, null, isArray, name, false, true);
+			return el;
 		}
 
 		parents.add(classPrefixed);
@@ -92,16 +103,30 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 				.getJavaModel().getJavaProject(project.getName()).findType(
 						classWithoutPrefix);
 		final List<TreeElement> subElements = new ArrayList<TreeElement>();
+		if(type != null){
 		for (final IMethod m : type.getMethods()) {
 			if (isValidSetter(m) && hasMatchingGetter(type, m)) {
-				final String parameterType = m.getParameterTypes()[0];
+
+				String parameterType = m.getParameterTypes()[0];
 				String flatType;
 				boolean isParameterArray;
 				if (Signature.getTypeSignatureKind(parameterType) == Signature.ARRAY_TYPE_SIGNATURE) {
 					isParameterArray = true;
 				} else {
-					isParameterArray = false;
+					//For Set and List lets use array
+					if ( Signature.getSignatureSimpleName(parameterType).startsWith("Set")) {
+						isParameterArray = true;
+						parameterType = Signature.getSignatureSimpleName(parameterType);
+						parameterType = "L"+parameterType.substring(4,parameterType.length()-1)+";";
+					} else if ( Signature.getSignatureSimpleName(parameterType).startsWith("List")) {
+						isParameterArray = true;
+						parameterType = Signature.getSignatureSimpleName(parameterType);
+						parameterType = "L"+parameterType.substring(5,parameterType.length()-1)+";";
+					} else {
+						isParameterArray = false;
+					}
 				}
+				
 				flatType = Signature.getSignatureSimpleName(Signature
 						.getElementType(parameterType));
 
@@ -123,27 +148,50 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 									.get(resolved), null, isParameterArray,
 									getFieldName(m.getElementName())));
 				} else {
-					subElements.add(generate0(
-							IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved,
-							model, getFieldName(m.getElementName()),
+					String prefixedClass = IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved;
+					if(typeCache.containsKey(prefixedClass)){
+						JavaTreeElement cacheElement = typeCache.get(prefixedClass);
+						JavaTreeElement element = new JavaTreeElement(prefixedClass,
+								cacheElement.getElements(),isParameterArray,
+								getFieldName(m.getElementName()));
+						subElements.add(element);
+					} else {
+					    subElements.add(generate0(
+							prefixedClass,
+							typeCache, getFieldName(m.getElementName()),
 							isParameterArray, project, Collections
 									.unmodifiableSet(parents)));
+					}
 				}
 			}
 		}
+		} else {
+			//when type == null
+			logger.warn("Type not on classspath:" + classPrefixed + " for element:" + name);
+		}
+
 		final JavaTreeElement el = new JavaTreeElement(classPrefixed,
 				subElements.isEmpty() ? null : subElements, isArray,
 				name != null ? name : type.getElementName());
 
-		add(model, el);
+		typeCache.put(el.getClazz(),el);
 		return el;
 	}
 
 	private String resolve(final IType type, final String name)
 			throws JavaModelException, IllegalArgumentException {
-		final String[][] resolved = type.resolveType(Signature
+		String[][] resolved = type.resolveType(Signature
 				.getSignatureSimpleName(Signature.getElementType(name)));
 
+		if(resolved == null && name.startsWith("L") && name.endsWith(";")) {
+			resolved = type.resolveType(name.substring(1,name.length()-1));
+		}
+		
+		if(resolved == null && name.startsWith("L") && name.endsWith(";")) {
+			return name.substring(1,name.length()-1);
+		}
+		
+		
 		if (resolved == null) {
 			return null;
 		}
@@ -162,22 +210,6 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			}
 		}
 		return null;
-	}
-
-	private void add(final List<JavaTreeElement> model,
-			final JavaTreeElement element) {
-		for (int i = 0; i < model.size(); i++) {
-			final JavaTreeElement te = model.get(i);
-			if (te.getName().equals(element.getName())) {
-				if (te.isComplete() || !element.isComplete()) {
-					return;
-				} else {
-					model.remove(i);
-					break;
-				}
-			}
-		}
-		model.add(element);
 	}
 
 	private boolean hasMatchingGetter(final IType type, final IMethod setter)

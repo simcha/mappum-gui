@@ -21,6 +21,8 @@ public class ProjectProperties {
 	public static String SCHEMA_DIRECTORY_PROPS = "schemaDirectory";
 	public static String WORKING_MAP_DIRECTORY_PROPS = "workingMapDirectory";
 	public static String JAVA_DIRECTORY_PROPS = "javaDirectory";
+	public static String MAX_DEPTH_PROP = "maxDepth";
+	public static String MAX_DEPTH_DEFAULT = "4";
 
 	public ProjectProperties(IProject project) {
 		IPath propertiesPath = project.getFullPath().append(PROPERTIES_FILE);

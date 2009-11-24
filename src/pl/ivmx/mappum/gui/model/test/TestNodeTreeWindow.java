@@ -16,7 +16,7 @@ import org.jrubyparser.ast.Node;
 public class TestNodeTreeWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private static boolean DISPLAY = true;
+	private static boolean DISPLAY = false;
 
 	public static void show(final Node node) {
 		if (DISPLAY) {

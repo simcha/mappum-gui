@@ -38,10 +38,11 @@ public class JavaTreeElement extends TreeElementAdapter {
 
 	@Override
 	public List<TreeElement> getElements() {
-		if (!isComplete()) {
-			throw new IllegalStateException(
-					"Cannot get children of incomplete element");
-		}
+//Better just return null		
+//		if (!isComplete()) {
+//			throw new IllegalStateException(
+//					"Cannot get children of incomplete element");
+//		}
 		return elements;
 	}
 

@@ -125,18 +125,17 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 														.getName(),
 												file.getProject());
 							} catch (final Exception e) {
+								logger.error("Model generation failed:", e);
 								Display.getDefault().syncExec(new Runnable() {
 									public void run() {
 										final MessageBox mb = new MessageBox(
 												getSite().getShell(),
 												SWT.ICON_ERROR);
-										mb
-												.setMessage(String
-														.format(
-																"Model generation failed: %s",
-																e.getMessage() == null ? "Internal error"
-																		: e
-																				.getMessage()));
+										String message = String.format(
+											"Model generation failed: %s",
+											e.getMessage() == null ? "Internal error"
+													: e.getMessage());
+										mb.setMessage(message);
 										mb.setText("Error");
 										mb.open();
 									}

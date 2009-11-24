@@ -1,7 +1,9 @@
 package pl.ivmx.mappum.gui.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -80,15 +82,14 @@ public class ModelGeneratorFromJava {
 			Shape parent = checkAndAddShape(new TypedTreeElement(sideElement,
 					clazz), null, side, false, ((JavaTreeElement) el)
 					.isMarkedAsComplex());
-			if (el.getElements() != null) {
+			if (((JavaTreeElement) el).isComplete() &&  el.getElements() != null) {
 				for (TreeElement childElement : el.getElements()) {
 					Shape child = checkAndAddShape(childElement, parent, side,
 							childElement.getIsArray(),
 							((JavaTreeElement) childElement)
 									.isMarkedAsComplex());
 					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child, side,
-								model);
+						getComplexField(childElement, child, side, new HashSet<String>());
 
 					}
 				}
@@ -115,20 +116,18 @@ public class ModelGeneratorFromJava {
 		}
 	}
 
-	private void getComplexField(String searchElement, Shape parent,
-			final Shape.Side side, List<JavaTreeElement> model) {
-		for (TreeElement element : model) {
-			if (element.getClazz().equals(searchElement)
-					&& element.getElements() != null) {
-				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement, parent, side,
-							childElement.getIsArray(),
-							((JavaTreeElement) childElement)
-									.isMarkedAsComplex());
-					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child, side,
-								model);
-					}
+	private void getComplexField(TreeElement element, Shape parent,
+			final Shape.Side side, Set<String> parents) {
+		if (element.getElements() != null){
+			for (TreeElement childElement : element.getElements()) {
+				Shape child = checkAndAddShape(childElement, parent, side,
+						childElement.getIsArray(), ((JavaTreeElement) childElement)
+								.isMarkedAsComplex());
+				if (childElement.getClazz() != null
+						&& ((JavaTreeElement) childElement).isComplete()
+						&& !parents.contains(childElement.getClazz())) {
+					parents.add(childElement.getClazz());
+					getComplexField(childElement, child, side, parents);
 				}
 			}
 		}
