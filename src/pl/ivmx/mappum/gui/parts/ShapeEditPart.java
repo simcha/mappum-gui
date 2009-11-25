@@ -42,7 +42,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 
 	@Override
 	protected IFigure createFigure() {
-		return new ShapeFigure(this, getCastedModel().getDepth() % 10);
+		return new ShapeFigure(this, getCastedModel().getDepth());
 	}
 
 	/**
@@ -53,6 +53,11 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		if (!isActive()) {
 			super.activate();
 			((ModelElement) getModel()).addPropertyChangeListener(this);
+			if ((!childrenConnected(true)) && hasModelChildren() && ((Shape)getModel()).getParent() != null){
+				collapsed = true;
+				getFigure().setStyleCollapsed();
+				refreshChildren();
+			}
 		}
 	}
 
@@ -323,6 +328,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<ShapeEditPart> getChildren() {
 		return super.getChildren();

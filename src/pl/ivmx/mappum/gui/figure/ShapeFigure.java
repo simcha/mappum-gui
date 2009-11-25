@@ -19,30 +19,32 @@ public class ShapeFigure extends RoundedRectangle {
 
 	private final static Color[] COLOR = {
 		new Color(null, 240, 240, 240),
-		new Color(null, 230, 230, 230),
-		new Color(null, 240, 240, 220),
-		new Color(null, 230, 230, 210),
-		new Color(null, 240, 220, 240),
-		new Color(null, 230, 210, 230),
-		new Color(null, 220, 240, 240),
-		new Color(null, 210, 230, 230),
-		new Color(null, 240, 240, 200),
-		new Color(null, 230, 230, 190)	
+		new Color(null, 225, 225, 220),
+		new Color(null, 225, 220, 225),
+		new Color(null, 220, 225, 225),
+		new Color(null, 210, 210, 205),
+		new Color(null, 235, 235, 235),
+		new Color(null, 220, 220, 215),
+		new Color(null, 220, 215, 220),
+		new Color(null, 215, 220, 220),
+		new Color(null, 210, 205, 210)	
 	};
 
 	private final Label labelName = new Label();
 
-	public ShapeFigure(final MouseListener ml, final int color) {
-		setBorder(new MarginBorder(5));
-		setCornerDimensions(new Dimension(20, 20));
+	public ShapeFigure(final MouseListener ml, final int depht) {
+		setBorder(new MarginBorder(3,20,3,3));
+		setCornerDimensions(new Dimension(3, 3));
 		final ToolbarLayout layout = new ToolbarLayout(false);
 		layout.setSpacing(3);
 		layout.setStretchMinorAxis(true);
 		// layout.set
 		setLayoutManager(layout);
-		//setSize(100, 40);
-		setBackgroundColor(COLOR[color]);
 
+		//setSize(100, 40);
+		setBackgroundColor(COLOR[depht % 10]);
+		
+		labelName.setLabelAlignment(Label.LEFT);
 		labelName.setForegroundColor(ColorConstants.darkGray);
 		final FontData fd = Display.getDefault().getSystemFont().getFontData()[0];
 		labelName.setFont(new Font(null, fd.getName(), fd.getHeight(),
@@ -62,8 +64,14 @@ public class ShapeFigure extends RoundedRectangle {
 				SWT.NORMAL));
 	}
 
+	public void setStyleComplex() {
+		final FontData fd = Display.getDefault().getSystemFont().getFontData()[0];
+		labelName.setFont(new Font(null, fd.getName(), fd.getHeight(),
+				SWT.ITALIC));
+	}
+
 	public void setName(String text) {
-		labelName.setText("Name: " + text);
+		labelName.setText(text);
 	}
 
 	public String getName() {
@@ -82,6 +90,9 @@ public class ShapeFigure extends RoundedRectangle {
 	public void recreateLabel() {
 		if (getChildren().contains(labelName)) {
 			remove(labelName);
+		}
+		if(getChildren().size()>1){
+			setStyleComplex();
 		}
 		add(labelName, 0);
 	}
