@@ -20,7 +20,8 @@ public class Shape extends ModelElement {
 	public static enum SourceType {
 		RUBY, JAVA;
 	}
-
+	
+	@SuppressWarnings("unused")
 	private final Logger logger = Logger.getLogger(Shape.class);
 	private static IPropertyDescriptor[] descriptors;
 

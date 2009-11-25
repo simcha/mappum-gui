@@ -1,8 +1,6 @@
 package pl.ivmx.mappum.gui.model.commands;
 
 import org.eclipse.gef.commands.Command;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.jrubyparser.ast.NewlineNode;
 
 import pl.ivmx.mappum.gui.model.Connection;
@@ -116,15 +114,6 @@ public class ConnectionCreateCommand extends Command {
 		NewlineNode node = RootNodeHolder.getInstance().addMapping(source, target,
 				Connection.translateSideFromIntToString(mappingSide), comment, arrayNumber);
 
-		String viewId = "org.eclipse.ui.views.PropertySheet";
-
-		try {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage().showView(viewId);
-		} catch (PartInitException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		return node;
 	}
 

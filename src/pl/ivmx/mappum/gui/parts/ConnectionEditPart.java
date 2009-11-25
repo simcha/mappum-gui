@@ -20,8 +20,6 @@ import org.eclipse.gef.requests.GroupRequest;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import pl.ivmx.mappum.gui.IMappumEditor;
@@ -37,7 +35,6 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 
 	public ConnectionEditPart(final IMappumEditor editor) {
 		this.editor = editor;
-		
 	}
 
 	/**
@@ -47,20 +44,10 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	public void activate() {
 		if (!isActive()) {
 			super.activate();
-			
-			String viewId = "org.eclipse.ui.views.PropertySheet";
-
-			try {
-				final IWorkbenchPage p = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage();
-				if (p != null) {
-					p.showView(viewId);
-				}
-			} catch (PartInitException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			((ModelElement) getModel()).addPropertyChangeListener(this);
+
+			getViewer().select(this);
+
 		}
 	}
 

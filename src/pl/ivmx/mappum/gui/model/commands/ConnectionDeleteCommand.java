@@ -1,8 +1,6 @@
 package pl.ivmx.mappum.gui.model.commands;
 
 import org.eclipse.gef.commands.Command;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.utils.RootNodeHolder;
@@ -67,15 +65,6 @@ public class ConnectionDeleteCommand extends Command {
 							.getMappingSide()), connection.getComment(), 0);
 		}
 
-		String viewId = "org.eclipse.ui.views.PropertySheet";
-
-		try {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-					.getActivePage().showView(viewId);
-		} catch (PartInitException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 	}
 
 	private void removeRubbyMapping() {
