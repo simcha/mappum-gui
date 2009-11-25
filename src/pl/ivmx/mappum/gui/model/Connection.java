@@ -86,7 +86,7 @@ public class Connection extends ModelElement {
 	private Side mappingSide;
 	private String comment;
 
-	private CallNode rubyCodeNode;
+	private NewlineNode rubyCodeNode;
 
 	private Logger logger = Logger.getLogger(Connection.class);
 
@@ -149,14 +149,17 @@ public class Connection extends ModelElement {
 		return mappingSide;
 	}
 
-	public NewlineNode getMappingNode() {
+	private NewlineNode getMappingNode() {
 		final RootNodeHolder h = RootNodeHolder.getInstance();
 		return h.findMappingNode(this, h.findRootBlockNode(h.getRootNode()));
 	}
 
 	public String getMappingCode() {
+		if (rubyCodeNode == null){
+			rubyCodeNode = getMappingNode();
+		}
 		return ModelGenerator.getInstance().generateRubyCodeFromNode(
-				getMappingNode());
+				rubyCodeNode);
 	}
 
 	/**
@@ -305,11 +308,14 @@ public class Connection extends ModelElement {
 		}
 	}
 
-	public CallNode getRubyCodeNode() {
+	public NewlineNode getRubyCodeNode() {
+		if (rubyCodeNode == null){
+			rubyCodeNode = getMappingNode();
+		}
 		return rubyCodeNode;
 	}
 
-	public void setRubyCodeNode(CallNode rubyCodeNode) {
+	public void setRubyCodeNode(NewlineNode rubyCodeNode) {
 		this.rubyCodeNode = rubyCodeNode;
 	}
 
@@ -343,12 +349,13 @@ public class Connection extends ModelElement {
 	}
 
 	public void refreshMappingNode() {
-		rubyCodeNode.setName(Connection
+		CallNode nextNode = (CallNode)rubyCodeNode.getNextNode();
+		nextNode.setName(Connection
 				.translateSideFromIntToString(mappingSide));
 
-		CallNode receiverChild = (CallNode) (rubyCodeNode).getReceiverNode();
+		CallNode receiverChild = (CallNode) (nextNode).getReceiverNode();
 		receiverChild.setName(source.getName());
-		CallNode senderChild = (CallNode) (rubyCodeNode).getArgsNode()
+		CallNode senderChild = (CallNode) (nextNode).getArgsNode()
 				.childNodes().get(0);
 		senderChild.setName(target.getName());
 

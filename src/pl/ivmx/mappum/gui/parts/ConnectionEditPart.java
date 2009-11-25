@@ -37,6 +37,7 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 
 	public ConnectionEditPart(final IMappumEditor editor) {
 		this.editor = editor;
+		
 	}
 
 	/**
@@ -46,6 +47,7 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 	public void activate() {
 		if (!isActive()) {
 			super.activate();
+			
 			String viewId = "org.eclipse.ui.views.PropertySheet";
 
 			try {

@@ -3,6 +3,7 @@ package pl.ivmx.mappum.gui.model.commands;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.jrubyparser.ast.NewlineNode;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
@@ -63,33 +64,38 @@ public class ConnectionCreateCommand extends Command {
 		if (source.getSide() == Shape.Side.RIGHT) {
 			
 			if (source.isArrayType() != target.isArrayType()) {
-				createRubyMapping(target, source, mappingSide, null, 0);
+				NewlineNode node = createRubyMapping(target, source, mappingSide, null, 0);
 				connection = new Connection(target, source, mappingSide,
 						connectionInfo.getType(), 0);
+				connection.setRubyCodeNode(node);
 			} else {
-				createRubyMapping(target, source, mappingSide, null, null);
+				NewlineNode node = createRubyMapping(target, source, mappingSide, null, null);
 				connection = new Connection(target, source, mappingSide,
 						connectionInfo.getType());
+				connection.setRubyCodeNode(node);
 			}
 		}
 
 		else {
 			
 			if (source.isArrayType() != target.isArrayType()) {
-				createRubyMapping(source, target, mappingSide, null, 0);
+				NewlineNode node = createRubyMapping(source, target, mappingSide, null, 0);
 				connection = new Connection(source, target, mappingSide,
 						connectionInfo.getType(), 0);
+				connection.setRubyCodeNode(node);
 			} else {
-				createRubyMapping(source, target, mappingSide, null, null);
+				NewlineNode node = createRubyMapping(source, target, mappingSide, null, null);
 				connection = new Connection(source, target, mappingSide,
 						connectionInfo.getType());
+				connection.setRubyCodeNode(node);
 			}
 		}
 	}
 
 	public void redo() {
-		createRubyMapping(connection.getSource(), connection.getTarget(),
+		NewlineNode node = createRubyMapping(connection.getSource(), connection.getTarget(),
 				connection.getMappingSide(), connection.getComment(), connection.getArrayNumber());
+		connection.setRubyCodeNode(node);
 		connection.reconnect();
 	}
 
@@ -105,9 +111,9 @@ public class ConnectionCreateCommand extends Command {
 		connection.disconnect();
 	}
 
-	private void createRubyMapping(Shape source, Shape target,
+	private NewlineNode createRubyMapping(Shape source, Shape target,
 			final Connection.Side mappingSide, String comment, Integer arrayNumber) {
-		RootNodeHolder.getInstance().addMapping(source, target,
+		NewlineNode node = RootNodeHolder.getInstance().addMapping(source, target,
 				Connection.translateSideFromIntToString(mappingSide), comment, arrayNumber);
 
 		String viewId = "org.eclipse.ui.views.PropertySheet";
@@ -119,6 +125,7 @@ public class ConnectionCreateCommand extends Command {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		return node;
 	}
 
 	private void removeRubbyMapping() {

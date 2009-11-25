@@ -40,17 +40,18 @@ public final class MappumEditorPaletteFactory {
 	private static ToolEntry createTool(final String label,
 			final String shortDesc, final String iconSmall,
 			final String iconLarge, final Connection.Info info) {
-		return new ConnectionCreationToolEntry(label, shortDesc,
-				new CreationFactory() {
+		ConnectionCreationToolEntry connectionCreationToolEntry = new ConnectionCreationToolEntry(label, shortDesc,
+						new CreationFactory() {
 
-					public Object getNewObject() {
-						return null;
-					}
+							public Object getNewObject() {
+								return null;
+							}
 
-					public Object getObjectType() {
-						return info;
-					}
-				}, createImage(iconSmall), createImage(iconLarge));
+							public Object getObjectType() {
+								return info;
+							}
+						}, createImage(iconSmall), createImage(iconLarge));
+		return connectionCreationToolEntry;
 	}
 
 	private static ImageDescriptor createImage(final String fileName) {

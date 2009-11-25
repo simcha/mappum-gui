@@ -106,7 +106,7 @@ public class RootNodeHolder {
 		return null;
 	}
 
-	private BlockNode getBlockNode(NewlineNode node) {
+	private BlockNode getBlockNode(Node node) {
 		if (node.childNodes().get(0) instanceof FCallNode) {
 			if (node.childNodes().get(0).childNodes().size() > 1) {
 				if (node.childNodes().get(0).childNodes().get(1) instanceof IterNode) {
@@ -139,8 +139,8 @@ public class RootNodeHolder {
 
 	public boolean changeMappingAtributes(Connection connection,
 			String newSide, String newComment) {
-		NewlineNode newlineNode = findMappingNode(connection,
-				findRootBlockNode(rootNode));
+		try{
+		NewlineNode newlineNode = connection.getRubyCodeNode();
 		CallNode callnode;
 		if (newlineNode.getNextNode() instanceof CallNode) {
 			callnode = (CallNode) newlineNode.getNextNode();
@@ -156,8 +156,13 @@ public class RootNodeHolder {
 			NewlineNode comment = generateComment(newComment);
 			int n = 0;
 			Node parent = getParentNode(newlineNode, rootNode);
+			Node line = newlineNode;
+			while(! (parent instanceof BlockNode)) {
+				line = parent;
+				parent = getParentNode(parent, rootNode);	
+			}
 			for (Node tmpNode : parent.childNodes()) {
-				if (tmpNode.equals(newlineNode)) {
+				if (tmpNode.equals(line)) {
 					break;
 				}
 				n++;
@@ -191,7 +196,10 @@ public class RootNodeHolder {
 			}
 		}
 		return false;
-
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	public Node getParentNode(final Node nodeToFind, final Node nodeToSearchIn) {
@@ -877,7 +885,7 @@ public class RootNodeHolder {
 	 * @param side
 	 * @param comment
 	 */
-	public void addMapping(Shape leftShape, Shape rightShape, String side,
+	public NewlineNode addMapping(Shape leftShape, Shape rightShape, String side,
 			String comment, Integer arrayNumber) {
 		List<Integer> path;
 		if (arrayNumber != null) {
@@ -1150,8 +1158,8 @@ public class RootNodeHolder {
 
 			}
 			node = tmpNode;
-
 		}
+		return node;
 
 	}
 

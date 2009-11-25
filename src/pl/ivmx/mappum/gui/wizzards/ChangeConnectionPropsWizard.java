@@ -47,23 +47,18 @@ public class ChangeConnectionPropsWizard extends Wizard {
 				mb.open();
 				return false;
 			}
-			if (!connection.getComment().equals(mainPage.getRubyComment())) {
-				RootNodeHolder.getInstance().changeMappingAtributes(
-						getConnection(), null, mainPage.getRubyComment());
-			}
 
 			final MessageBox mb = new MessageBox(getShell(), SWT.ICON_QUESTION
 					| SWT.YES | SWT.NO);
-			mb
-					.setMessage("This operation requires saving. This will discard all undo information.\n"
+			mb.setMessage("This operation requires saving. This will discard all undo information.\n"
 							+ "Do you wish to continue?");
 			if (mb.open() == SWT.YES) {
 				final RootNodeHolder nodeHolder = RootNodeHolder.getInstance();
 				final Node parentNode = nodeHolder.getParentNode(connection
-						.getMappingNode(), nodeHolder.getRootNode());
+						.getRubyCodeNode(), nodeHolder.getRootNode());
 				int pointer = 0;
 				for (Node child : parentNode.childNodes()) {
-					if (connection.getMappingNode().equals(child)) {
+					if (connection.getRubyCodeNode().equals(child)) {
 						break;
 					}
 					pointer++;
@@ -79,14 +74,19 @@ public class ChangeConnectionPropsWizard extends Wizard {
 				return true;
 			}
 			return false;
+		} else {
+			if (!connection.getComment().equals(mainPage.getRubyComment())) {
+				RootNodeHolder.getInstance().changeMappingAtributes(
+						getConnection(), null, mainPage.getRubyComment());
+				connection.setComment(mainPage.getRubyComment());
+			}
+			return true;
 		}
-		return false;
 	}
 
 	private boolean hasChanged(final String rubyCode) {
 		return !(rubyCode.equals(connection.getMappingCode())
-				&& connection.getMappingSide() == originalMappingSide && connection
-				.getComment().equals(mainPage.getRubyComment()));
+				&& connection.getMappingSide() == originalMappingSide);
 	}
 
 	private Node generateModelFromCode(String code) throws SyntaxException {
