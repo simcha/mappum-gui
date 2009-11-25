@@ -17,21 +17,31 @@ import org.eclipse.swt.widgets.Display;
 
 public class ShapeFigure extends RoundedRectangle {
 
-	private final static Color COLOR_LIGHT = new Color(null, 240, 240, 240);
-	private final static Color COLOR_DARK = new Color(null, 230, 230, 230);
+	private final static Color[] COLOR = {
+		new Color(null, 240, 240, 240),
+		new Color(null, 230, 230, 230),
+		new Color(null, 240, 240, 220),
+		new Color(null, 230, 230, 210),
+		new Color(null, 240, 220, 240),
+		new Color(null, 230, 210, 230),
+		new Color(null, 220, 240, 240),
+		new Color(null, 210, 230, 230),
+		new Color(null, 240, 240, 200),
+		new Color(null, 230, 230, 190)	
+	};
 
 	private final Label labelName = new Label();
 
-	public ShapeFigure(final MouseListener ml, final boolean isDark) {
+	public ShapeFigure(final MouseListener ml, final int color) {
 		setBorder(new MarginBorder(5));
 		setCornerDimensions(new Dimension(20, 20));
 		final ToolbarLayout layout = new ToolbarLayout(false);
-		layout.setSpacing(5);
+		layout.setSpacing(3);
 		layout.setStretchMinorAxis(true);
 		// layout.set
 		setLayoutManager(layout);
 		//setSize(100, 40);
-		setBackgroundColor(isDark ? COLOR_DARK : COLOR_LIGHT);
+		setBackgroundColor(COLOR[color]);
 
 		labelName.setForegroundColor(ColorConstants.darkGray);
 		final FontData fd = Display.getDefault().getSystemFont().getFontData()[0];

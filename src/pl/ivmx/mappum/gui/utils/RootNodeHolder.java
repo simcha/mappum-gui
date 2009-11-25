@@ -823,8 +823,6 @@ public class RootNodeHolder {
 
 		addTypesToNodes(leftSide, leftType, rightSide, rightType);
 
-		System.out.println("Mapping: " + leftSide.getName() + ", "
-				+ rightSide.getName() + ", side:" + side);
 		ArrayNode argsNode = new ArrayNode(new SourcePosition(), rightSide);
 
 		CallNode callNode = new CallNode(new SourcePosition(), leftSide, side,
@@ -975,7 +973,8 @@ public class RootNodeHolder {
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
-				getBlockNode(node).add(tmpNode);
+				//empty line
+				getBlockNode(node).add((new NewlineNode(tmpNode.getPositionIncludingComments(), tmpNode)));
 				leftShapeList.remove(0);
 				rightShapeList.remove(0);
 			}
@@ -1012,7 +1011,7 @@ public class RootNodeHolder {
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
-				getBlockNode(node).add(tmpNode);
+				getBlockNode(node).add((new NewlineNode(tmpNode.getPositionIncludingComments(), tmpNode)));
 				leftShapeList.remove(0);
 			}
 
@@ -1048,7 +1047,7 @@ public class RootNodeHolder {
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
-				getBlockNode(node).add(tmpNode);
+				getBlockNode(node).add((new NewlineNode(tmpNode.getPositionIncludingComments(), tmpNode)));
 				rightShapeList.remove(0);
 			}
 
@@ -1079,7 +1078,7 @@ public class RootNodeHolder {
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
-				getBlockNode(node).add(tmpNode);
+				getBlockNode(node).add((new NewlineNode(tmpNode.getPositionIncludingComments(), tmpNode)));
 				leftShapeList.clear();
 				rightShapeList.clear();
 			}
@@ -1114,7 +1113,7 @@ public class RootNodeHolder {
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
-				getBlockNode(node).add(tmpNode);
+				getBlockNode(node).add((new NewlineNode(tmpNode.getPositionIncludingComments(), tmpNode)));
 			}
 
 			else if (leftShapeList.size() == 0 && rightShapeList.size() == 1) {
@@ -1147,7 +1146,7 @@ public class RootNodeHolder {
 				if ((newLineNode = generateComment(comment)) != null) {
 					getBlockNode(node).add(newLineNode);
 				}
-				getBlockNode(node).add(tmpNode);
+				getBlockNode(node).add((new NewlineNode(tmpNode.getPositionIncludingComments(), tmpNode)));
 
 			}
 			node = tmpNode;
@@ -1629,8 +1628,8 @@ public class RootNodeHolder {
 		CallNode[] nodes = addArrayElementDeclaration(leftSideIn, rightSideIn,
 				arrayElementSide, arrayNumber);
 
-		final CallNode leftSide = nodes[0];
-		final CallNode rightSide = nodes[1];
+		CallNode leftSide = nodes[0];
+		CallNode rightSide = nodes[1];
 
 		addTypesToNodes(leftSide, leftType, rightSide, rightType);
 
@@ -1640,9 +1639,14 @@ public class RootNodeHolder {
 
 		if (whichDAsagnChange == LEFT_DASGN_CHANGE) {
 			rightPrefix = s[1];
+			rightSide = cloneCallNode(rightSide);
 
 		} else if (whichDAsagnChange == RIGHT_DASGN_CHANGE) {
 			leftPrefix = s[0];
+			leftSide = cloneCallNode(leftSide);
+		} else if (whichDAsagnChange == BOTH_DASGN_CHANGE){
+			rightSide = cloneCallNode(rightSide);
+			leftSide = cloneCallNode(leftSide);
 		}
 		DAsgnNode leftAsgnNode = new DAsgnNode(new SourcePosition(),
 				leftPrefix, 0, NilImplicitNode.NIL);
@@ -1671,6 +1675,28 @@ public class RootNodeHolder {
 
 		changeMappingDVars(newlineNode, s[0], s[1]);
 		return newlineNode;
+	}
+
+	private CallNode cloneCallNode(CallNode cnode) {
+		Node receiverNode = cnode.getReceiverNode();
+		if (receiverNode instanceof CallNode) {
+			receiverNode = cloneCallNode( (CallNode) receiverNode);
+		}
+		if (receiverNode instanceof DVarNode) {
+			DVarNode dvarnd = (DVarNode) receiverNode;
+			receiverNode = new DVarNode(dvarnd.getPositionIncludingComments(),0,dvarnd.getName());
+		}
+		Node argsNode = cnode.getArgsNode();
+		if (argsNode instanceof CallNode) {
+			argsNode = cloneCallNode( (CallNode) argsNode);
+		}
+		if (argsNode instanceof DVarNode) {
+			DVarNode dvarnd = (DVarNode) argsNode;
+			argsNode = new DVarNode(dvarnd.getPositionIncludingComments(),0,dvarnd.getName());
+		}
+
+		CallNode callNode = new CallNode(cnode.getPositionIncludingComments(), receiverNode, cnode.getName(), argsNode);
+		return callNode;
 	}
 
 	/**

@@ -84,7 +84,7 @@ public class Shape extends ModelElement {
 		this.type = type;
 		this.parent = shapeParent;
 		this.side = side;
-		logger.trace("Created shape: " + this);
+		//logger.trace("Created shape: " + this);
 	}
 
 	public boolean addToParent() {

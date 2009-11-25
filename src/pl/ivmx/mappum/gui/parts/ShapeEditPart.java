@@ -42,7 +42,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 
 	@Override
 	protected IFigure createFigure() {
-		return new ShapeFigure(this, getCastedModel().getDepth() % 2 == 0);
+		return new ShapeFigure(this, getCastedModel().getDepth() % 10);
 	}
 
 	/**

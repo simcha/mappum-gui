@@ -32,8 +32,7 @@ public class ModelGeneratorFromJava {
 
 	private Shape checkAndAddShape(final TreeElement element, Shape parent,
 			Side side, boolean isArray, boolean isRecurrence) {
-		System.out.println(element.getName() + ", recurrence?:" + isRecurrence);
-
+		
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
 				if (element.getName().equals(

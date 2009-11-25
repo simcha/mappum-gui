@@ -189,7 +189,6 @@ public class ModelGenerator {
 										.append(((XStrNode) ((NewlineNode) newline)
 												.getNextNode()).getValue());
 							} else if (((NewlineNode) newline).getNextNode() instanceof FCallNode) {
-								System.out.println(Shape.getRootShapes());
 								operateOnInternalMap((NewlineNode) newline,
 										new Pair(Shape.getRootShapes().get(0),
 												Shape.getRootShapes().get(1)),
