@@ -72,7 +72,7 @@ public class Connection extends ModelElement {
 	/** Property ID to use when the line style of this connection is modified. */
 	public static final String MAPPING_PROP = "Connection.Mapping";
 	private static final IPropertyDescriptor[] descriptors = new IPropertyDescriptor[3];
-	private static final String COMMENT_PROP = "Connection.Comment";
+	public static final String COMMENT_PROP = "Connection.Comment";
 	private static final String CODE_PROP = "Connection.code";
 	private static final long serialVersionUID = 1;
 
@@ -473,7 +473,9 @@ public class Connection extends ModelElement {
 	}
 
 	public void setComment(String comment) {
+		String oldComment = this.comment;
 		this.comment = comment;
+		firePropertyChange(Connection.COMMENT_PROP, oldComment, comment);
 	}
 
 	public void setConstantName(String constantName) {

@@ -1,6 +1,7 @@
 package pl.ivmx.mappum.gui.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -116,17 +117,20 @@ public class ModelGeneratorFromJava {
 	}
 
 	private void getComplexField(TreeElement element, Shape parent,
-			final Shape.Side side, Set<String> parents) {
+			final Shape.Side side, Set<String> inParents) {
 		if (element.getElements() != null){
+			Set<String> parents = new HashSet<String>(inParents); 
+			parents.add(element.getClazz());
 			for (TreeElement childElement : element.getElements()) {
 				Shape child = checkAndAddShape(childElement, parent, side,
 						childElement.getIsArray(), ((JavaTreeElement) childElement)
 								.isMarkedAsComplex());
 				if (childElement.getClazz() != null
 						&& ((JavaTreeElement) childElement).isComplete()
-						&& !parents.contains(childElement.getClazz())) {
-					parents.add(childElement.getClazz());
-					getComplexField(childElement, child, side, parents);
+						&& !inParents.contains(childElement.getClazz())) {
+					
+					getComplexField(childElement, child, side, Collections
+							.unmodifiableSet(parents));
 				}
 			}
 		}

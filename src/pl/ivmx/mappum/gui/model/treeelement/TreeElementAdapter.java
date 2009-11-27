@@ -6,6 +6,7 @@ import pl.ivmx.mappum.TreeElement;
 
 public abstract class TreeElementAdapter implements TreeElement{
 
+	private int depthCut = 0;
 	public String getClazz() {
 		return null;
 	}
@@ -36,6 +37,12 @@ public abstract class TreeElementAdapter implements TreeElement{
 
 	public void setName(String arg0) {
 		throw new UnsupportedOperationException("Operation is not supported");
+	}
+	public void setDepthCut(int d) {
+		this.depthCut = d;
+	}
+	public int getDepthCut() {
+		return depthCut;
 	}
 	public int compareTo(TreeElement that) {
 	    @SuppressWarnings("unused")

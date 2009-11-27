@@ -78,20 +78,25 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			final Set<String> inParents) throws JavaModelException,
 			IllegalArgumentException {
 
-		final Set<String> parents = new HashSet<String>(inParents);
+
 		final ProjectProperties prop = new ProjectProperties(project);
-		final int maxDepth = Integer.parseInt(prop.getProperty(ProjectProperties.MAX_DEPTH_PROP)); 
+		final int maxDepth = Integer.parseInt(prop.getProperty(ProjectProperties.MAX_DEPTH_PROP));
+		//indicates depth where max Depth was used for cache
+	    int depthCut = 0;
+	    
 		if(typeCache==null){
 			typeCache = new HashMap<String, JavaTreeElement>();
 		}
 		
-		if (parents.contains(classPrefixed) || parents.size() >= maxDepth) {
+		if (inParents.contains(classPrefixed) || inParents.size() >= maxDepth) {
 			JavaTreeElement el = new JavaTreeElement(classPrefixed, null, isArray, name, false, true);
+			el.setDepthCut(1);
 			return el;
 		}
-
+		
+		final Set<String> parents = new HashSet<String>(inParents);
 		parents.add(classPrefixed);
-
+		
 		if (!classPrefixed.startsWith(IJavaModelGenerator.JAVA_TYPE_PREFIX)) {
 			throw new IllegalArgumentException(String.format(
 					"Type name %s must be prefixed with %s.", classPrefixed,
@@ -150,18 +155,29 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 									getFieldName(m.getElementName())));
 				} else {
 					String prefixedClass = IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved;
-					if(typeCache.containsKey(prefixedClass)){
+					if(typeCache.containsKey(prefixedClass)
+							&& typeCache.get(prefixedClass).getDepthCut()  + parents.size() - maxDepth > 0){
+						
 						JavaTreeElement cacheElement = typeCache.get(prefixedClass);
+						
 						JavaTreeElement element = new JavaTreeElement(prefixedClass,
-								cacheElement.getElements(),isParameterArray,
-								getFieldName(m.getElementName()));
+									cacheElement.getElements(),isParameterArray,
+									getFieldName(m.getElementName()));
 						subElements.add(element);
+						
 					} else {
-					    subElements.add(generate0(
+					    JavaTreeElement subElem = generate0(
 							prefixedClass,
 							typeCache, getFieldName(m.getElementName()),
 							isParameterArray, project, Collections
-									.unmodifiableSet(parents)));
+									.unmodifiableSet(parents));
+						//If max depth was in use and cut earlier
+					    if(subElem.getDepthCut() > 0
+					    		&& depthCut < subElem.getDepthCut() + 1){
+					    	//mark cutted
+					    	depthCut = subElem.getDepthCut() + 1;
+					    }
+						subElements.add(subElem);
 					}
 				}
 			}
@@ -174,7 +190,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		final JavaTreeElement el = new JavaTreeElement(classPrefixed,
 				subElements.isEmpty() ? null : subElements, isArray,
 				name != null ? name : type.getElementName());
-
+		el.setDepthCut(depthCut);
 		typeCache.put(el.getClazz(),el);
 		return el;
 	}

@@ -109,4 +109,56 @@
                selected="true">
          </filter>
       </extension>
+      <extension
+            point="org.eclipse.debug.core.launchConfigurationTypes">
+         <launchConfigurationType
+               delegate="pl.ivmx.mappum.gui.launch.MapServerLauncher"
+               delegateDescription="Starts mappum serwer that will be avilable on 9292 port on localhost"
+               delegateName="Mappum launcher"
+               id="mappum-gui.launchConfigurationType1"
+               modes="run"
+               name="mapserver"
+               public="true">
+         </launchConfigurationType>
+      </extension>
+      <extension
+            point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+         <launchConfigurationTabGroup
+               class="pl.ivmx.mappum.gui.launch.MapserverLaunchConfigurationTabGroup"
+               id="mappum-gui.launchConfigurationTabGroup1"
+               type="mappum-gui.launchConfigurationType1">
+         </launchConfigurationTabGroup>
+      </extension>
+      <extension
+            point="org.eclipse.debug.ui.launchConfigurationTabs">
+         <tab
+               class="pl.ivmx.mappum.gui.launch.MapserverLaunchConfigurationTab"
+               group="mappum-gui.launchConfigurationTabGroup1"
+               id="mappum-gui.tab1"
+               name="mappum-gui.tab1">
+         </tab>
+      </extension>
+      <extension
+            point="org.eclipse.debug.ui.launchGroups">
+         <launchGroup
+               bannerImage="mappum-gui.launchGroup1"
+               category="org.eclipse.ui.externaltools"
+               id="mappum-gui.launchGroup1"
+               image="mappum-gui.launchGroup1"
+               label="label"
+               mode="mappum-gui.launchGroup1"
+               title="Mappum">
+         </launchGroup>
+      </extension>
+      <extension
+            point="org.eclipse.debug.ui.launchShortcuts">
+         <shortcut
+               category="org.eclipse.ui.externaltools"
+               class="launchshortcut.LaunchShortcut1"
+               description="Mapserver"
+               id="mappum-gui.shortcut1"
+               label="label"
+               modes="mappum-gui.shortcut1">
+         </shortcut>
+      </extension>
 </plugin>

@@ -75,10 +75,12 @@ public class ChangeConnectionPropsWizard extends Wizard {
 			}
 			return false;
 		} else {
-			if (!connection.getComment().equals(mainPage.getRubyComment())) {
+			String oldComment = connection.getComment();
+			if (!oldComment.equals(mainPage.getRubyComment())) {
 				RootNodeHolder.getInstance().changeMappingAtributes(
 						getConnection(), null, mainPage.getRubyComment());
 				connection.setComment(mainPage.getRubyComment());
+
 			}
 			return true;
 		}
