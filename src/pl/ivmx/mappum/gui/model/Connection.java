@@ -473,9 +473,7 @@ public class Connection extends ModelElement {
 	}
 
 	public void setComment(String comment) {
-		String oldComment = this.comment;
 		this.comment = comment;
-		firePropertyChange(Connection.COMMENT_PROP, oldComment, comment);
 	}
 
 	public void setConstantName(String constantName) {

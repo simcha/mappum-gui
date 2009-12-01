@@ -3,10 +3,8 @@ package pl.ivmx.mappum.gui.utils.java;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -19,7 +17,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import pl.ivmx.mappum.TreeElement;
 import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
-import pl.ivmx.mappum.gui.utils.ProjectProperties;
 
 @SuppressWarnings("restriction")
 public class JavaModelGenerator implements IJavaModelGenerator {
@@ -57,57 +54,46 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 		return instance;
 	}
 
-	public void generate(final String classPrefixed,
-			final List<JavaTreeElement> model, final IProject project)
+	public JavaTreeElement generate(final String classPrefixed, final IProject project)
 			throws JavaModelException, IllegalArgumentException {
 
-		JavaTreeElement el = generate0(classPrefixed, null, null, false, project, Collections
-				.unmodifiableSet(new HashSet<String>()));
-		model.add(el);
-		Collections.sort(model);
+		JavaTreeElement el = generate0(classPrefixed, null, false, project);
+		return el;
 	}
 
 	private String getFieldName(final String methodName) {
 		final String firstLetter = methodName.substring(3, 4).toLowerCase();
 		return firstLetter + methodName.substring(4);
 	}
-
-	private JavaTreeElement generate0(final String classPrefixed,
-			Map<String,JavaTreeElement> typeCache, final String name,
-			final boolean isArray, final IProject project,
-			final Set<String> inParents) throws JavaModelException,
+	private boolean isComplex(final String className, final IProject project) throws JavaModelException,
 			IllegalArgumentException {
-
-
-		final ProjectProperties prop = new ProjectProperties(project);
-		final int maxDepth = Integer.parseInt(prop.getProperty(ProjectProperties.MAX_DEPTH_PROP));
-		//indicates depth where max Depth was used for cache
-	    int depthCut = 0;
-	    
-		if(typeCache==null){
-			typeCache = new HashMap<String, JavaTreeElement>();
+		
+		if (PRIMITIVE_TYPES_MAPPING.containsKey(className) ||
+				PRIMITIVE_OBJECTS_MAPPING.containsKey(className)) {
+			return false;
 		}
 		
-		if (inParents.contains(classPrefixed) || inParents.size() >= maxDepth) {
-			JavaTreeElement el = new JavaTreeElement(classPrefixed, null, isArray, name, false, true);
-			el.setDepthCut(1);
-			return el;
+		final IType type = getType(IJavaModelGenerator.JAVA_TYPE_PREFIX + className, project);
+
+		if(type != null){
+			for (final IMethod m : type.getMethods()) {
+				if (isValidSetter(m) && hasMatchingGetter(type, m)) {
+					return true;
+				}
+			}
 		}
-		
-		final Set<String> parents = new HashSet<String>(inParents);
-		parents.add(classPrefixed);
-		
+		return false;
+	}
+	private JavaTreeElement generate0(final String classPrefixed, final String name,
+			final boolean isArray, final IProject project) throws JavaModelException,
+			IllegalArgumentException {
+				
 		if (!classPrefixed.startsWith(IJavaModelGenerator.JAVA_TYPE_PREFIX)) {
 			throw new IllegalArgumentException(String.format(
 					"Type name %s must be prefixed with %s.", classPrefixed,
 					IJavaModelGenerator.JAVA_TYPE_PREFIX));
 		}
-		final String classWithoutPrefix = classPrefixed
-				.substring(IJavaModelGenerator.JAVA_TYPE_PREFIX.length());
-
-		final IType type = JavaModelManager.getJavaModelManager()
-				.getJavaModel().getJavaProject(project.getName()).findType(
-						classWithoutPrefix);
+		final IType type = getType(classPrefixed, project);
 		final List<TreeElement> subElements = new ArrayList<TreeElement>();
 		if(type != null){
 		for (final IMethod m : type.getMethods()) {
@@ -139,7 +125,7 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 				final String resolved = resolve(type, parameterType);
 				if (resolved == null) {
 					if (PRIMITIVE_TYPES_MAPPING.containsKey(flatType)) {
-						subElements.add(new JavaTreeElement(
+						subElements.add(new JavaTreeElement(project,
 								PRIMITIVE_TYPES_MAPPING.get(flatType), null,
 								isParameterArray, getFieldName(m
 										.getElementName())));
@@ -150,36 +136,20 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 					}
 				} else if (PRIMITIVE_OBJECTS_MAPPING.containsKey(resolved)) {
 					subElements
-							.add(new JavaTreeElement(PRIMITIVE_OBJECTS_MAPPING
+							.add(new JavaTreeElement(project, PRIMITIVE_OBJECTS_MAPPING
 									.get(resolved), null, isParameterArray,
 									getFieldName(m.getElementName())));
 				} else {
-					String prefixedClass = IJavaModelGenerator.JAVA_TYPE_PREFIX + resolved;
-					if(typeCache.containsKey(prefixedClass)
-							&& typeCache.get(prefixedClass).getDepthCut()  + parents.size() - maxDepth > 0){
+						String prefixedClass = IJavaModelGenerator.JAVA_TYPE_PREFIX
+								+ resolved;
+						boolean complex = isComplex(resolved, project);
 						
-						JavaTreeElement cacheElement = typeCache.get(prefixedClass);
-						
-						JavaTreeElement element = new JavaTreeElement(prefixedClass,
-									cacheElement.getElements(),isParameterArray,
-									getFieldName(m.getElementName()));
-						subElements.add(element);
-						
-					} else {
-					    JavaTreeElement subElem = generate0(
-							prefixedClass,
-							typeCache, getFieldName(m.getElementName()),
-							isParameterArray, project, Collections
-									.unmodifiableSet(parents));
-						//If max depth was in use and cut earlier
-					    if(subElem.getDepthCut() > 0
-					    		&& depthCut < subElem.getDepthCut() + 1){
-					    	//mark cutted
-					    	depthCut = subElem.getDepthCut() + 1;
-					    }
+						JavaTreeElement subElem = new JavaTreeElement(project,
+								prefixedClass, null, isParameterArray, getFieldName(m
+										.getElementName()), complex, complex);
+
 						subElements.add(subElem);
 					}
-				}
 			}
 		}
 		} else {
@@ -187,12 +157,21 @@ public class JavaModelGenerator implements IJavaModelGenerator {
 			logger.warn("Type not on classspath:" + classPrefixed + " for element:" + name);
 		}
 		Collections.sort(subElements);
-		final JavaTreeElement el = new JavaTreeElement(classPrefixed,
+		final JavaTreeElement el = new JavaTreeElement(project, classPrefixed,
 				subElements.isEmpty() ? null : subElements, isArray,
-				name != null ? name : type.getElementName());
-		el.setDepthCut(depthCut);
-		typeCache.put(el.getClazz(),el);
+				name != null ? name : type.getElementName(), false, subElements.isEmpty() ? false : true);
 		return el;
+	}
+
+	private IType getType(final String classPrefixed, final IProject project)
+			throws JavaModelException {
+		final String classWithoutPrefix = classPrefixed
+				.substring(IJavaModelGenerator.JAVA_TYPE_PREFIX.length());
+
+		final IType type = JavaModelManager.getJavaModelManager()
+				.getJavaModel().getJavaProject(project.getName()).findType(
+						classWithoutPrefix);
+		return type;
 	}
 
 	private String resolve(final IType type, final String name)

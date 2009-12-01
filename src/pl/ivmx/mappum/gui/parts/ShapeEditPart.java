@@ -33,7 +33,6 @@ import pl.ivmx.mappum.gui.model.commands.ConnectionReconnectCommand;
 public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		PropertyChangeListener, NodeEditPart, MouseListener {
 	private ConnectionAnchor anchor;
-	private volatile boolean collapsed = false;
 	private final IMappumEditor editor;
 
 	public ShapeEditPart(final IMappumEditor editor) {
@@ -42,7 +41,12 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 
 	@Override
 	protected IFigure createFigure() {
-		return new ShapeFigure(this, getCastedModel().getDepth());
+		ShapeFigure shapeFigure = new ShapeFigure(this, getCastedModel().getDepth());
+		if(modelIsFolded() && modelIsComplex()){
+			shapeFigure.setStyleCollapsed();
+		}
+			
+		return shapeFigure;
 	}
 
 	/**
@@ -53,11 +57,6 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 		if (!isActive()) {
 			super.activate();
 			((ModelElement) getModel()).addPropertyChangeListener(this);
-			if ((!childrenConnected(true)) && hasModelChildren() && ((Shape)getModel()).getParent() != null){
-				collapsed = true;
-				getFigure().setStyleCollapsed();
-				refreshChildren();
-			}
 		}
 	}
 
@@ -168,7 +167,7 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	}
 
 	public List<Shape> getModelChildren() {
-		if (collapsed) {
+		if (modelIsFolded()) {
 			return Collections.emptyList();
 		}
 		return ((Shape) getModel()).getChildren();
@@ -312,14 +311,13 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	}
 
 	public void mousePressed(MouseEvent me) {
-		if (hasModelChildren()
-				&& editor.getCurrentPaletteTool().equals(
+		if (modelIsComplex() && editor.getCurrentPaletteTool().equals(
 						MappumEditorPaletteFactory.SELECTION_TOOL)) {
-			if (collapsed == false && childrenConnected(true)) {
+			if (modelIsFolded() == false && childrenConnected(true)) {
 				return;
 			}
-			collapsed = !collapsed;
-			if (collapsed) {
+			modelSetFolded(!modelIsFolded());
+			if (modelIsFolded()) {
 				getFigure().setStyleCollapsed();
 			} else {
 				getFigure().setStyleRegular();
@@ -337,10 +335,17 @@ public class ShapeEditPart extends AbstractGraphicalEditPart implements
 	public void mouseReleased(MouseEvent me) {
 	}
 
-	private boolean hasModelChildren() {
-		return ((Shape) getModel()).getChildren().size() > 0;
+	private boolean modelIsFolded() {
+		return ((Shape) getModel()).isFolded();
 	}
 
+	private void modelSetFolded(boolean boll) {
+		((Shape) getModel()).setFolded(boll);
+	}
+	private boolean modelIsComplex() {
+		return ((Shape) getModel()).isComplex();
+	}
+	
 	private boolean childrenConnected(final boolean allowConnections) {
 		for (final ShapeEditPart p : getChildren()) {
 			if (p.childrenConnected(false)) {

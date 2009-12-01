@@ -21,4 +21,34 @@ public class TypedTreeElement extends TreeElementAdapter {
 	public String getName() {
 		return name;
 	}
+
+	public boolean isArray() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean isComplex() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public boolean isFolded() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void setArray(boolean arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setComplex(boolean arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setFolded(boolean arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

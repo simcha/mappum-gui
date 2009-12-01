@@ -11,6 +11,9 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.jrubyparser.ast.CallNode;
 
+import pl.ivmx.mappum.TreeElement;
+import pl.ivmx.mappum.gui.utils.TreeModelGenerator;
+
 public class Shape extends ModelElement {
 
 	public static enum Side {
@@ -40,19 +43,18 @@ public class Shape extends ModelElement {
 	private final List<Connection> sourceConnections = new ArrayList<Connection>();
 	private final List<Connection> targetConnections = new ArrayList<Connection>();
 
-	private final String name;
-	private final String type;
+	private final TreeElement element;
 	private final Shape parent;
 	private final List<Shape> children;
 	private final Side side;
 
-	private boolean arrayType = false;
 	private List<Integer> arrayCounters = new ArrayList<Integer>();
 	private SourceType sourceType;
 	private String optionalJavaPackage;
 	private boolean reccuranceInstance;
 
 	private CallNode shapeNode;
+	private TreeModelGenerator modelGenerator;
 	static {
 		descriptors = new IPropertyDescriptor[] {
 				new TextPropertyDescriptor(NAME_PROP, "Name"),
@@ -75,22 +77,22 @@ public class Shape extends ModelElement {
 		}
 	}
 
-	private Shape(final String name, final String type,
+	private Shape(final TreeModelGenerator mg, final TreeElement element,
 			final Shape shapeParent, final Side side, final CallNode shapeNode) {
 		this.shapeNode = shapeNode;
 		children = new ArrayList<Shape>();
 		if (shapeParent == null)
 			rootShapes.add(this);
-		this.name = name;
-		this.type = type;
+		this.element = element;
 		this.parent = shapeParent;
 		this.side = side;
+		this.modelGenerator = mg;
 		//logger.trace("Created shape: " + this);
 	}
 
 	public boolean addToParent() {
-		if (parent != null) {
-			if (parent.getChildren().contains(this)) {
+		if (parent != null && parent.children != null) {
+			if (parent.children.contains(this)) {
 				return false;
 			} else {
 				return parent.addChild(this);
@@ -116,21 +118,15 @@ public class Shape extends ModelElement {
 		return false;
 	}
 
-	public static Shape createShape(String name, String type,
+	public static Shape createShape(TreeModelGenerator mg, TreeElement element,
 			Shape shapeParent, Side side, CallNode shapeNode) {
 		if (shapeParent == null) {
 			for (Shape shape : Shape.getRootShapes()) {
-				if (shape.getName().equals(name) && shape.getSide() == side)
+				if (shape.getName().equals(element.getName()) && shape.getSide() == side)
 					return shape;
 			}
-		} else {
-			for (Shape child : shapeParent.getChildren()) {
-				if (child.getName().equals(name) && child.getSide() == side)
-					return child;
-			}
-
 		}
-		return new Shape(name, type, shapeParent, side, shapeNode);
+		return new Shape(mg, element, shapeParent, side, shapeNode);
 	}
 
 	void addConnection(Connection conn) {
@@ -151,15 +147,15 @@ public class Shape extends ModelElement {
 	}
 
 	public String getType() {
-		return type;
+		return element.getClazz();
 	}
 
 	public Object getPropertyValue(Object propertyId) {
 		if (NAME_PROP.equals(propertyId)) {
-			return name;
+			return element.getName();
 		}
 		if (TYPE_PROP.equals(propertyId)) {
-			return type;
+			return element.getClazz();
 		}
 		return super.getPropertyValue(propertyId);
 	}
@@ -187,7 +183,7 @@ public class Shape extends ModelElement {
 	}
 
 	public String getName() {
-		return name;
+		return element.getName();
 	}
 
 	public Shape getParent() {
@@ -195,6 +191,15 @@ public class Shape extends ModelElement {
 	}
 
 	public List<Shape> getChildren() {
+		if(!isFolded() && children.isEmpty()) {
+			if(element.getElements() == null||
+					element.getElements().isEmpty()) {
+				return new ArrayList<Shape>();
+			} else {
+				//Lazy Unfolding
+				modelGenerator.getComplexField(element, this, side);
+			}
+		}
 		return children;
 	}
 
@@ -229,12 +234,12 @@ public class Shape extends ModelElement {
 	@Override
 	public String toString() {
 		if (parent != null)
-			return "|| Variable: " + name + ", type: " + type + ", parent: "
-					+ parent.getName() + ", array: " + arrayType
+			return "|| Variable: " + getName() + ", type: " + getType() + ", parent: "
+					+ parent.getName() + ", array: " + isArrayType()
 					+ ", array counters: " + arrayCounters + " ||";
 		else
-			return "|| Variable: " + name + ", type: " + type + ", no parent "
-					+ ", array: " + arrayType + ", array counters: "
+			return "|| Variable: " + getName() + ", type: " + getType() + ", no parent "
+					+ ", array: " + isArrayType() + ", array counters: "
 					+ arrayCounters + " ||";
 
 	}
@@ -244,19 +249,19 @@ public class Shape extends ModelElement {
 	}
 
 	public String getFullName() {
-		if (this.type != null)
-			return type + "::" + name;
+		if (this.getType() != null)
+			return getType() + "::" + getName();
 		else
-			return name;
+			return getName();
 	}
 
 	public String getPackageAndName() {
 		if (optionalJavaPackage != null) {
 			if (!optionalJavaPackage.equals("")) {
-				return "Java::" + optionalJavaPackage + "." + name;
+				return "Java::" + optionalJavaPackage + "." + getName();
 			}
 		}
-		return name;
+		return getName();
 	}
 
 	/**
@@ -279,14 +284,14 @@ public class Shape extends ModelElement {
 		return initialShapeList;
 	}
 
-	public void setArrayType(boolean arrayType) {
-		this.arrayType = arrayType;
-	}
-
 	public boolean isArrayType() {
-		return arrayType;
+		return element.isArray();
 	}
-
+	
+	public void setArrayType(boolean isArray) {
+		element.setArray(isArray);
+	}
+	
 	public void addArrayCounter(int arrayCounter) {
 		this.arrayCounters.add(arrayCounter);
 	}
@@ -313,5 +318,17 @@ public class Shape extends ModelElement {
 
 	public boolean isReccuranceInstance() {
 		return reccuranceInstance;
+	}
+
+	public boolean isFolded() {
+		return element.isFolded();
+	}
+	
+	public boolean isComplex() {
+		return element.isComplex();
+	}
+	
+	public void setFolded(boolean folded) {
+		element.setFolded(folded);
 	}
 }

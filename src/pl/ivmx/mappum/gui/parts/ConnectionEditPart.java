@@ -151,6 +151,8 @@ class ConnectionEditPart extends AbstractConnectionEditPart implements
 				((PolylineConnection) getFigure())
 						.setSourceDecoration(new PolygonDecoration());
 			}
+		} else if (Connection.COMMENT_PROP.equals(property)) {
+			
 		}
 	}
 

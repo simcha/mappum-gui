@@ -14,7 +14,7 @@ import pl.ivmx.mappum.WorkdirLoader;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.Shape.Side;
 
-public class ModelGeneratorFromXML {
+public class ModelGeneratorFromXML implements TreeModelGenerator{
 	public static final String LANGUAGE_RUBY = "jruby";
 
 	public static final String DEFAULT_MAP_FOLDER = ".map";
@@ -136,8 +136,7 @@ public class ModelGeneratorFromXML {
 					return shape;
 				}
 			}
-			Shape shape = Shape.createShape(element.getName(), element
-					.getClazz(), parent, side, generateRubyModelForField(
+			Shape shape = Shape.createShape(this, element, parent, side, generateRubyModelForField(
 					element.getName(), side));
 			shape.setArrayType(isArray);
 			shape.addToParent();
@@ -153,9 +152,9 @@ public class ModelGeneratorFromXML {
 						Shape.Side.LEFT, false);
 				for (TreeElement childElement : element.getElements()) {
 					Shape child = checkAndAddShape(childElement, parent,
-							Shape.Side.LEFT, childElement.getIsArray());
+							Shape.Side.LEFT, childElement.isArray());
 					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child,
+						getComplexField(childElement, child,
 								Shape.Side.LEFT);
 					}
 				}
@@ -165,26 +164,24 @@ public class ModelGeneratorFromXML {
 						Shape.Side.RIGHT, false);
 				for (TreeElement childElement : element.getElements()) {
 					Shape child = checkAndAddShape(childElement, parent,
-							Shape.Side.RIGHT, childElement.getIsArray());
+							Shape.Side.RIGHT, childElement.isArray());
 					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child,
+						getComplexField(childElement, child,
 								Shape.Side.RIGHT);
 					}
 				}
 			}
 		}
 	}
-
-	private void getComplexField(String searchElement, Shape parent,
+	
+	public void getComplexField(TreeElement element, Shape parent,
 			final Shape.Side side) {
-		for (TreeElement element : model) {
-			if (element.getName().equals(searchElement)) {
-				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement, parent, side,
-							childElement.getIsArray());
-					if (childElement.getClazz() != null) {
-						getComplexField(childElement.getClazz(), child, side);
-					}
+		if (element.getElements() != null) {
+			for (TreeElement childElement : element.getElements()) {
+				Shape child = checkAndAddShape(childElement, parent, side,
+						childElement.isArray());
+				if (childElement.getClazz() != null) {
+					getComplexField(childElement, child, side);
 				}
 			}
 		}

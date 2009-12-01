@@ -8,6 +8,7 @@ import java.util.EventObject;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -76,6 +77,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 	private PaletteRoot PALETTE_MODEL;
 
 	private Logger logger = Logger.getLogger(ModelGenerator.class);
+	private IFile file;
 
 	public MappumEditor() {
 		setEditDomain(new DefaultEditDomain(this));
@@ -96,7 +98,7 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 
 		cleanup();
 
-		final IFile file = ((IFileEditorInput) input).getFile();
+		file = ((IFileEditorInput) input).getFile();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getSite()
 				.getShell());
 		try {
@@ -392,6 +394,9 @@ public class MappumEditor extends GraphicalEditorWithFlyoutPalette implements
 
 	ShapesDiagram getModel() {
 		return diagram;
+	}
+	public IProject getProject() {
+		return file.getProject();
 	}
 
 	/*

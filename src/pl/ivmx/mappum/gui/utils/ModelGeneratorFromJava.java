@@ -1,10 +1,7 @@
 package pl.ivmx.mappum.gui.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -20,7 +17,7 @@ import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
 import pl.ivmx.mappum.gui.model.treeelement.TypedTreeElement;
 import pl.ivmx.mappum.gui.utils.java.JavaModelGenerator;
 
-public class ModelGeneratorFromJava {
+public class ModelGeneratorFromJava implements TreeModelGenerator {
 
 	private static final ModelGeneratorFromJava INSTANCE = new ModelGeneratorFromJava();
 
@@ -32,7 +29,7 @@ public class ModelGeneratorFromJava {
 	}
 
 	private Shape checkAndAddShape(final TreeElement element, Shape parent,
-			Side side, boolean isArray, boolean isRecurrence) {
+			Side side, boolean isArray) {
 		
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
@@ -55,22 +52,9 @@ public class ModelGeneratorFromJava {
 				}
 			}
 		} else {
-			for (Shape shape : parent.getChildren()) {
-				if (shape.getName().equals(element.getName())) {
-					if (isRecurrence) {
-						shape.setReccuranceInstance(true);
-					}
-					return shape;
-				}
-			}
-			Shape shape = Shape.createShape(element.getName(), element
-					.getClazz(), parent, side, generateRubyModelForField(
+			Shape shape = Shape.createShape(this, element, parent, side, generateRubyModelForField(
 					element.getName(), side));
-			shape.setArrayType(isArray);
 			shape.addToParent();
-			if (isRecurrence) {
-				shape.setReccuranceInstance(true);
-			}
 			return shape;
 		}
 	}
@@ -80,16 +64,13 @@ public class ModelGeneratorFromJava {
 			final List<JavaTreeElement> model, final Shape.Side side) {
 		if (el.getClazz().equals(clazz)) {
 			Shape parent = checkAndAddShape(new TypedTreeElement(sideElement,
-					clazz), null, side, false, ((JavaTreeElement) el)
-					.isMarkedAsComplex());
-			if (((JavaTreeElement) el).isComplete() &&  el.getElements() != null) {
+					clazz), null, side, false);
+			if (!((JavaTreeElement) el).isFolded() &&  el.getElements() != null) {
 				for (TreeElement childElement : el.getElements()) {
 					Shape child = checkAndAddShape(childElement, parent, side,
-							childElement.getIsArray(),
-							((JavaTreeElement) childElement)
-									.isMarkedAsComplex());
+							childElement.isArray());
 					if (childElement.getClazz() != null) {
-						getComplexField(childElement, child, side, new HashSet<String>());
+						getComplexField(childElement, child, side);
 
 					}
 				}
@@ -104,8 +85,8 @@ public class ModelGeneratorFromJava {
 
 		final List<JavaTreeElement> model = new ArrayList<JavaTreeElement>();
 
-		JavaModelGenerator.getInstance().generate(leftClazz, model, project);
-		JavaModelGenerator.getInstance().generate(rightClazz, model, project);
+		model.add(JavaModelGenerator.getInstance().generate(leftClazz, project));
+		model.add(JavaModelGenerator.getInstance().generate(rightClazz, project));
 
 		for (TreeElement element : model) {
 
@@ -116,21 +97,19 @@ public class ModelGeneratorFromJava {
 		}
 	}
 
-	private void getComplexField(TreeElement element, Shape parent,
-			final Shape.Side side, Set<String> inParents) {
+	/* (non-Javadoc)
+	 * @see pl.ivmx.mappum.gui.utils.TreeModelGenerator#getComplexField(pl.ivmx.mappum.TreeElement, pl.ivmx.mappum.gui.model.Shape, pl.ivmx.mappum.gui.model.Shape.Side)
+	 */
+	public void getComplexField(TreeElement element, Shape parent,
+			final Shape.Side side) {
 		if (element.getElements() != null){
-			Set<String> parents = new HashSet<String>(inParents); 
-			parents.add(element.getClazz());
 			for (TreeElement childElement : element.getElements()) {
 				Shape child = checkAndAddShape(childElement, parent, side,
-						childElement.getIsArray(), ((JavaTreeElement) childElement)
-								.isMarkedAsComplex());
+						childElement.isArray());
 				if (childElement.getClazz() != null
-						&& ((JavaTreeElement) childElement).isComplete()
-						&& !inParents.contains(childElement.getClazz())) {
+						&& !((JavaTreeElement) childElement).isFolded()) {
 					
-					getComplexField(childElement, child, side, Collections
-							.unmodifiableSet(parents));
+					getComplexField(childElement, child, side);
 				}
 			}
 		}

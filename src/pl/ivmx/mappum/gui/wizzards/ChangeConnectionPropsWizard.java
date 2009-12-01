@@ -80,7 +80,7 @@ public class ChangeConnectionPropsWizard extends Wizard {
 				RootNodeHolder.getInstance().changeMappingAtributes(
 						getConnection(), null, mainPage.getRubyComment());
 				connection.setComment(mainPage.getRubyComment());
-
+				connection.firePropertyChange(Connection.COMMENT_PROP, oldComment, mainPage.getRubyComment());
 			}
 			return true;
 		}

@@ -35,8 +35,10 @@ import org.jrubyparser.rewriter.ReWriteVisitor;
 
 import pl.ivmx.mappum.gui.model.Connection;
 import pl.ivmx.mappum.gui.model.Shape;
+import pl.ivmx.mappum.gui.model.Shape.Side;
 import pl.ivmx.mappum.gui.model.Shape.SourceType;
 import pl.ivmx.mappum.gui.model.test.TestNodeTreeWindow;
+import pl.ivmx.mappum.gui.model.treeelement.MapOnlyElement;
 
 public class ModelGenerator {
 	private static final int SIMPLE_MAP_OR_WITH_FUNCTION_CALL = 1;
@@ -712,11 +714,10 @@ public class ModelGenerator {
 			if (varNode.getName().equals(leftAlias)
 					|| varNode.getName().equals(rightAlias)) {
 				if (varNode.getName().equals(leftAlias)) {
-					leftShape = Shape.createShape(leftNode.getName(), null,
+					leftShape = createShape(new MapOnlyElement(leftNode.getName()),
 							parents.getLeftShape(), Shape.Side.LEFT, rootNode);
 				} else {
-					leftShape = Shape
-							.createShape(leftNode.getName(), null, parents
+					leftShape = createShape(new MapOnlyElement(leftNode.getName()), parents
 									.getRightShape(), Shape.Side.RIGHT,
 									rootNode);
 				}
@@ -773,11 +774,10 @@ public class ModelGenerator {
 			if (varNode.getName().equals(leftAlias)
 					|| varNode.getName().equals(rightAlias)) {
 				if (varNode.getName().equals(leftAlias)) {
-					rightShape = Shape.createShape(rightNode.getName(), null,
+					rightShape = createShape(new MapOnlyElement(rightNode.getName()),
 							parents.getLeftShape(), Shape.Side.LEFT, rootNode);
 				} else {
-					rightShape = Shape
-							.createShape(rightNode.getName(), null, parents
+					rightShape = createShape(new MapOnlyElement(rightNode.getName()), parents
 									.getRightShape(), Shape.Side.RIGHT,
 									rootNode);
 				}
@@ -809,6 +809,19 @@ public class ModelGenerator {
 		}
 		return rightShape;
 
+	}
+
+	private Shape createShape(MapOnlyElement element, Shape shape,
+			Side side, CallNode rootNode) {
+		if (shape != null && shape.getChildren()!= null){
+			shape.setFolded(false);
+			for (Shape child : shape.getChildren()) {
+				if (child.getName().equals(element.getName()) && child.getSide() == side)
+					return child;
+			}
+		}
+		return Shape.createShape(null, element, shape,
+				side, rootNode);
 	}
 
 	/**
@@ -942,8 +955,8 @@ public class ModelGenerator {
 			if (preChild instanceof Colon2Node) {
 				if (left) {
 					String type = getElementType(preChild);
-					leftElement = Shape.createShape(((Colon2Node) preChild)
-							.getName(), type, parents.getLeftShape(),
+					leftElement = createShape(new MapOnlyElement(((Colon2Node) preChild)
+							.getName(), type), parents.getLeftShape(),
 							Shape.Side.LEFT, null);
 					if (type.startsWith("Java")) {
 						leftElement.setSourceType(SourceType.JAVA);
@@ -951,8 +964,8 @@ public class ModelGenerator {
 					left = false;
 				} else {
 					String type = getElementType(preChild);
-					rightElement = Shape.createShape(((Colon2Node) preChild)
-							.getName(), type, parents.getRightShape(),
+					rightElement = createShape(new MapOnlyElement(((Colon2Node) preChild)
+							.getName(), type), parents.getRightShape(),
 							Shape.Side.RIGHT, null);
 					if (type.startsWith("Java")) {
 						rightElement.setSourceType(SourceType.JAVA);
@@ -961,32 +974,32 @@ public class ModelGenerator {
 				}
 			} else if (preChild instanceof SymbolNode) {
 				if (left) {
-					leftElement = Shape.createShape(((SymbolNode) preChild)
-							.getName(), null, parents.getLeftShape(),
+					leftElement = createShape(new MapOnlyElement(((SymbolNode) preChild)
+							.getName()), parents.getLeftShape(),
 							Shape.Side.LEFT, null);
 					left = false;
 				} else {
-					rightElement = Shape.createShape(((SymbolNode) preChild)
-							.getName(), null, parents.getRightShape(),
+					rightElement = createShape(new MapOnlyElement(((SymbolNode) preChild)
+							.getName()), parents.getRightShape(),
 							Shape.Side.RIGHT, null);
 					left = true;
 				}
 			} else if (preChild instanceof ConstNode) {
 				if (left) {
-					leftElement = Shape.createShape(((ConstNode) preChild)
-							.getName(), null, parents.getLeftShape(),
+					leftElement = createShape(new MapOnlyElement(((ConstNode) preChild)
+							.getName()), parents.getLeftShape(),
 							Shape.Side.LEFT, null);
 					left = false;
 				} else {
-					rightElement = Shape.createShape(((ConstNode) preChild)
-							.getName(), null, parents.getRightShape(),
+					rightElement = createShape(new MapOnlyElement(((ConstNode) preChild)
+							.getName()), parents.getRightShape(),
 							Shape.Side.RIGHT, null);
 					left = true;
 				}
 			} else if (preChild instanceof CallNode) {
 				if (left) {
-					leftElement = Shape.createShape(((CallNode) preChild)
-							.getName(), null, parents.getLeftShape(),
+					leftElement = createShape(new MapOnlyElement(((CallNode) preChild)
+							.getName()), parents.getLeftShape(),
 							Shape.Side.LEFT, null);
 					String prefix = "";
 					Node tmpNode = preChild.childNodes().get(0);
@@ -1010,8 +1023,8 @@ public class ModelGenerator {
 					leftElement.setOptionalJavaPackage(prefix);
 					left = false;
 				} else {
-					rightElement = Shape.createShape(((CallNode) preChild)
-							.getName(), null, parents.getRightShape(),
+					rightElement = createShape(new MapOnlyElement(((CallNode) preChild)
+							.getName()), parents.getRightShape(),
 							Shape.Side.RIGHT, null);
 					String prefix = "";
 					Node tmpNode = preChild.childNodes().get(0);
