@@ -1182,7 +1182,7 @@ public class RootNodeHolder {
 		Node parentNode = getParentNode(nodeToRemove, rootNode);
 		if (parentNode instanceof BlockNode) {
 			BlockNode blockNode = (BlockNode) parentNode;
-			parentNode.childNodes().remove(nodeToRemove);
+			NewlineNode parentMapNode = getParentMappingNode(nodeToRemove);;
 			
 			NewlineNode commentNode = null;
 			if ((commentNode = getChildBefore(blockNode, nodeToRemove)) != null) {
@@ -1190,6 +1190,12 @@ public class RootNodeHolder {
 						&& commentNode.getNextNode() instanceof XStrNode) {
 					parentNode.childNodes().remove(commentNode);
 				}
+			}
+			
+			parentNode.childNodes().remove(nodeToRemove);
+
+			if (parentNode.childNodes().size() == 0){
+				removeMapping(parentMapNode);
 			}
 		} else if (parentNode instanceof NewlineNode){
 			removeMapping((NewlineNode) parentNode);
