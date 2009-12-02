@@ -17,7 +17,7 @@ import pl.ivmx.mappum.gui.model.treeelement.JavaTreeElement;
 import pl.ivmx.mappum.gui.model.treeelement.TypedTreeElement;
 import pl.ivmx.mappum.gui.utils.java.JavaModelGenerator;
 
-public class ModelGeneratorFromJava implements TreeModelGenerator {
+public class ModelGeneratorFromJava extends TreeModelGenerator {
 
 	private static final ModelGeneratorFromJava INSTANCE = new ModelGeneratorFromJava();
 
@@ -28,7 +28,7 @@ public class ModelGeneratorFromJava implements TreeModelGenerator {
 		return INSTANCE;
 	}
 
-	private Shape checkAndAddShape(final TreeElement element, Shape parent,
+	protected Shape checkAndAddShape(final TreeElement element, Shape parent,
 			Side side, boolean isArray) {
 		
 		if (parent == null) {
@@ -65,7 +65,7 @@ public class ModelGeneratorFromJava implements TreeModelGenerator {
 		if (el.getClazz().equals(clazz)) {
 			Shape parent = checkAndAddShape(new TypedTreeElement(sideElement,
 					clazz), null, side, false);
-			if (!((JavaTreeElement) el).isFolded() &&  el.getElements() != null) {
+			if (!el.isFolded() &&  el.getElements() != null) {
 				for (TreeElement childElement : el.getElements()) {
 					Shape child = checkAndAddShape(childElement, parent, side,
 							childElement.isArray());
@@ -94,24 +94,6 @@ public class ModelGeneratorFromJava implements TreeModelGenerator {
 					Shape.Side.LEFT);
 			addFieldsFromJavaModel0(rightClazz, element, rightElement, model,
 					Shape.Side.RIGHT);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see pl.ivmx.mappum.gui.utils.TreeModelGenerator#getComplexField(pl.ivmx.mappum.TreeElement, pl.ivmx.mappum.gui.model.Shape, pl.ivmx.mappum.gui.model.Shape.Side)
-	 */
-	public void getComplexField(TreeElement element, Shape parent,
-			final Shape.Side side) {
-		if (element.getElements() != null){
-			for (TreeElement childElement : element.getElements()) {
-				Shape child = checkAndAddShape(childElement, parent, side,
-						childElement.isArray());
-				if (childElement.getClazz() != null
-						&& !((JavaTreeElement) childElement).isFolded()) {
-					
-					getComplexField(childElement, child, side);
-				}
-			}
 		}
 	}
 

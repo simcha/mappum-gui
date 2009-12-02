@@ -14,7 +14,7 @@ import pl.ivmx.mappum.WorkdirLoader;
 import pl.ivmx.mappum.gui.model.Shape;
 import pl.ivmx.mappum.gui.model.Shape.Side;
 
-public class ModelGeneratorFromXML implements TreeModelGenerator{
+public class ModelGeneratorFromXML extends TreeModelGenerator{
 	public static final String LANGUAGE_RUBY = "jruby";
 
 	public static final String DEFAULT_MAP_FOLDER = ".map";
@@ -108,7 +108,7 @@ public class ModelGeneratorFromXML implements TreeModelGenerator{
 		return getModel();
 	}
 
-	private Shape checkAndAddShape(TreeElement element, Shape parent,
+	protected Shape checkAndAddShape(TreeElement element, Shape parent,
 			Side side, boolean isArray) {
 		if (parent == null) {
 			if (side == Shape.Side.LEFT) {
@@ -131,11 +131,11 @@ public class ModelGeneratorFromXML implements TreeModelGenerator{
 				}
 			}
 		} else {
-			for (Shape shape : parent.getChildren()) {
-				if (shape.getName().equals(element.getName())) {
-					return shape;
-				}
-			}
+//			for (Shape shape : parent.getChildren()) {
+//				if (shape.getName().equals(element.getName())) {
+//					return shape;
+//				}
+//			}
 			Shape shape = Shape.createShape(this, element, parent, side, generateRubyModelForField(
 					element.getName(), side));
 			shape.setArrayType(isArray);
@@ -150,12 +150,14 @@ public class ModelGeneratorFromXML implements TreeModelGenerator{
 			if (element.getName().equals(leftElement.getName())) {
 				Shape parent = checkAndAddShape(leftElement, null,
 						Shape.Side.LEFT, false);
-				for (TreeElement childElement : element.getElements()) {
-					Shape child = checkAndAddShape(childElement, parent,
-							Shape.Side.LEFT, childElement.isArray());
-					if (childElement.getClazz() != null) {
-						getComplexField(childElement, child,
-								Shape.Side.LEFT);
+				if (!element.isFolded() &&  element.getElements() != null) {
+					for (TreeElement childElement : element.getElements()) {
+						Shape child = checkAndAddShape(childElement, parent,
+								Shape.Side.LEFT, childElement.isArray());
+						if (childElement.getClazz() != null) {
+							getComplexField(childElement, child,
+									Shape.Side.LEFT);
+						}
 					}
 				}
 			}
@@ -169,19 +171,6 @@ public class ModelGeneratorFromXML implements TreeModelGenerator{
 						getComplexField(childElement, child,
 								Shape.Side.RIGHT);
 					}
-				}
-			}
-		}
-	}
-	
-	public void getComplexField(TreeElement element, Shape parent,
-			final Shape.Side side) {
-		if (element.getElements() != null) {
-			for (TreeElement childElement : element.getElements()) {
-				Shape child = checkAndAddShape(childElement, parent, side,
-						childElement.isArray());
-				if (childElement.getClazz() != null) {
-					getComplexField(childElement, child, side);
 				}
 			}
 		}
