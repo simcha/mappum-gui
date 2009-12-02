@@ -272,6 +272,7 @@ public class ModelGenerator {
 			FCallNode submapFcallnode = (FCallNode) node.childNodes().get(0);
 			connection = operateOnMapWithSubmap(submapFcallnode, parents, comment,
 					leftAlias, rightAlias);
+			setSource = false;
 			break;
 		case MAP_WITH_CODE:
 			// TODO obsluga kodu (narazie zwykle proste mapowanie)
@@ -723,7 +724,7 @@ public class ModelGenerator {
 			} else {
 				leftShape = parents.getRightShape();
 			}
-		} else {
+		} else if (rightShape == null){
 			if (rightShape == null || leftShape.getParent() == null
 					|| leftShape.getParent() == parents.getLeftShape()) {
 				rightShape = parents.getRightShape();

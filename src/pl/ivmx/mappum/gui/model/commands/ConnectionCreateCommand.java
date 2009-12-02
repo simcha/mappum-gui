@@ -50,49 +50,53 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	public void execute() {
-
-		Connection.Side mappingSide = connectionInfo.getSide();
-
-		if (source.getSide() == Shape.Side.RIGHT
-				&& mappingSide == Connection.Side.LEFT_TO_RIGHT) {
-			mappingSide = Connection.Side.RIGHT_TO_LEFT;
-		}
-
-		// create a new connection between source and target
-		if (source.getSide() == Shape.Side.RIGHT) {
-			
-			if (source.isArrayType() != target.isArrayType()) {
-				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(target, source,
-				Connection.translateSideFromIntToString(mappingSide), null, 0);
-				NewlineNode node = node1;
-				connection = new Connection(target, source, mappingSide,
-						connectionInfo.getType(), 0);
-				connection.setRubyCodeNode(node);
-			} else {
-				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(target, source,
-				Connection.translateSideFromIntToString(mappingSide), null, null);
-				NewlineNode node = node1;
-				connection = new Connection(target, source, mappingSide,
-						connectionInfo.getType());
-				connection.setRubyCodeNode(node);
+        try{
+			Connection.Side mappingSide = connectionInfo.getSide();
+	
+			if (source.getSide() == Shape.Side.RIGHT
+					&& mappingSide == Connection.Side.LEFT_TO_RIGHT) {
+				mappingSide = Connection.Side.RIGHT_TO_LEFT;
 			}
-		}
-
-		else {
-			
-			if (source.isArrayType() != target.isArrayType()) {
-				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(source, target,
-				Connection.translateSideFromIntToString(mappingSide), null, 0);
-				NewlineNode node = node1;
-				connection = new Connection(source, target, mappingSide,
-						connectionInfo.getType(), 0, node);
-			} else {
-				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(source, target,
-				Connection.translateSideFromIntToString(mappingSide), null, null);
-				NewlineNode node = node1;
-				connection = new Connection(source, target, mappingSide,
-						connectionInfo.getType(), node);
+	
+			// create a new connection between source and target
+			if (source.getSide() == Shape.Side.RIGHT) {
+				
+				if (source.isArrayType() != target.isArrayType()) {
+					NewlineNode node1 = RootNodeHolder.getInstance().addMapping(target, source,
+					Connection.translateSideFromIntToString(mappingSide), null, 0);
+					NewlineNode node = node1;
+					connection = new Connection(target, source, mappingSide,
+							connectionInfo.getType(), 0);
+					connection.setRubyCodeNode(node);
+				} else {
+					NewlineNode node1 = RootNodeHolder.getInstance().addMapping(target, source,
+					Connection.translateSideFromIntToString(mappingSide), null, null);
+					NewlineNode node = node1;
+					connection = new Connection(target, source, mappingSide,
+							connectionInfo.getType());
+					connection.setRubyCodeNode(node);
+				}
 			}
+	
+			else {
+				
+				if (source.isArrayType() != target.isArrayType()) {
+					NewlineNode node1 = RootNodeHolder.getInstance().addMapping(source, target,
+					Connection.translateSideFromIntToString(mappingSide), null, 0);
+					NewlineNode node = node1;
+					connection = new Connection(source, target, mappingSide,
+							connectionInfo.getType(), 0, node);
+				} else {
+					NewlineNode node1 = RootNodeHolder.getInstance().addMapping(source, target,
+					Connection.translateSideFromIntToString(mappingSide), null, null);
+					NewlineNode node = node1;
+					connection = new Connection(source, target, mappingSide,
+							connectionInfo.getType(), node);
+				}
+			}
+        } catch (Exception e) {
+        	e.printStackTrace();
+			new RuntimeException(e);
 		}
 	}
 
