@@ -79,13 +79,11 @@ public class ConnectionCreateCommand extends Command {
 			if (source.isArrayType() != target.isArrayType()) {
 				NewlineNode node = createRubyMapping(source, target, mappingSide, null, 0);
 				connection = new Connection(source, target, mappingSide,
-						connectionInfo.getType(), 0);
-				connection.setRubyCodeNode(node);
+						connectionInfo.getType(), 0, node);
 			} else {
 				NewlineNode node = createRubyMapping(source, target, mappingSide, null, null);
 				connection = new Connection(source, target, mappingSide,
-						connectionInfo.getType());
-				connection.setRubyCodeNode(node);
+						connectionInfo.getType(), node);
 			}
 		}
 	}

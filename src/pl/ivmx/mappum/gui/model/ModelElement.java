@@ -47,7 +47,11 @@ public abstract class ModelElement implements IPropertySource, Serializable {
 	public void firePropertyChange(String property, Object oldValue,
 			Object newValue) {
 		if (pcsDelegate.hasListeners(property)) {
+			try{
 			pcsDelegate.firePropertyChange(property, oldValue, newValue);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

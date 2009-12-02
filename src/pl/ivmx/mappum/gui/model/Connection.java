@@ -107,12 +107,14 @@ public class Connection extends ModelElement {
 	 */
 	public Connection(Shape source, Shape target, final Side side,
 			final Type type) {
-		connectionType = type;
-		connections.add(this);
-		source.addToParent();
-		target.addToParent();
-		this.comment = "";
-		reconnect(source, target, side);
+		this(source, target, side, type, (NewlineNode)null);
+	}
+	/**
+	 * Create a (solid) connection between two distinct shapes.
+	 */
+	public Connection(Shape source, Shape target, final Side side,
+			final Type type, final NewlineNode node) {
+		this(source, target, side, type, -1, node);
 	}
 
 	/**
@@ -120,13 +122,31 @@ public class Connection extends ModelElement {
 	 */
 	public Connection(Shape source, Shape target, final Side side,
 			final Type type, int arrayNumber) {
+		this(source, target, side, type, arrayNumber, (NewlineNode)null);
+	}
+	
+	/**
+	 * Create a (solid) connection between two distinct shapes.
+	 */
+	public Connection(Shape source, Shape target, final Side side,
+			final Type type, int arrayNumber, NewlineNode node) {
+		this(source, target, side, type, arrayNumber, node, true);
+	}	
+	/**
+	 * Create a (solid) connection between two distinct shapes.
+	 */
+	private Connection(Shape source, Shape target, final Side side,
+			final Type type, int arrayNumber, NewlineNode rubySrcNode, boolean reconnect ) {
 		this.arrayNumber = arrayNumber;
 		connectionType = type;
 		connections.add(this);
 		source.addToParent();
 		target.addToParent();
 		this.comment = "";
-		reconnect(source, target, side);
+		this.rubyCodeNode = rubySrcNode;
+		if(reconnect) {
+		  reconnect(source, target, side);
+	    }
 	}
 
 	/**
