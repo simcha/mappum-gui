@@ -62,12 +62,16 @@ public class ConnectionCreateCommand extends Command {
 		if (source.getSide() == Shape.Side.RIGHT) {
 			
 			if (source.isArrayType() != target.isArrayType()) {
-				NewlineNode node = createRubyMapping(target, source, mappingSide, null, 0);
+				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(target, source,
+				Connection.translateSideFromIntToString(mappingSide), null, 0);
+				NewlineNode node = node1;
 				connection = new Connection(target, source, mappingSide,
 						connectionInfo.getType(), 0);
 				connection.setRubyCodeNode(node);
 			} else {
-				NewlineNode node = createRubyMapping(target, source, mappingSide, null, null);
+				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(target, source,
+				Connection.translateSideFromIntToString(mappingSide), null, null);
+				NewlineNode node = node1;
 				connection = new Connection(target, source, mappingSide,
 						connectionInfo.getType());
 				connection.setRubyCodeNode(node);
@@ -77,11 +81,15 @@ public class ConnectionCreateCommand extends Command {
 		else {
 			
 			if (source.isArrayType() != target.isArrayType()) {
-				NewlineNode node = createRubyMapping(source, target, mappingSide, null, 0);
+				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(source, target,
+				Connection.translateSideFromIntToString(mappingSide), null, 0);
+				NewlineNode node = node1;
 				connection = new Connection(source, target, mappingSide,
 						connectionInfo.getType(), 0, node);
 			} else {
-				NewlineNode node = createRubyMapping(source, target, mappingSide, null, null);
+				NewlineNode node1 = RootNodeHolder.getInstance().addMapping(source, target,
+				Connection.translateSideFromIntToString(mappingSide), null, null);
+				NewlineNode node = node1;
 				connection = new Connection(source, target, mappingSide,
 						connectionInfo.getType(), node);
 			}
@@ -89,8 +97,12 @@ public class ConnectionCreateCommand extends Command {
 	}
 
 	public void redo() {
-		NewlineNode node = createRubyMapping(connection.getSource(), connection.getTarget(),
-				connection.getMappingSide(), connection.getComment(), connection.getArrayNumber());
+		NewlineNode node = RootNodeHolder.getInstance().addMapping(
+				connection.getSource(),
+				connection.getTarget(),
+				Connection.translateSideFromIntToString(connection
+						.getMappingSide()), connection.getComment(),
+				connection.getArrayNumber());
 		connection.setRubyCodeNode(node);
 		connection.reconnect();
 	}
@@ -107,28 +119,7 @@ public class ConnectionCreateCommand extends Command {
 		connection.disconnect();
 	}
 
-	private NewlineNode createRubyMapping(Shape source, Shape target,
-			final Connection.Side mappingSide, String comment, Integer arrayNumber) {
-		NewlineNode node = RootNodeHolder.getInstance().addMapping(source, target,
-				Connection.translateSideFromIntToString(mappingSide), comment, arrayNumber);
-
-		return node;
-	}
-
 	private void removeRubbyMapping() {
-		if(connection.getArrayNumber()>-1){
-			RootNodeHolder.getInstance().removeMapping(
-					connection.getSource(),
-					connection.getTarget(),
-					Connection.translateSideFromIntToString(connection
-							.getMappingSide()), connection.getComment(), connection.getArrayNumber());
-		}else{
-			RootNodeHolder.getInstance().removeMapping(
-					connection.getSource(),
-					connection.getTarget(),
-					Connection.translateSideFromIntToString(connection
-							.getMappingSide()), connection.getComment(), null);
-		}
-
+		RootNodeHolder.getInstance().removeMapping(connection.getRubyCodeNode());
 	}
 }

@@ -34,8 +34,6 @@ public class ConnectionDeleteCommand extends Command {
 	public void execute() {
 		removeRubbyMapping();
 		connection.disconnect();
-		// RootNodeHolder.getInstance().removeMapping(connection);
-
 	}
 
 	/*
@@ -68,19 +66,6 @@ public class ConnectionDeleteCommand extends Command {
 	}
 
 	private void removeRubbyMapping() {
-		if (connection.getArrayNumber() > -1) {
-			RootNodeHolder.getInstance().removeMapping(
-					connection.getSource(),
-					connection.getTarget(),
-					Connection.translateSideFromIntToString(connection
-							.getMappingSide()), connection.getComment(),
-					connection.getArrayNumber());
-		} else {
-			RootNodeHolder.getInstance().removeMapping(
-					connection.getSource(),
-					connection.getTarget(),
-					Connection.translateSideFromIntToString(connection
-							.getMappingSide()), connection.getComment(), null);
-		}
+		RootNodeHolder.getInstance().removeMapping(connection.getRubyCodeNode());
 	}
 }

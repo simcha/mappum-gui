@@ -225,6 +225,8 @@ public class ModelGenerator {
 				mappingType = checkMappingType((FCallNode) child);
 		}
 		Connection connection = null;
+		boolean setSource = true;
+		
 		switch (mappingType) {
 		case MAP_WITH_FUNCTION:
 			FCallNode functnode = (FCallNode) node.childNodes().get(0);
@@ -258,6 +260,7 @@ public class ModelGenerator {
 			FCallNode subobjectFcallnode = (FCallNode) node.childNodes().get(0);
 			connection = operateOnMapWithSubobject(subobjectFcallnode, parents,
 					comment, leftAlias, rightAlias);
+			setSource = false;
 			break;
 		case MAP_WITH_SELF:
 			CallNode selfCallnode = (CallNode) node.childNodes().get(0)
@@ -280,7 +283,7 @@ public class ModelGenerator {
 		}
 	    if (connection == null){
 			logger.error("Coudln't recognize mapping type for node" + node);
-	    } else {
+	    } else if (setSource){
 	    	connection.setRubyCodeNode(node);
 	    }
 		return connection;

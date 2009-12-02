@@ -233,9 +233,7 @@ public class ConnectionReconnectCommand extends Command {
 
 	private void removeRubbyMapping(Shape source, Shape target,
 			final Connection.Side side, String comment, Integer arrayNumber) {
-		RootNodeHolder.getInstance().removeMapping(source, target,
-				Connection.translateSideFromIntToString(side), comment,
-				arrayNumber);
+		RootNodeHolder.getInstance().removeMapping(connection.getRubyCodeNode());
 	}
 
 }

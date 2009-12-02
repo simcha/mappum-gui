@@ -931,6 +931,8 @@ public class RootNodeHolder {
 			n = rightShapeList.size();
 		}
 		NewlineNode tmpNode = null;
+		NewlineNode outNode = null;
+		
 		for (int i = 0; i < n; i++) {
 
 			if ((leftShapeList.size() > 1 && rightShapeList.size() > 1)
@@ -1112,9 +1114,11 @@ public class RootNodeHolder {
 					tmpNode = generateSimpleMapping(leftNode, leftType,
 							selfNode, null, side, tmpNode,
 							LEFT_ELEM_ARRAY_CHANGE, arrayNumber);
+					outNode = tmpNode;
 				} else {
 					tmpNode = generateSimpleMapping(leftNode, leftType,
 							selfNode, null, side, tmpNode, null, null);
+					outNode = tmpNode;
 				}
 				leftShapeList.clear();
 				NewlineNode newLineNode;
@@ -1145,9 +1149,11 @@ public class RootNodeHolder {
 					tmpNode = generateSimpleMapping(selfNode, null, rightNode,
 							rightType, side, tmpNode, RIGHT_ELEM_ARRAY_CHANGE,
 							arrayNumber);
+					outNode = tmpNode;
 				} else {
 					tmpNode = generateSimpleMapping(selfNode, null, rightNode,
 							rightType, side, tmpNode, null, null);
+					outNode = tmpNode;
 				}
 				rightShapeList.clear();
 				NewlineNode newLineNode;
@@ -1159,7 +1165,7 @@ public class RootNodeHolder {
 			}
 			node = tmpNode;
 		}
-		return node;
+		return outNode;
 
 	}
 
@@ -1172,70 +1178,86 @@ public class RootNodeHolder {
 	 * @param comment
 	 * @throws Exception
 	 */
-	public void removeMapping(Shape leftShape, Shape rightShape, String side,
-			String comment, Integer arrayNumber) {
-		List<Integer> path;
-		if (arrayNumber != null) {
-			path = findMappingPath(leftShape, rightShape, arrayNumber);
-		} else {
-			path = findMappingPath(leftShape, rightShape);
-		}
-		NewlineNode node = findRootMappingNode(rootNode);
-		List<NewlineNode> mappingNodesStack = new ArrayList<NewlineNode>();
-		mappingNodesStack.add(node);
-		for (int i : path) {
-			node = (NewlineNode) getBlockNode(node).get(i);
-			mappingNodesStack.add(node);
-		}
-
-		List<Shape> leftShapeList = leftShape.getShapeStack();
-		List<Shape> rightShapeList = rightShape.getShapeStack();
-		if (leftShapeList.size() != rightShapeList.size()) {
-			int selfSide = leftShapeList.size() - rightShapeList.size();
-			if (selfSide == 1 && rightShapeList.size() == path.size()) {
-				for (Node child : getBlockNode(
-						mappingNodesStack.get(mappingNodesStack.size() - 1))
-						.childNodes()) {
-					if (child instanceof NewlineNode) {
-						if (mappingExists(leftShape.getName(), "self",
-								(NewlineNode) child)) {
-							mappingNodesStack.add((NewlineNode) child);
-						}
-					}
-				}
-			} else if (selfSide == -1 && leftShapeList.size() == path.size()) {
-				for (Node child : getBlockNode(
-						mappingNodesStack.get(mappingNodesStack.size() - 1))
-						.childNodes()) {
-					if (child instanceof NewlineNode) {
-						if (mappingExists("self", rightShape.getName(),
-								(NewlineNode) child)) {
-							mappingNodesStack.add((NewlineNode) child);
-						}
-					}
-				}
-			}
-
-		}
-
-		Collections.reverse(mappingNodesStack);
-		BlockNode parentBlockNode = null;
-		for (int i = 0; i + 1 < mappingNodesStack.size(); i++) {
-			NewlineNode parent = mappingNodesStack.get(i + 1);
-			NewlineNode child = mappingNodesStack.get(i);
-			parentBlockNode = getBlockNode(mappingNodesStack.get(i + 1));
+	public void removeMapping(NewlineNode nodeToRemove) {
+		Node parentNode = getParentNode(nodeToRemove, rootNode);
+		if (parentNode instanceof BlockNode) {
+			BlockNode blockNode = (BlockNode) parentNode;
+			parentNode.childNodes().remove(nodeToRemove);
+			
 			NewlineNode commentNode = null;
-			if ((commentNode = getChildBefore(parent, child)) != null) {
+			if ((commentNode = getChildBefore(blockNode, nodeToRemove)) != null) {
 				if (commentNode.getNextNode() != null
 						&& commentNode.getNextNode() instanceof XStrNode) {
-					parentBlockNode.childNodes().remove(commentNode);
+					parentNode.childNodes().remove(commentNode);
 				}
 			}
-			parentBlockNode.childNodes().remove(mappingNodesStack.get(i));
-			if (parentBlockNode.childNodes().size() != 0) {
-				break;
-			}
+		} else if (parentNode instanceof NewlineNode){
+			removeMapping((NewlineNode) parentNode);
 		}
+		
+		
+//		List<Integer> path;
+//		if (arrayNumber != null) {
+//			path = findMappingPath(leftShape, rightShape, arrayNumber);
+//		} else {
+//			path = findMappingPath(leftShape, rightShape);
+//		}
+//		NewlineNode node = findRootMappingNode(rootNode);
+//		List<NewlineNode> mappingNodesStack = new ArrayList<NewlineNode>();
+//		mappingNodesStack.add(node);
+//		for (int i : path) {
+//			node = (NewlineNode) getBlockNode(node).get(i);
+//			mappingNodesStack.add(node);
+//		}
+//
+//		List<Shape> leftShapeList = leftShape.getShapeStack();
+//		List<Shape> rightShapeList = rightShape.getShapeStack();
+//		if (leftShapeList.size() != rightShapeList.size()) {
+//			int selfSide = leftShapeList.size() - rightShapeList.size();
+//			if (selfSide == 1 && rightShapeList.size() == path.size()) {
+//				for (Node child : getBlockNode(
+//						mappingNodesStack.get(mappingNodesStack.size() - 1))
+//						.childNodes()) {
+//					if (child instanceof NewlineNode) {
+//						if (mappingExists(leftShape.getName(), "self",
+//								(NewlineNode) child)) {
+//							mappingNodesStack.add((NewlineNode) child);
+//						}
+//					}
+//				}
+//			} else if (selfSide == -1 && leftShapeList.size() == path.size()) {
+//				for (Node child : getBlockNode(
+//						mappingNodesStack.get(mappingNodesStack.size() - 1))
+//						.childNodes()) {
+//					if (child instanceof NewlineNode) {
+//						if (mappingExists("self", rightShape.getName(),
+//								(NewlineNode) child)) {
+//							mappingNodesStack.add((NewlineNode) child);
+//						}
+//					}
+//				}
+//			}
+//
+//		}
+//
+//		Collections.reverse(mappingNodesStack);
+//		BlockNode parentBlockNode = null;
+//		for (int i = 0; i + 1 < mappingNodesStack.size(); i++) {
+//			NewlineNode parent = mappingNodesStack.get(i + 1);
+//			NewlineNode child = mappingNodesStack.get(i);
+//			parentBlockNode = getBlockNode(mappingNodesStack.get(i + 1));
+//			NewlineNode commentNode = null;
+//			if ((commentNode = getChildBefore(parent, child)) != null) {
+//				if (commentNode.getNextNode() != null
+//						&& commentNode.getNextNode() instanceof XStrNode) {
+//					parentBlockNode.childNodes().remove(commentNode);
+//				}
+//			}
+//			parentBlockNode.childNodes().remove(mappingNodesStack.get(i));
+//			if (parentBlockNode.childNodes().size() != 0) {
+//				break;
+//			}
+//		}
 	}
 
 	/**
@@ -1249,6 +1271,11 @@ public class RootNodeHolder {
 	private NewlineNode getChildBefore(NewlineNode parent,
 			NewlineNode childAfter) {
 		BlockNode parentBlockNode = getBlockNode(parent);
+		return getChildBefore(parentBlockNode, childAfter);
+	}
+
+	private NewlineNode getChildBefore(BlockNode parentBlockNode,
+			NewlineNode childAfter) {
 		for (int i = 0; i < parentBlockNode.childNodes().size(); i++) {
 			if (parentBlockNode.childNodes().get(i).equals(childAfter)) {
 				if (i > 0) {
