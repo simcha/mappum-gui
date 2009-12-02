@@ -224,21 +224,25 @@ public class ModelGenerator {
 			if (child instanceof FCallNode)
 				mappingType = checkMappingType((FCallNode) child);
 		}
+		Connection connection = null;
 		switch (mappingType) {
 		case MAP_WITH_FUNCTION:
 			FCallNode functnode = (FCallNode) node.childNodes().get(0);
-			return operateOnMapWithFunction(functnode, parents, comment,
-					leftAlias, rightAlias);
+			connection = operateOnMapWithFunction(functnode, parents, comment,
+							leftAlias, rightAlias);
+			break;
 		case MAP_WITH_CONSTANT:
 			CallNode mapnode = (CallNode) node.childNodes().get(0).childNodes()
 					.get(0).childNodes().get(0);
-			return operateOnMapWithConstant(mapnode, parents, comment,
+			connection =  operateOnMapWithConstant(mapnode, parents, comment,
 					leftAlias, rightAlias);
+			break;
 		case SIMPLE_MAP_OR_WITH_FUNCTION_CALL:
 			CallNode callnode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
-			return operateOnSimpleMapOrWithFunctionCall(callnode, parents,
+			connection =  operateOnSimpleMapOrWithFunctionCall(callnode, parents,
 					comment, leftAlias, rightAlias);
+			break;
 			// case SIMPLE_ARRAY_MAP:
 			// CallNode arrayCallNode = (CallNode) node.childNodes().get(0)
 			// .childNodes().get(0).childNodes().get(0);
@@ -247,31 +251,39 @@ public class ModelGenerator {
 			// narazie zwykle mapowanie
 			CallNode dictionaryCallnode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
-			return operateOnSimpleMapOrWithFunctionCall(dictionaryCallnode,
+			connection =  operateOnSimpleMapOrWithFunctionCall(dictionaryCallnode,
 					parents, comment, leftAlias, rightAlias);
+			break;
 		case MAP_WITH_SUBOBJECT:
 			FCallNode subobjectFcallnode = (FCallNode) node.childNodes().get(0);
-			return operateOnMapWithSubobject(subobjectFcallnode, parents,
+			connection = operateOnMapWithSubobject(subobjectFcallnode, parents,
 					comment, leftAlias, rightAlias);
+			break;
 		case MAP_WITH_SELF:
 			CallNode selfCallnode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
-			return operateOnMapWithSelf(selfCallnode, parents, comment,
+			connection =  operateOnMapWithSelf(selfCallnode, parents, comment,
 					leftAlias, rightAlias);
+			break;
 		case MAP_WITH_SUBMAP:
 			FCallNode submapFcallnode = (FCallNode) node.childNodes().get(0);
-			return operateOnMapWithSubmap(submapFcallnode, parents, comment,
+			connection = operateOnMapWithSubmap(submapFcallnode, parents, comment,
 					leftAlias, rightAlias);
+			break;
 		case MAP_WITH_CODE:
 			// TODO obsluga kodu (narazie zwykle proste mapowanie)
 			CallNode MapWithCodeNode = (CallNode) node.childNodes().get(0)
 					.childNodes().get(0).childNodes().get(0);
-			return operateOnSimpleMapOrWithFunctionCall(MapWithCodeNode,
+			connection = operateOnSimpleMapOrWithFunctionCall(MapWithCodeNode,
 					parents, comment, leftAlias, rightAlias);
-		default:
-			logger.error("Coudln't recognize mapping type for node" + node);
-			return null;
+			break;
 		}
+	    if (connection == null){
+			logger.error("Coudln't recognize mapping type for node" + node);
+	    } else {
+	    	connection.setRubyCodeNode(node);
+	    }
+		return connection;
 
 	}
 
@@ -466,13 +478,16 @@ public class ModelGenerator {
 		String leftChildAlias = null;
 		String rightChildAlias = null;
 		Connection connection = null;
-		CallNode parentCallNode = (CallNode) subobjectFcallnode.childNodes()
+		List<Node> childNodes = subobjectFcallnode.childNodes();
+		CallNode parentCallNode = (CallNode) childNodes
 				.get(0).childNodes().get(0);
-
-		BlockNode blockNode = (BlockNode) subobjectFcallnode.childNodes()
+		if(childNodes == null || childNodes.size() < 2){
+			return null;
+		}
+		BlockNode blockNode = (BlockNode) childNodes
 				.get(1).childNodes().get(1);
 		final StringBuffer childComment = new StringBuffer();
-		IterNode iterNode = (IterNode) subobjectFcallnode.childNodes().get(1);
+		IterNode iterNode = (IterNode) childNodes.get(1);
 		if (iterNode.getVarNode() instanceof MultipleAsgnNode) {
 			DAsgnNode asgnLeftNode = (DAsgnNode) iterNode.getVarNode()
 					.childNodes().get(0).childNodes().get(0);
@@ -562,6 +577,10 @@ public class ModelGenerator {
 				.childNodes().get(0);
 		Pair mainPair = createShapesPair(parentCallNode, parents, leftAlias,
 				rightAlias);
+		List<Node> childNodes = fcallnode.childNodes();
+		if(childNodes == null || childNodes.size() < 2){
+			return null;
+		}
 		IterNode iterNode = (IterNode) fcallnode.childNodes().get(1);
 		final StringBuilder childComment = new StringBuilder();
 		if (iterNode.getVarNode() instanceof MultipleAsgnNode) {
@@ -587,6 +606,7 @@ public class ModelGenerator {
 							rightChildAlias);
 					childComment.setLength(0);
 					if (connection != null) {
+						connection.setRubyCodeNode((NewlineNode)node);
 						if (mainPair.getLeftShape().isArrayType()
 								&& !mainPair.getRightShape().isArrayType()) {
 							if (mainPair.getLeftShape().getArrayCounters()
@@ -617,6 +637,7 @@ public class ModelGenerator {
 							rightChildAlias);
 					childComment.setLength(0);
 					if (connection != null) {
+						connection.setRubyCodeNode((NewlineNode)node);
 						if (mainPair.getLeftShape().isArrayType()
 								&& !mainPair.getRightShape().isArrayType()) {
 							if (mainPair.getLeftShape().getArrayCounters()
@@ -688,9 +709,28 @@ public class ModelGenerator {
 
 	private Pair createShapesPair(CallNode callnode, Pair parents,
 			String leftAlias, String rightAlias) throws Exception {
-		return new Pair(createLeftShape(callnode, parents, leftAlias,
-				rightAlias), createRightShape(callnode, parents, leftAlias,
-				rightAlias));
+		Shape leftShape = createLeftShape(callnode, parents, leftAlias,
+						rightAlias);
+		Shape rightShape = createRightShape(callnode, parents, leftAlias,
+				rightAlias);
+		if (leftShape == null) {
+			if (rightShape == null || rightShape.getParent() == null
+					|| rightShape.getParent() == parents.getRightShape()) {
+				leftShape = parents.getLeftShape();
+			} else {
+				leftShape = parents.getRightShape();
+			}
+		} else {
+			if (rightShape == null || leftShape.getParent() == null
+					|| leftShape.getParent() == parents.getLeftShape()) {
+				rightShape = parents.getRightShape();
+			} else {
+				rightShape = parents.getLeftShape();
+			}
+		}
+		
+		
+		return new Pair(leftShape, rightShape);
 	}
 
 	/**
@@ -745,9 +785,10 @@ public class ModelGenerator {
 				}
 			}
 		}
-		if (leftShape == null) {
-			throw new Exception("Ruby map has errors for node: " + callnode);
-		}
+		//When null use parent shape
+//		if (leftShape == null) {
+//			throw new Exception("Ruby map has errors for node: " + callnode);
+//		}
 		return leftShape;
 
 	}
@@ -804,9 +845,10 @@ public class ModelGenerator {
 				}
 			}
 		}
-		if (rightShape == null) {
-			throw new Exception("Ruby map has errors for node: " + callnode);
-		}
+		//When null use parent shape
+//		if (rightShape == null) {
+//			throw new Exception("Ruby map has errors for node: " + callnode);
+//		}
 		return rightShape;
 
 	}
